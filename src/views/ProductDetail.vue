@@ -8,7 +8,8 @@ const product = ref({})
 
 onMounted(async () => {
   try {
-    const data = await getDataById(`http://localhost:8080/itb-mshop/v1/sale-items`, route.params.id)
+    const data = await getDataById(`http://ip24sc3.sit.kmutt.ac.th:8080/itb-mshop/v1/sale-items`, route.params.id)
+    // const data = await getDataById(`http://localhost:8080/itb-mshop/v1/sale-items`, route.params.id)
     product.value = data
     console.log(product.value)
   } catch (error) {

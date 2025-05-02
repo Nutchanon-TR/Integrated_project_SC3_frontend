@@ -9,7 +9,8 @@ const product = ref([])
 
 onMounted(async () => {
     try {
-        const data = await getAllData('http://localhost:8080/itb-mshop/v1/sale-items')
+        const data = await getAllData('http://ip24sc3.sit.kmutt.ac.th:8080/itb-mshop/v1/sale-items')
+        // const data = await getAllData('http://localhost:8080/itb-mshop/v1/sale-items')
         product.value = data
         console.log(data)
         console.log(product.value)
