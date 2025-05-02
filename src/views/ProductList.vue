@@ -6,10 +6,11 @@ import { getAllData } from "../libs/api.js";
 import SelectAll from '@/components/SelectAll.vue';
 
 const product = ref([])
+const ROOT_API_URL = import.meta.env.ROOT_API_URL;
 
 onMounted(async () => {
     try {
-        const data = await getAllData('http://ip24sc3.sit.kmutt.ac.th:8080/itb-mshop/v1/sale-items')
+        const data = await getAllData(ROOT_API_URL + '/itb-mshop/v1/sale-items')
         // const data = await getAllData('http://localhost:8080/itb-mshop/v1/sale-items')
         product.value = data
         console.log(data)

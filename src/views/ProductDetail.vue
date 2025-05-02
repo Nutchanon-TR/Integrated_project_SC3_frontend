@@ -5,10 +5,11 @@ import { getDataById } from "../libs/api.js";
 
 const route = useRoute()
 const product = ref({})
+const ROOT_API_URL = import.meta.env.ROOT_API_URL;
 
 onMounted(async () => {
   try {
-    const data = await getDataById(`http://ip24sc3.sit.kmutt.ac.th:8080/itb-mshop/v1/sale-items`, route.params.id)
+    const data = await getDataById(ROOT_API_URL+`/itb-mshop/v1/sale-items`, route.params.id)
     // const data = await getDataById(`http://localhost:8080/itb-mshop/v1/sale-items`, route.params.id)
     product.value = data
     console.log(product.value)
