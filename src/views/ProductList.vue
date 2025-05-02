@@ -6,17 +6,19 @@ import { getAllData } from "../libs/api.js";
 import SelectAll from '@/components/SelectAll.vue';
 
 const product = ref([])
-const ROOT_API_URL = import.meta.env.ROOT_API_URL;
+const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
 
 onMounted(async () => {
     try {
-        const data = await getAllData(ROOT_API_URL + '/itb-mshop/v1/sale-items')
+        const data = await getAllData(VITE_ROOT_API_URL + '/itb-mshop/v1/sale-items')
         // const data = await getAllData('http://localhost:8080/itb-mshop/v1/sale-items')
         product.value = data
         console.log(data)
         console.log(product.value)
     } catch (error) {
         console.log('โหลดข้อมูลสินค้าไม่สำเร็จ:', error.message);
+        console.log('Error Bro eiei');
+        console.log('Error noob: '+ROOT_API_URL + '/itb-mshop/v1/sale-items');
     };
 
 })
