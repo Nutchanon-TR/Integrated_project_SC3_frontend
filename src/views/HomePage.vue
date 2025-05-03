@@ -19,7 +19,7 @@ import { RouterLink } from "vue-router";
         <p class="text-lg sm:text-xl mb-6">
           Discover amazing deals on top brands and new arrivals.
         </p>
-        <RouterLink to="/products">
+        <RouterLink to="/sale-items">
           <button
             class="bg-blue-600 text-white text-lg px-6 py-3 rounded hover:bg-blue-700 transition"
           >

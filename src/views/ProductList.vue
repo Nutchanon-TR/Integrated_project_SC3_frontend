@@ -16,16 +16,14 @@ onMounted(async () => {
     } catch (error) {
         console.log('โหลดข้อมูลสินค้าไม่สำเร็จ:', error.message);
         console.log('Error Bro eiei');
-        console.log('Error noob: '+ROOT_API_URL + '/itb-mshop/v1/sale-items');
+        console.log('Error noob: ' + VITE_ROOT_API_URL + '/itb-mshop/v1/sale-items');
     };
 
 })
 </script>
 <template>
- <SelectAll 
-    :product="product"
-    />
-  </template>
+    <SelectAll :product="product" />
+</template>
 
 
 <style scoped></style>
