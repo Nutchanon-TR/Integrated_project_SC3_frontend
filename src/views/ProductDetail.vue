@@ -2,7 +2,7 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { getDataById } from "../libs/api.js";
-import {unitPrice} from "./../libs/utils.js"
+import {unitPrice,nullCatching} from "./../libs/utils.js"
 
 const route = useRoute();
 const product = ref({});
@@ -64,16 +64,16 @@ onMounted(async () => {
             >price {{unitPrice(product.price) }} บาท</span
           >
           <span class="bg-blue-50 px-3 py-1 rounded-full"
-            >ramGb {{ product.ramGb }} GB RAM</span
+            >ramGb {{ nullCatching(product.ramGb) }} GB RAM</span
           >
           <span class="bg-blue-50 px-3 py-1 rounded-full"
-            >storageGb {{ product.storageGb }} GB</span
+            >storageGb {{ nullCatching(product.storageGb) }} GB</span
           >
           <span class="bg-blue-50 px-3 py-1 rounded-full"
-            >color {{ product.color }}</span
+            >color {{ nullCatching(product.color) }}</span
           >
           <span class="bg-blue-50 px-3 py-1 rounded-full"
-            >screenSizeInch {{ product.screenSizeInch }}</span
+            >screenSizeInch {{ nullCatching(product.screenSizeInch) }}</span
           >
           <span class="bg-blue-50 px-3 py-1 rounded-full"
             >quantity {{ product.quantity }}</span

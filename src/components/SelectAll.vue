@@ -1,5 +1,5 @@
 <script setup>
-import {unitPrice} from "./../libs/utils.js"
+import {unitPrice,nullCatching} from "./../libs/utils.js"
 const props = defineProps({
     product: Array
 }) 
@@ -29,7 +29,7 @@ const props = defineProps({
           />
           <h2 class="text-md font-semibold text-gray-800 truncate">{{ item.brandName }}</h2>
           <p class="text-gray-600 text-sm">{{ item.model }}</p>
-          <p class="text-gray-500 text-sm mt-2">{{ item.ramGb }}/{{ item.storageGb }} GB</p>
+          <p class="text-gray-500 text-sm mt-2">{{ nullCatching(item.ramGb) }}/{{ nullCatching(item.storageGb) }} GB</p>
           <p class="text-blue-600 font-bold mt-auto text-right">{{ unitPrice(item.price) }} บาท</p>
         </RouterLink>
       </div>

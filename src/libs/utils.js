@@ -6,4 +6,9 @@ function unitPrice(price) {
      }
  }
 
- export { unitPrice };
+ function nullCatching(data) {
+     return (data === null || data === undefined) ? "-" : data;
+
+ }
+
+ export { unitPrice ,nullCatching};
