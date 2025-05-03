@@ -1,8 +1,7 @@
 <script setup>
+import {unitPrice} from "./../libs/utils.js"
 const props = defineProps({
-    product: {
-        type: Array,
-    }
+    product: Array
 }) 
 
 </script>
@@ -28,14 +27,13 @@ const props = defineProps({
             alt="product image"
             class="w-[300px] h-auto rounded shadow"
           />
-          <h2 class="text-md font-semibold text-gray-800 truncate">{{ item.model }}</h2>
-          <p class="text-gray-600 text-sm">{{ item.brandName }}</p>
-          <p class="text-blue-600 font-bold mt-auto text-right">{{ item.price }} บาท</p>
+          <h2 class="text-md font-semibold text-gray-800 truncate">{{ item.brandName }}</h2>
+          <p class="text-gray-600 text-sm">{{ item.model }}</p>
+          <p class="text-gray-500 text-sm mt-2">{{ item.ramGb }}/{{ item.storageGb }} GB</p>
+          <p class="text-blue-600 font-bold mt-auto text-right">{{ unitPrice(item.price) }} บาท</p>
         </RouterLink>
       </div>
   
     </div>
   </template>
   
-
-<style scoped></style>

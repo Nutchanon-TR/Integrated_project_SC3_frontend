@@ -1,7 +1,5 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
-import navbar from "../components/navbar.vue";
 import { getAllData } from "../libs/api.js";
 import SelectAll from '@/components/SelectAll.vue';
 
@@ -24,9 +22,7 @@ onMounted(async () => {
 })
 </script>
 <template>
-    <navbar />
-  
-    <SelectAll 
+ <SelectAll 
     :product="product"
     />
   </template>
