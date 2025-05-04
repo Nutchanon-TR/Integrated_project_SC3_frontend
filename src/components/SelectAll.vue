@@ -11,7 +11,7 @@ const props = defineProps({
   
       <!-- แสดงเมื่อ array ว่าง -->
       <div v-if="!product || product.length === 0" class="text-center text-gray-500 text-xl">
-        No item
+        No Sale item
       </div>
   
       <!-- แสดงรายการสินค้าเมื่อมีข้อมูล -->
