@@ -1,10 +1,11 @@
 async function getAllData(url) {
     try{
         const data = await fetch(url);
+        if (data.status === 404) return undefined;
         const finalData = await data.json();
         return finalData;
     }catch(error){
-        throw new Error('Cannot get your data');
+        throw new Error(error);
     }
 }
 
@@ -15,7 +16,7 @@ async function getDataById(url, id) {
         const finalData = await data.json();
         return finalData
     }catch(error){
-        throw new Error('Cannot get your data by ID')
+        throw new Error(error)
     }
 }
 
