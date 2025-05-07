@@ -20,11 +20,59 @@ async function getDataById(url, id) {
     }
 }
 
+async function addData(url, newData) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...newData
+        })
+      })
+      const addedData = await res.json()
+      return addedData
+    } catch (error) {
+      throw new Error('can not add your Data')
+    }
+  }
+
+
+async function updateData(url, id, updatedData) {
+  try {
+    const res = await fetch(`${url}/${id}`, {
+      method: 'PUT', 
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedData),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to update data');
+    }
+    const updatedResponse = await res.json();
+    return updatedResponse;
+  } catch (error) {
+    throw new Error('Cannot update your data');
+  }
+}
+
+async function deleteUserById(url, id) {
+  try {
+    const res = await fetch(`${url}/${id}`, {
+      method: 'DELETE'
+    })
+    return res.status
+  } catch (error) {
+    throw new Error('can not delete your item')
+  }
+}
+
 export {
     getAllData,
     getDataById,
-    // addData,
-    // updateData,
-    // updateSomeData,
-    // deleteUserById,
+    addData,
+    updateData,
+    deleteUserById,
   };
