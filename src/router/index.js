@@ -4,6 +4,7 @@ import ProductList from "../views/ProductList.vue"
 import HomePage from '@/views/HomePage.vue'
 import ProductDetail from '@/views/ProductDetail.vue'
 import ProuctEdit from '@/views/ProuctEdit.vue'
+import ProuctCreate from '@/views/ProuctCreate.vue'
 
 
 
@@ -29,7 +30,13 @@ const router = createRouter({
       path: '/sale-items/:id/edit',
       name: 'Edit',
       component: ProuctEdit,
-      props: true
+      props:true
+    },
+    {
+      path: '/sale-items/create',
+      name: 'ProuctCreate',
+      component: ProuctCreate
+
     }
   ],
 })

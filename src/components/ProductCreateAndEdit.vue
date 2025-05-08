@@ -3,12 +3,13 @@ import { ref, reactive, onMounted, watchEffect } from "vue";
 import { addData, updateData ,getDataById} from "./../libs/api.js";
 import BlogProductCreateAndEdit from "./../components/BlogProductCreateAndEdit.vue";
 import BrandDropdown from "./BrandDropdown.vue";
-import { useRoute} from "vue-router";
+import { useRoute,useRouter} from "vue-router";
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
 
 const boxTextTailwind =
   "w-full p-2 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-blue-50";
   const route = useRoute();
+  const router = useRouter();
 const prop = defineProps({
     mode:{
       type:String
@@ -69,9 +70,10 @@ const saveProduct = async () => {
   if(prop.mode === "Edit"){
     await updateData(VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items` ,prop.productId,product)
   }
+  product.brand.id = 1
   console.log("Product saved:", product);
   await addData(VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`, product);
-
+  router.push(`/sale-items`)
 
 };
 
