@@ -1,17 +1,55 @@
 <script setup>
 import { ref, reactive, onMounted, watchEffect } from "vue";
-import { addData, updateData } from "./../libs/api.js";
+import { addData, updateData ,getDataById} from "./../libs/api.js";
 import BlogProductCreateAndEdit from "./../components/BlogProductCreateAndEdit.vue";
 import BrandDropdown from "./BrandDropdown.vue";
+import { useRoute} from "vue-router";
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
 
 const boxTextTailwind =
   "w-full p-2 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-blue-50";
+  const route = useRoute();
 const prop = defineProps({
     mode:{
       type:String
+    },
+
+    productId :{
+      type:[String, Number]
     }
+    // productId:{
+    //   type:Number
+    // },
+    // price:{
+    //   type:Number
+    // },
+    // model:{
+    //   type:String
+    // },
+    // brand:{
+    //   type:String
+    // },
+    // description:{
+    //   type:String
+    // },
+    // ramGb:{
+    //   type:Number
+    // },
+    // screenSizeInch:{
+    //   type:Number
+    // },
+    // quantity:{
+    //   type:Number
+    // },
+    // storageGb:{
+    //   type:Number
+    // },
+    // color:{
+    //   type:String
+    // }
+
 })
+
 let product = reactive({
   model: "",
   brand: {
@@ -28,14 +66,43 @@ let product = reactive({
 });
 
 const saveProduct = async () => {
+  if(prop.mode === "Edit"){
+    await updateData(VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items` ,prop.productId,product)
+  }
   console.log("Product saved:", product);
   await addData(VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`, product);
 
+
 };
 
-onMounted(() => {
+
+onMounted(async () => {
+  if(prop.mode === "Edit"){
+    try{
+      const data = await getDataById(VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`,route.params.id)
+      if (data == undefined) {
+      product.value = "404_not_found";
+      console.log("product.value: " + product.value);
+      setTimeout(() => {
+        router.push('/sale-items');
+      }, 2000);
+    }
+      product.model = data.model ;
+      product.brand.name = data.brandName;
+      product.description = data.description ;
+      product.price = data.price ;
+      product.ramGb = data.ramGb;
+      product.screenSizeInch = data.screenSizeInch;
+      product.quantity = data.quantity;
+      product.storageGb = data.storageGb;
+      product.color = data.color;
+    
+    }catch(error){
+      console.log(error)
+    }
+  }
   console.log("ProductCreateAndEdit mounted");
-  console.log(product);
+  console.log(product.value);
   console.log(product.screenSizeInch);
   
 });
