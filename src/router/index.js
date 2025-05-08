@@ -6,6 +6,7 @@ import ProductDetail from '@/views/ProductDetail.vue'
 import ProuctEdit from '@/views/ProuctEdit.vue'
 
 
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [

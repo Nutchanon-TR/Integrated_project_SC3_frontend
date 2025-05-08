@@ -1,7 +1,12 @@
 <script setup>
 import { ref, reactive, onMounted, watchEffect } from "vue";
 import { addData, updateData } from "./../libs/api.js";
+import BlogProductCreateAndEdit from "./../components/BlogProductCreateAndEdit.vue";
+import BrandDropdown from "./BrandDropdown.vue";
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
+
+const boxTextTailwind =
+  "w-full p-2 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-blue-50";
 
 let product = reactive({
   model: "",
@@ -50,178 +55,82 @@ watchEffect(() => {
 });
 </script>
 <template>
-  <div
-    class="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg border border-blue-200"
-  >
+  <div class="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg border border-blue-200">
     <h2 class="text-2xl font-bold text-blue-700 mb-6 text-center">
       Phone Details
     </h2>
-
     <div class="space-y-4">
-      <!-- Brand -->
-      <div class="flex flex-col sm:flex-row sm:items-center">
-        <label
-          for="brand"
-          class="font-medium text-gray-700 sm:w-48 mb-1 sm:mb-0"
-          >Brand</label>
-        <div class="w-full">
-          <select
-            id="brand"
-            v-model="product.brand.name"
-            class="itbms-brand w-full p-2 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-blue-50"
-          >
-            <option value="Apple">Apple</option>
-            <option value="Samsung">Samsung</option>
-            <option value="Xiaomi">Xiaomi</option>
-            <option value="Google">Google</option>
-            <option value="Huawei">Huawei</option>
-          </select>
+      <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-4">
+        <label for="brand" class="font-medium text-gray-700 sm:w-32 mb-1 sm:mb-0">
+          Brand
+        </label>
+        <div class="w-full sm:w-auto">
+          <BrandDropdown />
         </div>
       </div>
 
-      <!-- Model -->
-      <div class="flex flex-col sm:flex-row sm:items-center">
-        <label
-          for="model"
-          class="font-medium text-gray-700 sm:w-48 mb-1 sm:mb-0"
-          >Model</label
-        >
-        <div class="w-full">
-          <input
-            type="text"
-            id="model"
-            v-model="product.model"
-            class="itbms-model w-full p-2 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-blue-50"
-          />
-        </div>
-      </div>
 
-      <!-- Price -->
-      <div class="flex flex-col sm:flex-row sm:items-center">
-        <label
-          for="price"
-          class="font-medium text-gray-700 sm:w-48 mb-1 sm:mb-0"
-          >Price (Baht)</label
-        >
-        <div class="w-full">
-          <input
-            type="number"
-            id="price"
-            v-model="product.price"
-            class="itbms-price w-full p-2 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-blue-50"
-          />
-        </div>
-      </div>
+      <BlogProductCreateAndEdit>
+        <template #text> Model </template>
+        <template #inputText>
+          <input type="text" v-model="product.model" :class="`itbms-model ${boxTextTailwind}`" />
+        </template>
+      </BlogProductCreateAndEdit>
 
-      <!-- Description -->
-      <div class="flex flex-col sm:flex-row sm:items-start">
-        <label
-          for="description"
-          class="font-medium text-gray-700 sm:w-48 mb-1 sm:mb-0 pt-2"
-          >Description</label
-        >
-        <div class="w-full">
-          <textarea
-            id="description"
-            v-model="product.description"
-            rows="4"
-            class="itbms-description w-full p-2 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-blue-50"
-          ></textarea>
-        </div>
-      </div>
+      <BlogProductCreateAndEdit>
+        <template #text> Price (Baht) </template>
+        <template #inputText>
+          <input type="number" v-model="product.price" :class="`itbms-price ${boxTextTailwind}`" /></template>
+      </BlogProductCreateAndEdit>
 
-      <!-- RAM -->
-      <div class="flex flex-col sm:flex-row sm:items-center">
-        <label for="ram" class="font-medium text-gray-700 sm:w-48 mb-1 sm:mb-0"
-          >RAM (GB)</label
-        >
-        <div class="w-full">
-          <input
-            type="number"
-            id="ram"
-            v-model="product.ramGb"
-            class="itbms-ramGb w-full p-2 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-blue-50"
-          />
-        </div>
-      </div>
+      <BlogProductCreateAndEdit>
+        <template #text> Description </template>
+        <template #inputText>
+          <textarea v-model="product.description" rows="4" :class="`itbms-description ${boxTextTailwind}`"></textarea>
+        </template>
+      </BlogProductCreateAndEdit>
 
-      <!-- Screen Size -->
-      <div class="flex flex-col sm:flex-row sm:items-center">
-        <label
-          for="screenSize"
-          class="font-medium text-gray-700 sm:w-48 mb-1 sm:mb-0"
-          >Screen Size (Inches)</label
-        >
-        <div class="w-full">
-          <input
-            type="number"
-            id="screenSize"
-            v-model="product.screenSizeInch"
-            step="0.1"
-            class="itbms-screenSizeInch w-full p-2 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-blue-50"
-          />
-        </div>
-      </div>
+      <BlogProductCreateAndEdit>
+        <template #text> RAM (GB) </template>
+        <template #inputText>
+          <input type="number" v-model="product.ramGb" :class="`itbms-ramGb ${boxTextTailwind}`" /></template>
+      </BlogProductCreateAndEdit>
 
-      <!-- Storage -->
-      <div class="flex flex-col sm:flex-row sm:items-center">
-        <label
-          for="storage"
-          class="font-medium text-gray-700 sm:w-48 mb-1 sm:mb-0"
-          >Storage (GB)</label
-        >
-        <div class="w-full">
-          <input
-            type="number"
-            id="storage"
-            v-model="product.storageGb"
-            class="itbms-storageGb w-full p-2 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-blue-50"
-          />
-        </div>
-      </div>
+      <BlogProductCreateAndEdit>
+        <template #text> Screen Size (Inches) </template>
+        <template #inputText>
+          <input type="number" v-model="product.screenSizeInch" step="0.1"
+            :class="`itbms-screenSizeInch ${boxTextTailwind}`" />
+        </template>
+      </BlogProductCreateAndEdit>
 
-      <!-- Color -->
-      <div class="flex flex-col sm:flex-row sm:items-center">
-        <label
-          for="color"
-          class="font-medium text-gray-700 sm:w-48 mb-1 sm:mb-0"
-          >Color</label
-        >
-        <div class="w-full">
-          <input
-            type="text"
-            id="color"
-            v-model="product.color"
-            class="itbms-color w-full p-2 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-blue-50"
-          />
-        </div>
-      </div>
+      <BlogProductCreateAndEdit>
+        <template #text> Storage (GB) </template>
+        <template #inputText>
+          <input type="number" v-model="product.storageGb" :class="`itbms-storageGb ${boxTextTailwind}`" />
+        </template>
+      </BlogProductCreateAndEdit>
 
-      <!-- Quantity -->
-      <div class="flex flex-col sm:flex-row sm:items-center">
-        <label
-          for="quantity"
-          class="font-medium text-gray-700 sm:w-48 mb-1 sm:mb-0"
-          >Quantity</label
-        >
-        <div class="w-full">
-          <input
-            type="number"
-            id="quantity"
-            v-model="product.quantity"
-            class="itbms-quantity w-full p-2 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-blue-50"
-          />
-        </div>
-      </div>
+      <BlogProductCreateAndEdit>
+        <template #text> Color </template>
+        <template #inputText>
+          <input type="text" v-model="product.color" :class="`itbms-color ${boxTextTailwind}`" />
+        </template>
+      </BlogProductCreateAndEdit>
+
+      <BlogProductCreateAndEdit>
+        <template #text> Quantity </template>
+        <template #inputText>
+          <input type="number" v-model="product.quantity" :class="`itbms-quantity ${boxTextTailwind}`" />
+        </template>
+      </BlogProductCreateAndEdit>
     </div>
 
     <!-- Submit Button -->
     <div class="mt-8 flex justify-end">
-      <button
-        type="submit"
+      <button type="submit"
         class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        @click="saveProduct"
-      >
+        @click="saveProduct">
         Save
       </button>
     </div>
