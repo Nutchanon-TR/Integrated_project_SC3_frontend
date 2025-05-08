@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import ProductList from "../views/ProductList.vue"
 import HomePage from '@/views/HomePage.vue'
 import ProductDetail from '@/views/ProductDetail.vue'
+import BrandDropdown from '@/components/BrandDropdown.vue'
 
 
 const router = createRouter({
@@ -22,6 +23,11 @@ const router = createRouter({
       path: '/sale-items/:id',
       name: 'Detail',
       component: ProductDetail
+    },
+    {
+      path: '/brand',
+      name: 'Brand',
+      component: BrandDropdown
     }
   ],
 })
