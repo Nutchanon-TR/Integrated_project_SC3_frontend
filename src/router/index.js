@@ -3,6 +3,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import ProductList from "../views/ProductList.vue"
 import HomePage from '@/views/HomePage.vue'
 import ProductDetail from '@/views/ProductDetail.vue'
+import ProuctEdit from '@/views/ProuctEdit.vue'
+
 
 
 const router = createRouter({
@@ -22,6 +24,11 @@ const router = createRouter({
       path: '/sale-items/:id',
       name: 'Detail',
       component: ProductDetail
+    },
+    {
+      path: '/sale-items/:id/edit',
+      name: 'Edit',
+      component: ProuctEdit
     }
   ],
 })
