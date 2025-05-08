@@ -1,13 +1,20 @@
 <script setup>
+import { onMounted } from "vue";
 import { unitPrice, nullCatching } from "./../libs/utils.js"
 const props = defineProps({
   product: Array,
   default: () => []
 })
 
+onMounted(() => {
+  console.log('ProductList mounted')
+  console.log(props.product)
+})
+
 </script>
 
 <template>
+
   <div class="p-6 max-w-7xl mx-auto">
     <!-- แสดงเมื่อ array ว่าง -->
     <div v-if="!product || product.length === 0" class="itbms-no text-center text-gray-500 text-xl">
@@ -22,10 +29,11 @@ const props = defineProps({
           class="w-[300px] h-auto rounded shadow" />
         <h2 class="itbms-brand text-md font-semibold text-gray-800 truncate text-2xl mt-3">{{ item.brandName }}</h2>
         <p class="itbms-model text-gray-600 text-sm">{{ item.model }}</p>
-        <div class="flex flex-row">
-          <p class="itbms-ramGb text-gray-500 text-sm mt-2">{{ nullCatching(item.ramGb) }}</p>
-          <p class="itbms-storageGb text-gray-500 text-sm mt-2">{{ nullCatching(item.storageGb) }}</p>
-          <p class="itbms-storageGb-unit text-gray-500 text-sm mt-2">GB</p>
+        <div class="flex flex-row items-center space-x-1 mt-2 text-sm text-gray-500">
+          <p class="itbms-ramGb">{{ nullCatching(item.ramGb) }}</p>
+          <span>/</span>
+          <p class="itbms-storageGb">{{ nullCatching(item.storageGb) }}</p>
+          <p class="itbms-storageGb-unit">GB</p>
         </div>
         <div class="flex flex-row justify-end space-x-1 w-full">
           <p class="itbms-price text-blue-600 font-bold text-right">{{ unitPrice(item.price) }}</p>
