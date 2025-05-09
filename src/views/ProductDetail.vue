@@ -111,12 +111,6 @@ const addToCart = () => {
     </div>
 
 
-    <RouterLink :to="{ name: 'Edit', params: { id: 1 } }">
-      <button class="itbms-button text-blue-600 hover:underline text-sm">
-        Update sale item
-      </button>
-    </RouterLink>
-
 
     <!-- ปุ่มกลับไปหน้ารายการ -->
     <div class="mt-10">

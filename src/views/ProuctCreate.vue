@@ -5,5 +5,5 @@ import ProductCreateAndEdit from './../components/ProductCreateAndEdit.vue'
 
 <template>
 
-<ProductCreateAndEdit/>
+<ProductCreateAndEdit mode="create"/>
 </template>

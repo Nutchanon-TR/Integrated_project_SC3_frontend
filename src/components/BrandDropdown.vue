@@ -18,12 +18,14 @@ watchEffect(() => {
   }
 });
 
-const isOpen = ref(false);
-const selected = ref("All Brands");
-const options = ref([]);
-
-const URL = import.meta.env.VITE_ROOT_API_URL;
-
+const isOpen = ref(false)
+const selected = ref('All Brands')
+const options = ref([])
+const emit = defineEmits(["sendBranId"])
+const URL = import.meta.env.VITE_ROOT_API_URL
+const sendBran = () =>{
+  emit("sendBranId",options.id.value)
+}
 onMounted(async () => {
   try {
     const data = await getAllData(`${URL}/itb-mshop/v1/brands`);

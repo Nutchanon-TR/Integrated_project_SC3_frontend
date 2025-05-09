@@ -29,12 +29,14 @@ const router = createRouter({
     {
       path: '/sale-items/:id/edit',
       name: 'Edit',
-      component: ProuctEdit
+      component: ProuctEdit,
+      props:true
     },
     {
       path: '/sale-items/create',
       name: 'ProuctCreate',
       component: ProuctCreate
+
     }
   ],
 })

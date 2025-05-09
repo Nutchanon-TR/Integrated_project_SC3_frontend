@@ -15,6 +15,7 @@ onMounted(async () => {
       VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`,
       route.params.id
     );
+    
     // const data = await getDataById(`http://localhost:8080/itb-mshop/v1/sale-items`, route.params.id)
     if (data == undefined) {
       product.value = "404_not_found";
@@ -36,15 +37,7 @@ onMounted(async () => {
 </script>
 <template>
   <ProductCreateAndEdit
-    :productId="product.id"
-    :price="product.price"
-    :model="product.model"
-    :brand="product.brandName"
-    :description="product.description"
-    :ramGb="product.ramGb"
-    :screenSizeInch="product.screenSizeInch"
-    :quantity="product.quantity"
-    :storageGb="product.storageGb"
-    :color="product.color"
+    mode="Edit"
+    :product-id="route.params.id"
   />
 </template>
