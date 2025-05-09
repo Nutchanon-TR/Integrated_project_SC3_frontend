@@ -47,7 +47,7 @@ const isMenuOpen = ref(false)
         
         <div class="border-l border-gray-200 h-8 mx-1 xl:mx-2 hidden lg:block"></div>
         
-        <BrandDropdown />
+       
         
         <!-- Nav Links -->
         <div class="hidden lg:flex space-x-4 xl:space-x-6">

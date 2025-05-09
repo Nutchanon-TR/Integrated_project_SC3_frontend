@@ -9,7 +9,6 @@ const router = useRouter();
 const product = ref({});
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
 const loading = ref(true);
-const activeTab = ref('specifications');
 const quantity = ref(1);
 
 onMounted(async () => {
@@ -40,6 +39,9 @@ onMounted(async () => {
   }
 });
 
+
+
+// gen มา
 const decrementQuantity = () => {
   if (quantity.value > 1) {
     quantity.value--;
@@ -52,9 +54,8 @@ const incrementQuantity = () => {
   }
 };
 
-const addToCart = () => {
-  alert(`Added ${quantity.value} item(s) to cart`);
-};
+
+
 </script>
 
 <template>
@@ -75,56 +76,13 @@ const addToCart = () => {
       <!-- <h1 class="itbms-message text-2xl font-bold text-gray-800 mt-6">ไม่พบสินค้าที่ค้นหา</h1> -->
       <p class="itbms-message text-gray-600 mt-2">The requested sale item does not exist.</p>
 
-
-      <!-- รายละเอียดสินค้า -->
-      <div class="flex flex-col space-y-4">
-        <h1 class="itbms-brand text-3xl font-bold text-gray-800">{{ product.brandName }}</h1>
-        <p class="itbms-model text-lg text-gray-600">
-          แบรนด์: <span class="font-semibold">{{ product.model }}</span>
-        </p>
-
-        <div class="flex flex-wrap gap-4 text-blue-600 text-lg font-semibold">
-          <span class="itbms-price bg-blue-50 px-3 py-1 rounded-full">price {{ unitPrice(product.price) }}</span>
-          <span class="itbms-price-unit bg-blue-50 px-3 py-1 rounded-full">Baht</span>
-          <span class="itbms-description bg-blue-50 px-3 py-1 rounded-full">description: {{ product.description
-          }}</span>
-          <span class="itbms-ramGb bg-blue-50 px-3 py-1 rounded-full">ramGb {{ nullCatching(product.ramGb) }} GB
-            RAM</span>
-          <span class="itbms-ramGb-unit bg-blue-50 px-3 py-1 rounded-full">GB</span>
-          <span class="itbms-screenSizeInch bg-blue-50 px-3 py-1 rounded-full">screenSizeInch {{
-            nullCatching(product.screenSizeInch) }}</span>
-          <span class="itbms-screenSizeInch-unit bg-blue-50 px-3 py-1 rounded-full">Inches</span>
-          <span class="itbms-storageGb bg-blue-50 px-3 py-1 rounded-full">storageGb {{ nullCatching(product.storageGb)
-          }}</span>
-          <span class="itbms-storageGb-unit bg-blue-50 px-3 py-1 rounded-full">GB</span>
-          <span class="itbms-color bg-blue-50 px-3 py-1 rounded-full">color {{ nullCatching(product.color) }}</span>
-          <span class="itbms-quantity bg-blue-50 px-3 py-1 rounded-full">quantity {{ product.quantity }}</span>
-          <span class="itbms-quantity-unit bg-blue-50 px-3 py-1 rounded-full">units</span>
-        </div>
-
-        <p class="text-gray-700 leading-relaxed mt-4">
-          {{
-            product.description || "ไม่มีรายละเอียดเพิ่มเติมของสินค้าในขณะนี้"
-          }}
-        </p>
-      </div>
-    </div>
-
-
-
-    <!-- ปุ่มกลับไปหน้ารายการ -->
-    <div class="mt-10">
-      <RouterLink to="/sale-items">
-        <button class="itbms-button text-blue-600 hover:underline text-sm">
-          ← กลับไปหน้ารายการสินค้า
-
-        </button>
-      </RouterLink>
     </div>
   </div>
 
+
   <!-- Product Detail Page -->
   <div v-else class="itbms-row bg-gray-50 min-h-screen pb-12">
+
     <!-- Breadcrumb -->
     <div class="bg-white shadow-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
@@ -161,44 +119,17 @@ const addToCart = () => {
               <h1 class="itbms-brand text-3xl font-bold text-gray-800">{{ product.brandName }}</h1>
               <p class="itbms-model text-xl text-gray-700 mt-1">{{ product.model }}</p>
               <div class="mt-2 flex items-center">
-                <div class="flex items-center">
-                  <svg class="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 24 24">
-                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z">
-                    </path>
-                  </svg>
-                  <svg class="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 24 24">
-                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z">
-                    </path>
-                  </svg>
-                  <svg class="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 24 24">
-                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z">
-                    </path>
-                  </svg>
-                  <svg class="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 24 24">
-                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z">
-                    </path>
-                  </svg>
-                  <svg class="w-4 h-4 text-gray-300 fill-current" viewBox="0 0 24 24">
-                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z">
-                    </path>
-                  </svg>
-                  <span class="text-gray-600 ml-2 text-sm">(29 รีวิว)</span>
-                </div>
               </div>
             </div>
 
             <!-- Price and Stock -->
             <div class="py-4 border-b">
               <div class="flex items-baseline">
-                <span class="itbms-price text-3xl font-bold text-blue-600">฿{{ unitPrice(product.price) }}</span>
-                <span class="itbms-price-unit ml-1 text-lg text-gray-500">บาท</span>
+                <span class="itbms-price text-3xl font-bold text-blue-600">{{ unitPrice(product.price) }}</span>
+                <span class="itbms-price-unit ml-1 text-lg text-gray-500">Baht</span>
               </div>
 
               <div class="mt-2 flex items-center space-x-2">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  :class="product.quantity > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-                  {{ product.quantity > 0 ? 'พร้อมจัดส่ง' : 'สินค้าหมด' }}
-                </span>
                 <span class="text-sm text-gray-500">
                   สินค้าคงเหลือ: <span class="itbms-quantity font-medium">{{ product.quantity }}</span> ชิ้น
                 </span>
@@ -255,19 +186,15 @@ const addToCart = () => {
         </div>
       </div>
 
+
+      <!------------------------------------------------------------------------------------------------------------------------ -->
       <!-- Product Details Tabs -->
       <div class="mt-8 bg-white rounded-xl shadow-md overflow-hidden">
         <!-- Tabs -->
         <div class="border-b">
           <div class="flex">
-            <button @click="activeTab = 'specifications'"
-              class="py-4 px-6 font-medium text-sm transition focus:outline-none"
-              :class="activeTab === 'specifications' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-700 hover:text-blue-600'">
-              ข้อมูลจำเพาะ
-            </button>
-            <button @click="activeTab = 'description'"
-              class="py-4 px-6 font-medium text-sm transition focus:outline-none"
-              :class="activeTab === 'description' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-700 hover:text-blue-600'">
+            <button
+              class="py-4 px-6 font-medium text-sm transition focus:outline-none">
               รายละเอียด
             </button>
           </div>
@@ -276,7 +203,7 @@ const addToCart = () => {
         <!-- Tab Content -->
         <div class="p-6">
           <!-- Specifications Tab -->
-          <div v-if="activeTab === 'specifications'" class="space-y-6">
+          <div class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Left Column -->
               <div class="space-y-4">
@@ -284,11 +211,12 @@ const addToCart = () => {
                   <h3 class="font-medium text-gray-700 mb-2">หน่วยความจำ</h3>
                   <div class="grid grid-cols-3 gap-2">
                     <div class="col-span-1 text-sm text-gray-500">RAM:</div>
-                    <div class="col-span-2 text-sm font-medium itbms-ramGb">{{ nullCatching(product.ramGb) }} GB</div>
+                    <div class="col-span-2 text-sm font-medium itbms-ramGb">{{ nullCatching(product.ramGb) }}</div>
+                    <span class="itbms-ramGb-unit ml-1 text-lg text-gray-500">GB</span>
 
                     <div class="col-span-1 text-sm text-gray-500">Storage:</div>
-                    <div class="col-span-2 text-sm font-medium itbms-storageGb">{{ nullCatching(product.storageGb) }} GB
-                    </div>
+                    <div class="col-span-2 text-sm font-medium itbms-storageGb">{{ nullCatching(product.storageGb) }} GB</div>
+                    <span class="itbms-storageGb-unit ml-1 text-lg text-gray-500">GB</span>
                   </div>
                 </div>
 
@@ -297,7 +225,8 @@ const addToCart = () => {
                   <div class="grid grid-cols-3 gap-2">
                     <div class="col-span-1 text-sm text-gray-500">ขนาดจอ:</div>
                     <div class="col-span-2 text-sm font-medium itbms-screenSizeInch">{{
-                      nullCatching(product.screenSizeInch) }} นิ้ว</div>
+                      nullCatching(product.screenSizeInch) }}</div>
+                    <span class="itbms-screenSizeInch-unit ml-1 text-lg text-gray-500">Inches</span>
                   </div>
                 </div>
               </div>
@@ -318,38 +247,18 @@ const addToCart = () => {
                   </div>
                 </div>
               </div>
+
+              <div class="prose max-w-none">
+                <p class="itbms-description text-gray-700">{{ product.description || 'ไม่มีข้อมูลรายละเอียดสินค้า' }}
+                </p>
+
+                
+              </div>
             </div>
           </div>
 
           <!-- Description Tab -->
-          <div v-if="activeTab === 'description'" class="prose max-w-none">
-            <p class="itbms-description text-gray-700">{{ product.description || 'ไม่มีข้อมูลรายละเอียดสินค้า' }}</p>
 
-            <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-              <h3 class="text-base font-medium text-blue-800">คุณสมบัติเด่น</h3>
-              <ul class="mt-2 space-y-1">
-                <li class="flex items-start">
-                  <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                  </svg>
-                  <span>หน่วยความจำ {{ nullCatching(product.ramGb) }} GB RAM / {{ nullCatching(product.storageGb) }} GB
-                    ROM</span>
-                </li>
-                <li class="flex items-start">
-                  <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                  </svg>
-                  <span>หน้าจอขนาด {{ nullCatching(product.screenSizeInch) }} นิ้ว</span>
-                </li>
-                <li class="flex items-start">
-                  <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                  </svg>
-                  <span>รองรับการใช้งาน 4G/5G</span>
-                </li>
-              </ul>
-            </div>
-          </div>
         </div>
       </div>
 
