@@ -21,15 +21,22 @@ watchEffect(() => {
 const isOpen = ref(false)
 const selected = ref('All Brands')
 const options = ref([])
-const emit = defineEmits(["sendBranId"])
+const emit = defineEmits(["sendBranId","sendBranName"])
 const URL = import.meta.env.VITE_ROOT_API_URL
-const sendBran = () =>{
-  emit("sendBranId",options.id.value)
+const sendBrand = (name,id) =>{
+  selected.value = name
+  isOpen.value = false
+  prop.brandError = false
+  errorColor.value = "border-gray-300"
+  emit("sendBrandId",id)
+  emit("sendBrandName",name)
+  console.log("sendBrandId: ",name)
+  console.log("sendBrandId: ",id)
 }
 onMounted(async () => {
   try {
     const data = await getAllData(`${URL}/itb-mshop/v1/brands`);
-    options.value = data.map((brand) => brand.name);
+    options.value = data
     console.log("Brands loaded:", options.value);
     console.log("load brand input: ",prop.brandError);
   } catch (error) {
@@ -78,10 +85,11 @@ onMounted(async () => {
           @click="
             selected = option;
             isOpen = false;
+            sendBrand(option.name,option.id)
           "
           class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-700"
         >
-          {{ option }}
+          {{ option.name }}
         </button>
       </div>
     </div>

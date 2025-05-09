@@ -1,9 +1,9 @@
 <script setup>
 import { ref, reactive, onMounted, watchEffect, defineProps } from "vue";
-import { addData, updateData ,getDataById} from "./../libs/api.js";
+import { addData, updateData, getDataById } from "./../libs/api.js";
 import BlogProductCreateAndEdit from "./../components/BlogProductCreateAndEdit.vue";
 import BrandDropdown from "./BrandDropdown.vue";
-import { useRoute,useRouter} from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
 
 const boxTextTailwind =
@@ -17,30 +17,52 @@ let boxTextTailwindModel = ref(boxTextTailwind);
 let boxTextTailwindPrice = ref(boxTextTailwind);
 let boxTextTailwindQuantity = ref(boxTextTailwind);
 let boxTextTailwindDesc = ref(boxTextTailwind);
-  const route = useRoute();
-  const router = useRouter();
+const route = useRoute();
+const router = useRouter();
 const prop = defineProps({
-    mode:{
-      type:String
-    },
+  mode: {
+    type: String,
+  },
 
-    productId :{
-      type:[String, Number]
+  productId: {
+    type: [String, Number],
+  },
+});
+
+onMounted(async () => {
+  if (prop.mode === "Edit") {
+    try {
+      const data = await getDataById(
+        VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`,
+        route.params.id
+      );
+      if (data == undefined) {
+        product.value = "404_not_found";
+        console.log("product.value: " + product.value);
+        setTimeout(() => {
+          router.push("/sale-items");
+        }, 2000);
+      }
+      product.model = data.model;
+      product.brand.name = data.brandName;
+      product.description = data.description;
+      product.price = data.price;
+      product.ramGb = data.ramGb;
+      product.screenSizeInch = data.screenSizeInch;
+      product.quantity = data.quantity;
+      product.storageGb = data.storageGb;
+      product.color = data.color;
+    } catch (error) {
+      console.log(error);
     }
-})
-
-const trimField = (field) => {
-  if (typeof product[field] === 'string') {
-    product[field] = product[field].trim();
   }
-  console.log(product[field])
-};
+});
 
 let product = reactive({
   model: "",
   brand: {
-    id: 1,
-    name: "Apple",
+    id: null,
+    name: "",
   },
   description: "",
   price: null,
@@ -51,30 +73,43 @@ let product = reactive({
   color: "",
 });
 
+const trimField = (field) => {
+  if (typeof product[field] === "string") {
+    product[field] = product[field].trim();
+  }
+  console.log(product[field]);
+};
+
+const defaultQuantity = () => {
+  if (!Number(product.quantity) || product.quantity <= 0)
+    return (product.quantity = 1);
+  console.log(product.quantity);
+};
+
 const saveProduct = async () => {
-  boxTextTailwindModel.value= boxTextTailwind;
-  boxTextTailwindPrice.value= boxTextTailwind;
-  boxTextTailwindQuantity.value= boxTextTailwind;
-  boxTextTailwindDesc.value= boxTextTailwind;
+  boxTextTailwindModel.value = boxTextTailwind;
+  boxTextTailwindPrice.value = boxTextTailwind;
+  boxTextTailwindQuantity.value = boxTextTailwind;
+  boxTextTailwindDesc.value = boxTextTailwind;
   brandError.value = false;
+
   if (product.brand.id == null || product.brand.name == "") {
     console.log("Brand is not selected");
-    product.brand.id = 1
-    console.log(product.brand.id);
-    console.log(product.brand.name);
-    console.log(brandError.value);
     brandError.value = true;
   }
+
   if (product.model == "") {
     boxTextTailwindModel.value = boxTextTailwindError;
-    console.log(boxTextTailwindModel);
   }
+
   if (product.price == null || product.price <= 0) {
     boxTextTailwindPrice.value = boxTextTailwindError;
   }
-  if (product.quantity == null || product.quantity < 0) {
+
+  if (product.quantity == null || product.quantity <= 0) {
     boxTextTailwindQuantity.value = boxTextTailwindError;
   }
+
   if (product.description == "") {
     boxTextTailwindDesc.value = boxTextTailwindError;
   } else if (
@@ -96,68 +131,37 @@ const saveProduct = async () => {
       product
     );
   } else {
-    if(prop.mode === "Edit"){
-    await updateData(VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items` ,prop.productId,product)
+    if (prop.mode === "Edit") {
+      await updateData(
+        VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`,
+        prop.productId,
+        product
+      );
+    }
+    await addData(VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`, product);
+    router.push(`/sale-items`);
   }
-  product.brand.id = 1
-  console.log("Product saved:", product);
-  await addData(VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`, product);
-  router.push(`/sale-items`)
-  }
-  
 };
 
+// watchEffect(() => {
+//   if (product.brand.name == "Apple") {
+//     product.brand.id = 1;
+//   } else if (product.brand.name == "Samsung") {
+//     product.brand.id = 2;
+//   } else if (product.brand.name == "Xiaomi") {
+//     product.brand.id = 3;
+//   } else if (product.brand.name == "Google") {
+//     product.brand.id = 4;
+//   } else if (product.brand.name == "Huawei") {
+//     product.brand.id = 5;
+//   } else {
+//     product.brand.id = null;
+//   }
+// });
 
-onMounted(async () => {
-  if(prop.mode === "Edit"){
-    try{
-      const data = await getDataById(VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`,route.params.id)
-      if (data == undefined) {
-      product.value = "404_not_found";
-      console.log("product.value: " + product.value);
-      setTimeout(() => {
-        router.push('/sale-items');
-      }, 2000);
-    }
-      product.model = data.model ;
-      product.brand.name = data.brandName;
-      product.description = data.description ;
-      product.price = data.price ;
-      product.ramGb = data.ramGb;
-      product.screenSizeInch = data.screenSizeInch;
-      product.quantity = data.quantity;
-      product.storageGb = data.storageGb;
-      product.color = data.color;
-    
-    }catch(error){
-      console.log(error)
-    }
-  }
-  console.log("ProductCreateAndEdit mounted");
-  console.log(product.value);
-  console.log(product.screenSizeInch);
-  
-});
-
-watchEffect(() => {
-  if (product.brand.name == "Apple") {
-    product.brand.id = 1;
-  } else if (product.brand.name == "Samsung") {
-    product.brand.id = 2;
-  } else if (product.brand.name == "Xiaomi") {
-    product.brand.id = 3;
-  } else if (product.brand.name == "Google") {
-    product.brand.id = 4;
-  } else if (product.brand.name == "Huawei") {
-    product.brand.id = 5;
-  } else {
-    product.brand.id = null;
-  }
-});
-
-watchEffect(() => {
-  if (!Number(product.quantity)) return (product.quantity = 1);
-});
+// watchEffect(() => {
+//   if (!Number(product.quantity)) return (product.quantity = 1);
+// });
 </script>
 <template>
   <div
@@ -175,14 +179,23 @@ watchEffect(() => {
           Brand
         </label>
         <div class="w-full sm:w-auto">
-          <BrandDropdown :brandError="brandError" />
+          <BrandDropdown
+            :brandError="brandError"
+            @sendBrandId="handleBrandId"
+            @sendBrandName="handleBrandName"
+          />
         </div>
       </div>
 
       <BlogProductCreateAndEdit>
         <template #text> Model </template>
         <template #inputText>
-          <input type="text" v-model="product.model" @blur="trimField('model')" :class="`itbms-model ${boxTextTailwindModel}`" />
+          <input
+            type="text"
+            v-model="product.model"
+            @blur="trimField('model')"
+            :class="`itbms-model ${boxTextTailwindModel}`"
+          />
         </template>
       </BlogProductCreateAndEdit>
 
@@ -199,8 +212,12 @@ watchEffect(() => {
       <BlogProductCreateAndEdit>
         <template #text> Description </template>
         <template #inputText>
-          <textarea v-model="product.description" rows="4" @blur="trimField('description')" :class="`itbms-description ${boxTextTailwindDesc}`"></textarea>
-
+          <textarea
+            v-model="product.description"
+            rows="4"
+            @blur="trimField('description')"
+            :class="`itbms-description ${boxTextTailwindDesc}`"
+          ></textarea>
         </template>
       </BlogProductCreateAndEdit>
 
@@ -240,7 +257,12 @@ watchEffect(() => {
       <BlogProductCreateAndEdit>
         <template #text> Color </template>
         <template #inputText>
-          <input type="text" v-model="product.color" @blur="trimField('color')" :class="`itbms-color ${boxTextTailwind}`" />
+          <input
+            type="text"
+            v-model="product.color"
+            @blur="trimField('color')"
+            :class="`itbms-color ${boxTextTailwind}`"
+          />
         </template>
       </BlogProductCreateAndEdit>
 
@@ -248,6 +270,7 @@ watchEffect(() => {
         <template #text> Quantity </template>
         <template #inputText>
           <input
+            @blur="defaultQuantity()"
             type="number"
             v-model="product.quantity"
             :class="`itbms-quantity ${boxTextTailwindQuantity}`"
