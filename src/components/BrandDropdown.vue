@@ -1,6 +1,22 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { getAllData } from '@/libs/api'
+import { ref, onMounted,defineProps, watchEffect } from "vue";
+import { getAllData } from "@/libs/api";
+
+const prop = defineProps({
+  brandError: {
+    type: Boolean,
+  },
+});
+
+const errorColor = ref("border-gray-300");
+
+watchEffect(() => {
+  if(prop.brandError) {
+    errorColor.value = "border-red-300";
+  } else {
+    errorColor.value = "border-gray-300";
+  }
+});
 
 const isOpen = ref(false)
 const selected = ref('All Brands')
@@ -9,7 +25,7 @@ const options = ref([])
 const emit = defineEmits(["sendBranId","sendBranName"])
 const URL = import.meta.env.VITE_ROOT_API_URL
 
-const selectBrand = (option) => {
+const      selectBrand = (option) => {
   selected.value = option.name
   selectedBrandId.value = option.id
   isOpen.value = false
@@ -24,9 +40,9 @@ onMounted(async () => {
     const data = await getAllData(`${URL}/itb-mshop/v1/brands`)
     options.value = data
   } catch (error) {
-    console.error('โหลดข้อมูลแบรนด์ไม่สำเร็จ:', error.message)
+    console.error("โหลดข้อมูลแบรนด์ไม่สำเร็จ:", error.message);
   }
-})
+});
 </script>
 
 
@@ -55,6 +71,7 @@ onMounted(async () => {
     <div
       v-if="isOpen"
       class="absolute z-10 mt-2 w-full rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5"
+
     >
       <div class="py-1 max-h-60 overflow-y-auto">
         <button
@@ -69,6 +86,3 @@ onMounted(async () => {
     </div>
   </div>
 </template>
-
-
-  

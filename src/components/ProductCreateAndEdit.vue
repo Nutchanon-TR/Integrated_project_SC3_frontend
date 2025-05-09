@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onMounted, watchEffect } from "vue";
+import { ref, reactive, onMounted, watchEffect, defineProps } from "vue";
 import { addData, updateData, getDataById } from "./../libs/api.js";
 import BlogProductCreateAndEdit from "./../components/BlogProductCreateAndEdit.vue";
 import BrandDropdown from "./BrandDropdown.vue";
@@ -7,7 +7,18 @@ import { useRoute, useRouter } from "vue-router";
 
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
 
-const boxTextTailwind = "w-full p-2 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-blue-50";
+
+const boxTextTailwind =
+  "w-full p-2 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-blue-50";
+
+const boxTextTailwindError =
+  "w-full p-2 border border-red-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-blue-50";
+let brandError = ref(false);
+
+let boxTextTailwindModel = ref(boxTextTailwind);
+let boxTextTailwindPrice = ref(boxTextTailwind);
+let boxTextTailwindQuantity = ref(boxTextTailwind);
+let boxTextTailwindDesc = ref(boxTextTailwind);
 const route = useRoute();
 const router = useRouter();
 const prop = defineProps({
@@ -18,38 +29,14 @@ const prop = defineProps({
   productId: {
     type: [String, Number]
   }
-  // productId:{
-  //   type:Number
-  // },
-  // price:{
-  //   type:Number
-  // },
-  // model:{
-  //   type:String
-  // },
-  // brand:{
-  //   type:String
-  // },
-  // description:{
-  //   type:String
-  // },
-  // ramGb:{
-  //   type:Number
-  // },
-  // screenSizeInch:{
-  //   type:Number
-  // },
-  // quantity:{
-  //   type:Number
-  // },
-  // storageGb:{
-  //   type:Number
-  // },
-  // color:{
-  //   type:String
-  // }
-
 })
+
+const trimField = (field) => {
+  if (typeof product[field] === 'string') {
+    product[field] = product[field].trim();
+  }
+  console.log(product[field])
+};
 
 let product = reactive({
   model: "",
@@ -69,25 +56,80 @@ let product = reactive({
 const isSaving = ref(false)
 
 
-const saveProduct = async () => {
-  if (isSaving.value) return; 
+// const saveProduct = async () => {
+//   if (isSaving.value) return;
+//   isSaving.value = true;
+
+//   try {
+//     if (prop.mode === "Edit") {
+//       await updateData(`${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`, prop.productId, product);
+//     } else {
+//       console.log("Product saved:", product);
+//       await addData(`${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`, product);
+//     }
+
+//     router.push(`/sale-items`);
+//   } catch (error) {
+//     console.error("Error saving product:", error);
+
+//   } finally {
+//     isSaving.value = false;
+//   }}
+
+  const saveProduct = async () => {
+    if (isSaving.value) return;
   isSaving.value = true;
-
-  try {
-    if (prop.mode === "Edit") {
-      await updateData(`${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`, prop.productId, product);
-    } else {
-      console.log("Product saved:", product);
-      await addData(`${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`, product);
-    }
-
-    router.push(`/sale-items`);
-  } catch (error) {
-    console.error("Error saving product:", error);
-    
-  } finally {
-    isSaving.value = false;
+  boxTextTailwindModel.value= boxTextTailwind;
+  boxTextTailwindPrice.value= boxTextTailwind;
+  boxTextTailwindQuantity.value= boxTextTailwind;
+  boxTextTailwindDesc.value= boxTextTailwind;
+  brandError.value = false;
+  if (product.brand.id == null || product.brand.name == "") {
+    console.log("Brand is not selected");
+    console.log(product.brand.id);
+    console.log(product.brand.name);
+    console.log(brandError.value);
+    brandError.value = true;
   }
+  if (product.model == "") {
+    boxTextTailwindModel.value = boxTextTailwindError;
+    console.log(boxTextTailwindModel);
+  }
+  if (product.price == null || product.price <= 0) {
+    boxTextTailwindPrice.value = boxTextTailwindError;
+  }
+  if (product.quantity == null || product.quantity < 0) {
+    boxTextTailwindQuantity.value = boxTextTailwindError;
+  }
+  if (product.description == "") {
+    boxTextTailwindDesc.value = boxTextTailwindError;
+  } else if (
+    product.brand.id == null ||
+    product.brand.name == "" ||
+    product.model == "" ||
+    product.price == null ||
+    product.price <= 0 ||
+    product.quantity == null ||
+    product.quantity < 0 ||
+    product.description == ""
+  ) {
+    return;
+  } else if (product.id) {
+    console.log("Product updated:", product);
+    await updateData(
+      VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`,
+      product.id,
+      product
+    );
+  } else {
+    if(prop.mode === "Edit"){
+    await updateData(VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items` ,prop.productId,product)
+  }
+  console.log("Product saved:", product);
+  await addData(VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`, product);
+  router.push(`/sale-items`)
+  }
+
 };
 
 
@@ -123,25 +165,25 @@ onMounted(async () => {
 
 });
 
-watchEffect(() => {
-  if (product.brand.name == "Apple") {
-    product.brand.id = 1;
-  } else if (product.brand.name == "Samsung") {
-    product.brand.id = 2;
-  } else if (product.brand.name == "Xiaomi") {
-    product.brand.id = 3;
-  } else if (product.brand.name == "Google") {
-    product.brand.id = 4;
-  } else if (product.brand.name == "Huawei") {
-    product.brand.id = 5;
-  } else {
-    product.brand.id = null;
-  }
-});
+// watchEffect(() => {
+//   if (product.brand.name == "Apple") {
+//     product.brand.id = 1;
+//   } else if (product.brand.name == "Samsung") {
+//     product.brand.id = 2;
+//   } else if (product.brand.name == "Xiaomi") {
+//     product.brand.id = 3;
+//   } else if (product.brand.name == "Google") {
+//     product.brand.id = 4;
+//   } else if (product.brand.name == "Huawei") {
+//     product.brand.id = 5;
+//   } else {
+//     product.brand.id = null;
+//   }
+// });
 
-watchEffect(() => {
-  if (!Number(product.quantity)) return (product.quantity = 1);
-});
+// watchEffect(() => {
+//   if (!Number(product.quantity)) return (product.quantity = 1);
+// });
 </script>
 
 
@@ -156,28 +198,30 @@ watchEffect(() => {
           Brand
         </label>
         <div class="w-full sm:w-auto">
-          <BrandDropdown />
+          <BrandDropdown :brandError="brandError" />
         </div>
       </div>
-
 
       <BlogProductCreateAndEdit>
         <template #text> Model </template>
         <template #inputText>
-          <input type="text" v-model="product.model" :class="`itbms-model ${boxTextTailwind}`" />
+          <input type="text" v-model="product.model" @blur="trimField('model')"
+            :class="`itbms-model ${boxTextTailwindModel}`" />
         </template>
       </BlogProductCreateAndEdit>
 
       <BlogProductCreateAndEdit>
         <template #text> Price (Baht) </template>
         <template #inputText>
-          <input type="number" v-model="product.price" :class="`itbms-price ${boxTextTailwind}`" /></template>
+          <input type="number" v-model="product.price" :class="`itbms-price ${boxTextTailwindPrice}`" /></template>
       </BlogProductCreateAndEdit>
 
       <BlogProductCreateAndEdit>
         <template #text> Description </template>
         <template #inputText>
-          <textarea v-model="product.description" rows="4" :class="`itbms-description ${boxTextTailwind}`"></textarea>
+          <textarea v-model="product.description" rows="4" @blur="trimField('description')"
+            :class="`itbms-description ${boxTextTailwindDesc}`"></textarea>
+
         </template>
       </BlogProductCreateAndEdit>
 
@@ -205,25 +249,26 @@ watchEffect(() => {
       <BlogProductCreateAndEdit>
         <template #text> Color </template>
         <template #inputText>
-          <input type="text" v-model="product.color" :class="`itbms-color ${boxTextTailwind}`" />
+          <input type="text" v-model="product.color" @blur="trimField('color')"
+            :class="`itbms-color ${boxTextTailwind}`" />
         </template>
       </BlogProductCreateAndEdit>
 
       <BlogProductCreateAndEdit>
         <template #text> Quantity </template>
         <template #inputText>
-          <input type="number" v-model="product.quantity" :class="`itbms-quantity ${boxTextTailwind}`" />
+          <input type="number" v-model="product.quantity" :class="`itbms-quantity ${boxTextTailwindQuantity}`" />
         </template>
       </BlogProductCreateAndEdit>
     </div>
 
     <!-- Submit Button -->
     <div class="mt-8 flex justify-end">
-      <button type="submit"
+       <button type="submit"
         class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         :disabled="isSaving" @click="saveProduct">
         {{ isSaving ? 'Saving...' : 'Save' }}
-      </button>
+        </button>
     </div>
   </div>
 </template>
