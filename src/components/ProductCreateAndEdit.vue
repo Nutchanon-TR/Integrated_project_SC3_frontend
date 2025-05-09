@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onMounted, watchEffect, defineProps } from "vue";
+import { ref, reactive, onMounted, watchEffect, defineProps,onBeforeMount } from "vue";
 import { addData, updateData, getDataById,getAllData } from "./../libs/api.js";
 import BlogProductCreateAndEdit from "./../components/BlogProductCreateAndEdit.vue";
 import BrandDropdown from "./BrandDropdown.vue";
@@ -44,7 +44,7 @@ let product = reactive({
   color: "",
 });
 
-onMounted(async () => {
+onBeforeMount(async () => {
   if (prop.mode === "Edit") {
     try {
       const data = await getDataById(
