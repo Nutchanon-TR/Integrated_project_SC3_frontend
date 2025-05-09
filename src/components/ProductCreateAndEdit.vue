@@ -18,38 +18,15 @@ const prop = defineProps({
     productId :{
       type:[String, Number]
     }
-    // productId:{
-    //   type:Number
-    // },
-    // price:{
-    //   type:Number
-    // },
-    // model:{
-    //   type:String
-    // },
-    // brand:{
-    //   type:String
-    // },
-    // description:{
-    //   type:String
-    // },
-    // ramGb:{
-    //   type:Number
-    // },
-    // screenSizeInch:{
-    //   type:Number
-    // },
-    // quantity:{
-    //   type:Number
-    // },
-    // storageGb:{
-    //   type:Number
-    // },
-    // color:{
-    //   type:String
-    // }
 
 })
+
+const trimField = (field) => {
+  if (typeof product[field] === 'string') {
+    product[field] = product[field].trim();
+  }
+  console.log(product[field])
+};
 
 let product = reactive({
   model: "",
@@ -148,7 +125,7 @@ watchEffect(() => {
       <BlogProductCreateAndEdit>
         <template #text> Model </template>
         <template #inputText>
-          <input type="text" v-model="product.model" :class="`itbms-model ${boxTextTailwind}`" />
+          <input type="text" v-model="product.model" @blur="trimField('model')" :class="`itbms-model ${boxTextTailwind}`" />
         </template>
       </BlogProductCreateAndEdit>
 
@@ -161,7 +138,7 @@ watchEffect(() => {
       <BlogProductCreateAndEdit>
         <template #text> Description </template>
         <template #inputText>
-          <textarea v-model="product.description" rows="4" :class="`itbms-description ${boxTextTailwind}`"></textarea>
+          <textarea v-model="product.description" rows="4" @blur="trimField('description')" :class="`itbms-description ${boxTextTailwind}`"></textarea>
         </template>
       </BlogProductCreateAndEdit>
 
@@ -189,7 +166,7 @@ watchEffect(() => {
       <BlogProductCreateAndEdit>
         <template #text> Color </template>
         <template #inputText>
-          <input type="text" v-model="product.color" :class="`itbms-color ${boxTextTailwind}`" />
+          <input type="text" v-model="product.color" @blur="trimField('color')" :class="`itbms-color ${boxTextTailwind}`" />
         </template>
       </BlogProductCreateAndEdit>
 
