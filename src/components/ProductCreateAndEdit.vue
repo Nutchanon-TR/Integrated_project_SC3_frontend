@@ -4,9 +4,7 @@ import { addData, updateData, getDataById } from "./../libs/api.js";
 import BlogProductCreateAndEdit from "./../components/BlogProductCreateAndEdit.vue";
 import BrandDropdown from "./BrandDropdown.vue";
 import { useRoute, useRouter } from "vue-router";
-
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
-
 
 const boxTextTailwind =
   "w-full p-2 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-blue-50";
@@ -19,130 +17,35 @@ let boxTextTailwindModel = ref(boxTextTailwind);
 let boxTextTailwindPrice = ref(boxTextTailwind);
 let boxTextTailwindQuantity = ref(boxTextTailwind);
 let boxTextTailwindDesc = ref(boxTextTailwind);
+
+const isSaving = ref(false)
+
 const route = useRoute();
 const router = useRouter();
 const prop = defineProps({
   mode: {
-    type: String
+    type: String,
   },
 
   productId: {
-    type: [String, Number]
-  }
-})
-
-const trimField = (field) => {
-  if (typeof product[field] === 'string') {
-    product[field] = product[field].trim();
-  }
-  console.log(product[field])
-};
-
-let product = reactive({
-  model: "",
-  brand: {
-    id: null,
-    name: "",
+    type: [String, Number],
   },
-  description: "",
-  price: null,
-  ramGb: null,
-  screenSizeInch: null,
-  quantity: 1,
-  storageGb: null,
-  color: "",
 });
 
-const isSaving = ref(false)
-
-
-// const saveProduct = async () => {
-//   if (isSaving.value) return;
-//   isSaving.value = true;
-
-//   try {
-//     if (prop.mode === "Edit") {
-//       await updateData(`${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`, prop.productId, product);
-//     } else {
-//       console.log("Product saved:", product);
-//       await addData(`${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`, product);
-//     }
-
-//     router.push(`/sale-items`);
-//   } catch (error) {
-//     console.error("Error saving product:", error);
-
-//   } finally {
-//     isSaving.value = false;
-//   }}
-
-  const saveProduct = async () => {
-    if (isSaving.value) return;
-  isSaving.value = true;
-  boxTextTailwindModel.value= boxTextTailwind;
-  boxTextTailwindPrice.value= boxTextTailwind;
-  boxTextTailwindQuantity.value= boxTextTailwind;
-  boxTextTailwindDesc.value= boxTextTailwind;
-  brandError.value = false;
-  if (product.brand.id == null || product.brand.name == "") {
-    console.log("Brand is not selected");
-    console.log(product.brand.id);
-    console.log(product.brand.name);
-    console.log(brandError.value);
-    brandError.value = true;
-  }
-  if (product.model == "") {
-    boxTextTailwindModel.value = boxTextTailwindError;
-    console.log(boxTextTailwindModel);
-  }
-  if (product.price == null || product.price <= 0) {
-    boxTextTailwindPrice.value = boxTextTailwindError;
-  }
-  if (product.quantity == null || product.quantity < 0) {
-    boxTextTailwindQuantity.value = boxTextTailwindError;
-  }
-  if (product.description == "") {
-    boxTextTailwindDesc.value = boxTextTailwindError;
-  } else if (
-    product.brand.id == null ||
-    product.brand.name == "" ||
-    product.model == "" ||
-    product.price == null ||
-    product.price <= 0 ||
-    product.quantity == null ||
-    product.quantity < 0 ||
-    product.description == ""
-  ) {
-    return;
-  } else if (product.id) {
-    console.log("Product updated:", product);
-    await updateData(
-      VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`,
-      product.id,
-      product
-    );
-  } else {
-    if(prop.mode === "Edit"){
-    await updateData(VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items` ,prop.productId,product)
-  }
-  console.log("Product saved:", product);
-  await addData(VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`, product);
-  router.push(`/sale-items`)
-  }
-
-};
-
-
-
 onMounted(async () => {
+  console.log(prop.mode);
+  
   if (prop.mode === "Edit") {
     try {
-      const data = await getDataById(VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`, route.params.id)
+      const data = await getDataById(
+        VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`,
+        route.params.id
+      );
       if (data == undefined) {
         product.value = "404_not_found";
         console.log("product.value: " + product.value);
         setTimeout(() => {
-          router.push('/sale-items');
+          router.push("/sale-items");
         }, 2000);
       }
       product.model = data.model;
@@ -154,16 +57,113 @@ onMounted(async () => {
       product.quantity = data.quantity;
       product.storageGb = data.storageGb;
       product.color = data.color;
-
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
-  console.log("ProductCreateAndEdit mounted");
-  console.log(product.value);
-  console.log(product.screenSizeInch);
-
 });
+
+let product = reactive({
+  model: "",
+  brand: {
+    id: 1,
+    name: "Apple",
+  },
+  description: "",
+  price: null,
+  ramGb: null,
+  screenSizeInch: null,
+  quantity: 1,
+  storageGb: null,
+  color: "",
+});
+
+const trimField = (field) => {
+  if (typeof product[field] === "string") {
+    product[field] = product[field].trim();
+  }
+  console.log(product[field]);
+};
+
+const defaultQuantity = () => {
+  if (!Number(product.quantity) || product.quantity <= 0)
+    return (product.quantity = 1);
+  console.log(product.quantity);
+};
+
+const saveProduct = async () => {
+
+  isSaving.value = true
+
+  boxTextTailwindModel.value = boxTextTailwind;
+  boxTextTailwindPrice.value = boxTextTailwind;
+  boxTextTailwindQuantity.value = boxTextTailwind;
+  boxTextTailwindDesc.value = boxTextTailwind;
+  brandError.value = false;
+
+  if (product.brand.id == null || product.brand.name == "") {
+    console.log("Brand is not selected");
+    brandError.value = true;
+  }
+
+  if (product.model == "") {
+    boxTextTailwindModel.value = boxTextTailwindError;
+  }
+
+  if (product.price == null || product.price <= 0) {
+    boxTextTailwindPrice.value = boxTextTailwindError;
+  }
+
+  if (product.quantity == null || product.quantity <= 0) {
+    boxTextTailwindQuantity.value = boxTextTailwindError;
+  }
+
+  if (product.description == "") {
+    boxTextTailwindDesc.value = boxTextTailwindError;
+  }
+
+  // ✳️ เช็ค validation แล้ว return ต้องรีเซ็ตปุ่มด้วย
+  if (
+    product.brand.id == null ||
+    product.brand.name == "" ||
+    product.model == "" ||
+    product.price == null ||
+    product.price <= 0 ||
+    product.quantity == null ||
+    product.quantity < 0 ||
+    product.description == ""
+  ) {
+    isSaving.value = false  // ✳️ ต้องมี
+    return
+  }
+  try {
+    console.log(product.id);
+    
+    if (product.id) {
+      console.log("Product updated:", product);
+      await updateData(
+        VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`,
+        product.id,
+        product
+      );
+    } else if (prop.mode === "Edit") {
+       
+        await updateData(
+          VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`,
+          prop.productId,
+          product
+        );
+      }else{
+      await addData(VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`, product);
+      }
+      router.push(`/sale-items`);
+    }
+   catch (err) {
+    console.error('เกิดข้อผิดพลาดระหว่างบันทึก:', err.message)
+  } finally {
+    isSaving.value = false // ✅ ปลดล็อกปุ่ม
+  }
+};
 
 // watchEffect(() => {
 //   if (product.brand.name == "Apple") {
@@ -184,7 +184,14 @@ onMounted(async () => {
 // watchEffect(() => {
 //   if (!Number(product.quantity)) return (product.quantity = 1);
 // });
+
+
+
+
 </script>
+
+
+
 
 
 <template>
@@ -198,7 +205,7 @@ onMounted(async () => {
           Brand
         </label>
         <div class="w-full sm:w-auto">
-          <BrandDropdown :brandError="brandError" />
+          <BrandDropdown :brandError="brandError" @sendBrandId="handleBrandId" @sendBrandName="handleBrandName" />
         </div>
       </div>
 
@@ -221,7 +228,6 @@ onMounted(async () => {
         <template #inputText>
           <textarea v-model="product.description" rows="4" @blur="trimField('description')"
             :class="`itbms-description ${boxTextTailwindDesc}`"></textarea>
-
         </template>
       </BlogProductCreateAndEdit>
 
@@ -257,18 +263,18 @@ onMounted(async () => {
       <BlogProductCreateAndEdit>
         <template #text> Quantity </template>
         <template #inputText>
-          <input type="number" v-model="product.quantity" :class="`itbms-quantity ${boxTextTailwindQuantity}`" />
+          <input @blur="defaultQuantity()" type="number" v-model="product.quantity"
+            :class="`itbms-quantity ${boxTextTailwindQuantity}`" />
         </template>
       </BlogProductCreateAndEdit>
     </div>
 
     <!-- Submit Button -->
     <div class="mt-8 flex justify-end">
-       <button type="submit"
-        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        :disabled="isSaving" @click="saveProduct">
+      <button type="submit" :disabled="isSaving" @click="saveProduct"
+        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
         {{ isSaving ? 'Saving...' : 'Save' }}
-        </button>
+      </button>
     </div>
   </div>
 </template>

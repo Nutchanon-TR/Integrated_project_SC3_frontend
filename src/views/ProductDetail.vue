@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from 'vue-router';
-import { getDataById } from "../libs/api.js";
+import { getDataById, deleteUserById } from "../libs/api.js";
 import { unitPrice, nullCatching } from "./../libs/utils.js"
 
 const route = useRoute();
@@ -10,6 +10,20 @@ const product = ref({});
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
 const loading = ref(true);
 const quantity = ref(1);
+
+const deleteProduct = async (id) => {
+  const confirmDelete = confirm("คุณแน่ใจหรือไม่ว่าต้องการลบสินค้า?");
+  if (!confirmDelete) return;
+
+  try {
+    await deleteUserById(`${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`, id);
+    alert('ลบสินค้าเรียบร้อยแล้ว');
+    router.push('/sale-items'); // หรือโหลดข้อมูลใหม่หากอยู่หน้า list
+  } catch (error) {
+    console.error('ลบสินค้าไม่สำเร็จ:', error.message);
+    alert('เกิดข้อผิดพลาดในการลบสินค้า');
+  }
+}
 
 onMounted(async () => {
   try {
@@ -175,10 +189,10 @@ const incrementQuantity = () => {
                 Edit
               </RouterLink>
 
-              <RouterLink :to="{ name: 'Edit', params: { id: product.id } }"
-                class="w-full sm:w-1/2 border border-blue-600 text-blue-600 py-3 rounded-lg hover:bg-blue-50 transition flex items-center justify-center">
+              <button @click="deleteProduct(product.id)"
+                class="w-full sm:w-1/2 border border-red-600 text-red-600 py-3 rounded-lg hover:bg-red-50 transition flex items-center justify-center">
                 Delete
-              </RouterLink>
+              </button>
 
 
             </div>
@@ -193,8 +207,7 @@ const incrementQuantity = () => {
         <!-- Tabs -->
         <div class="border-b">
           <div class="flex">
-            <button
-              class="py-4 px-6 font-medium text-sm transition focus:outline-none">
+            <button class="py-4 px-6 font-medium text-sm transition focus:outline-none">
               รายละเอียด
             </button>
           </div>
@@ -215,7 +228,8 @@ const incrementQuantity = () => {
                     <span class="itbms-ramGb-unit ml-1 text-lg text-gray-500">GB</span>
 
                     <div class="col-span-1 text-sm text-gray-500">Storage:</div>
-                    <div class="col-span-2 text-sm font-medium itbms-storageGb">{{ nullCatching(product.storageGb) }} GB</div>
+                    <div class="col-span-2 text-sm font-medium itbms-storageGb">{{ nullCatching(product.storageGb) }} GB
+                    </div>
                     <span class="itbms-storageGb-unit ml-1 text-lg text-gray-500">GB</span>
                   </div>
                 </div>
@@ -251,14 +265,9 @@ const incrementQuantity = () => {
               <div class="prose max-w-none">
                 <p class="itbms-description text-gray-700">{{ product.description || 'ไม่มีข้อมูลรายละเอียดสินค้า' }}
                 </p>
-
-                
               </div>
             </div>
           </div>
-
-          <!-- Description Tab -->
-
         </div>
       </div>
 

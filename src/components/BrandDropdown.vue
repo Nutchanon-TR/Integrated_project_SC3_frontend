@@ -25,20 +25,24 @@ const options = ref([])
 const emit = defineEmits(["sendBranId","sendBranName"])
 const URL = import.meta.env.VITE_ROOT_API_URL
 
-const      selectBrand = (option) => {
-  selected.value = option.name
-  selectedBrandId.value = option.id
+const sendBrand = (name,id) =>{
+  selected.value = name
   isOpen.value = false
-  emit("sendBranId", option.id)
-  emit("sendBranName", option.name)
-  console.log(option.id)
-  console.log(option.name)
+  prop.brandError = false
+  errorColor.value = "border-gray-300"
+  emit("sendBrandId",id)
+  emit("sendBrandName",name)
+  console.log("sendBrandId: ",name)
+  console.log("sendBrandId: ",id)
+
 }
 
 onMounted(async () => {
   try {
-    const data = await getAllData(`${URL}/itb-mshop/v1/brands`)
+    const data = await getAllData(`${URL}/itb-mshop/v1/brands`);
     options.value = data
+    console.log("Brands loaded:", options.value);
+    console.log("load brand input: ",prop.brandError);
   } catch (error) {
     console.error("โหลดข้อมูลแบรนด์ไม่สำเร็จ:", error.message);
   }
@@ -76,9 +80,13 @@ onMounted(async () => {
       <div class="py-1 max-h-60 overflow-y-auto">
         <button
           v-for="option in options"
-          :key="option.id"
-          @click="selectBrand(option)"
-          class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-700"
+          :key="option"
+          @click="
+            selected = option;
+            isOpen = false;
+            sendBrand(option.name,option.id)
+          "
+          class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-700"
         >
           {{ option.name }}
         </button>
