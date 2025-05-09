@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, onMounted, watchEffect, defineProps } from "vue";
-import { addData, updateData, getDataById } from "./../libs/api.js";
+import { addData, updateData, getDataById,getAllData } from "./../libs/api.js";
 import BlogProductCreateAndEdit from "./../components/BlogProductCreateAndEdit.vue";
 import BrandDropdown from "./BrandDropdown.vue";
 import { useRoute, useRouter } from "vue-router";
@@ -29,35 +29,6 @@ const prop = defineProps({
   },
 });
 
-onMounted(async () => {
-  if (prop.mode === "Edit") {
-    try {
-      const data = await getDataById(
-        VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`,
-        route.params.id
-      );
-      if (data == undefined) {
-        product.value = "404_not_found";
-        console.log("product.value: " + product.value);
-        setTimeout(() => {
-          router.push("/sale-items");
-        }, 2000);
-      }
-      product.model = data.model;
-      product.brand.name = data.brandName;
-      product.description = data.description;
-      product.price = data.price;
-      product.ramGb = data.ramGb;
-      product.screenSizeInch = data.screenSizeInch;
-      product.quantity = data.quantity;
-      product.storageGb = data.storageGb;
-      product.color = data.color;
-    } catch (error) {
-      console.log(error);
-    }
-  }
-});
-
 let product = reactive({
   model: "",
   brand: {
@@ -72,6 +43,63 @@ let product = reactive({
   storageGb: null,
   color: "",
 });
+
+onMounted(async () => {
+  if (prop.mode === "Edit") {
+    try {
+      const data = await getDataById(
+        VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`,
+        route.params.id
+      );
+      if (data == undefined) {
+        product = "404_not_found";
+        console.log("product: " + product);
+        setTimeout(() => {
+          router.push("/sale-items");
+        }, 2000);
+      }
+      console.log("Product loaded:", data);
+      console.log("Product loaded:", data.brandName);
+      product.model = data.model;
+      product.brand.name = data.brandName;
+      product.description = data.description;
+      product.price = data.price;
+      product.ramGb = data.ramGb;
+      product.screenSizeInch = data.screenSizeInch;
+      product.quantity = data.quantity;
+      product.storageGb = data.storageGb;
+      product.color = data.color;
+      await getBrandIdByName(data.brandName);
+      console.log("product.brand eeee:", product);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+});
+
+
+
+const getBrandIdByName = async (brandName) => {
+  const data = await getAllData(`${VITE_ROOT_API_URL}/itb-mshop/v1/brands`);
+  const brand = await data.find((brand) => brand.name === brandName);
+  if (brand) {
+    console.log("Brand ID:", brand.id);
+    product.brand.id = await brand.id;
+  } else {
+    console.error("Brand not found 123456");
+    return null;
+  }
+};
+
+const handleBrandId = (id) => {
+  product.brand.id = id;
+  console.log("Received brand ID:", id);
+};
+
+const handleBrandName = (name) => {
+  product.brand.name = name;
+  console.log("Received brand name:", name);
+};
 
 const trimField = (field) => {
   if (typeof product[field] === "string") {
@@ -176,11 +204,12 @@ const saveProduct = async () => {
           for="brand"
           class="font-medium text-gray-700 sm:w-32 mb-1 sm:mb-0"
         >
-          Brand
+          Brand 
         </label>
         <div class="w-full sm:w-auto">
           <BrandDropdown
             :brandError="brandError"
+            :brandName="product.brand.name"
             @sendBrandId="handleBrandId"
             @sendBrandName="handleBrandName"
           />

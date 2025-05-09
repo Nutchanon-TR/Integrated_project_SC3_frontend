@@ -6,6 +6,10 @@ const prop = defineProps({
   brandError: {
     type: Boolean,
   },
+  brandName: {
+    type: String,
+    default: 'All Brands'
+  },
 });
 
 const errorColor = ref("border-gray-300");
@@ -19,10 +23,11 @@ watchEffect(() => {
 });
 
 const isOpen = ref(false)
-const selected = ref('All Brands')
+const selected = ref(prop.brandName || 'All Brands');
 const options = ref([])
 const emit = defineEmits(["sendBranId","sendBranName"])
 const URL = import.meta.env.VITE_ROOT_API_URL
+
 const sendBrand = (name,id) =>{
   selected.value = name
   isOpen.value = false
@@ -36,9 +41,14 @@ const sendBrand = (name,id) =>{
 onMounted(async () => {
   try {
     const data = await getAllData(`${URL}/itb-mshop/v1/brands`);
+    data.sort((a, b) => a.name.localeCompare(b.name));
     options.value = data
     console.log("Brands loaded:", options.value);
     console.log("load brand input: ",prop.brandError);
+    console.log("load brandName input: ",prop.brandName);
+    if (prop.brandName) {
+      selected.value = prop.brandName;
+    }
   } catch (error) {
     console.error("โหลดข้อมูลแบรนด์ไม่สำเร็จ:", error.message);
   }
