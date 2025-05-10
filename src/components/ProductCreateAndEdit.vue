@@ -77,8 +77,6 @@ onBeforeMount(async () => {
   }
 });
 
-
-
 const getBrandIdByName = async (brandName) => {
   const data = await getAllData(`${VITE_ROOT_API_URL}/itb-mshop/v1/brands`);
   const brand = await data.find((brand) => brand.name === brandName);
@@ -165,31 +163,12 @@ const saveProduct = async () => {
         prop.productId,
         product
       );
-    }
+    }else{
     await addData(VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`, product);
-    router.push(`/sale-items`);
-  }
+  }}
+  router.push(`/sale-items`);
 };
 
-// watchEffect(() => {
-//   if (product.brand.name == "Apple") {
-//     product.brand.id = 1;
-//   } else if (product.brand.name == "Samsung") {
-//     product.brand.id = 2;
-//   } else if (product.brand.name == "Xiaomi") {
-//     product.brand.id = 3;
-//   } else if (product.brand.name == "Google") {
-//     product.brand.id = 4;
-//   } else if (product.brand.name == "Huawei") {
-//     product.brand.id = 5;
-//   } else {
-//     product.brand.id = null;
-//   }
-// });
-
-// watchEffect(() => {
-//   if (!Number(product.quantity)) return (product.quantity = 1);
-// });
 </script>
 <template>
   <div
