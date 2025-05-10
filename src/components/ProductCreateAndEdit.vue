@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onMounted, watchEffect, defineProps,onBeforeMount } from "vue";
+import { ref, reactive, onMounted, watchEffect, defineProps,onBeforeMount,computed } from "vue";
 import { addData, updateData, getDataById,getAllData } from "./../libs/api.js";
 import BlogProductCreateAndEdit from "./../components/BlogProductCreateAndEdit.vue";
 import BrandDropdown from "./BrandDropdown.vue";
@@ -44,6 +44,9 @@ let product = reactive({
   color: "",
 });
 
+let originalProduct = reactive({})
+
+
 onBeforeMount(async () => {
   if (prop.mode === "Edit") {
     try {
@@ -70,6 +73,8 @@ onBeforeMount(async () => {
       product.storageGb = data.storageGb;
       product.color = data.color;
       await getBrandIdByName(data.brandName);
+      Object.assign(originalProduct, JSON.parse(JSON.stringify(product)));
+      console.log(originalProduct)
       console.log("product.brand eeee:", product);
     } catch (error) {
       console.log(error);
@@ -77,8 +82,33 @@ onBeforeMount(async () => {
   }
 });
 
+const compareProduct = (product1,product2) =>{
+  if(product1 === product2){
+    return true
+  }
+  if (
+    typeof product1 !== "object" ||
+    typeof product2 !== "object" ||
+    product1 === null ||
+    product2 === null
+  ) {
+    return false;
+  }
 
+  const keys1 = Object.keys(product1);
+  const keys2 = Object.keys(product2);
+  if (keys1.length !== keys2.length) return false;
 
+  for (const key of keys1) {
+    if (!keys2.includes(key)) return false;
+    if (!compareProduct(product1[key], product2[key])) return false;
+  }
+  return true;
+}
+
+const isProductChanged = computed(()=>{
+  return !compareProduct(product,originalProduct)
+})
 const getBrandIdByName = async (brandName) => {
   const data = await getAllData(`${VITE_ROOT_API_URL}/itb-mshop/v1/brands`);
   const brand = await data.find((brand) => brand.name === brandName);
@@ -313,6 +343,7 @@ const saveProduct = async () => {
       <button
         type="submit"
         class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        :disabled="prop.mode === 'Edit' && !isProductChanged"
         @click="saveProduct"
       >
         Save
