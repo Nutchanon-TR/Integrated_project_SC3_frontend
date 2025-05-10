@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted,defineProps, watchEffect } from "vue";
+import { ref, onMounted,defineProps, watchEffect,onBeforeMount } from "vue";
 import { getAllData } from "@/libs/api";
 
 const prop = defineProps({
@@ -42,7 +42,7 @@ const sendBrand = (name,id) =>{
 
 }
 
-onMounted(async () => {
+onBeforeMount(async () => {
   try {
     const data = await getAllData(`${URL}/itb-mshop/v1/brands`);
     data.sort((a, b) => a.name.localeCompare(b.name));
@@ -66,7 +66,7 @@ onMounted(async () => {
     <button
       @click="isOpen = !isOpen"
       type="button"
-      class="w-full flex justify-between items-center bg-white border border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      :class="`w-full flex justify-between items-center bg-white border ${errorColor} rounded-md shadow-sm px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500`"
     >
       {{ selected || 'เลือกแบรนด์' }}
       <!-- Dropdown icon -->

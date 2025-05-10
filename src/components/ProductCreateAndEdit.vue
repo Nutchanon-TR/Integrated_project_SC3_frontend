@@ -32,39 +32,6 @@ const prop = defineProps({
   },
 });
 
-
-// onMounted(async () => {
-//   console.log(prop.mode);
-
-//   if (prop.mode === "Edit") {
-//     try {
-//       const data = await getDataById(
-//         VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`,
-//         route.params.id
-//       );
-//       if (data == undefined) {
-//         product.value = "404_not_found";
-//         console.log("product.value: " + product.value);
-//         setTimeout(() => {
-//           router.push("/sale-items");
-//         }, 2000);
-//       }
-//       product.model = data.model;
-//       product.brand.name = data.brandName;
-//       product.description = data.description;
-//       product.price = data.price;
-//       product.ramGb = data.ramGb;
-//       product.screenSizeInch = data.screenSizeInch;
-//       product.quantity = data.quantity;
-//       product.storageGb = data.storageGb;
-//       product.color = data.color;
-//     } catch (error) {
-//       console.log(error);
-//     }
-//   }
-// });
-
-
 let product = reactive({
   model: "",
   brand: {
@@ -193,7 +160,9 @@ const saveProduct = async () => {
 
   if (product.brand.id == null || product.brand.name == "") {
     console.log("Brand is not selected");
+    console.log("brandError.value: ",brandError.value);
     brandError.value = true;
+    console.log("brandError.value: ",brandError.value);
   }
 
   if (product.model == "") {
@@ -257,10 +226,6 @@ const saveProduct = async () => {
 
 };
 </script>
-
-
-
-
 
 <template>
   <div class="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg border border-blue-200">
