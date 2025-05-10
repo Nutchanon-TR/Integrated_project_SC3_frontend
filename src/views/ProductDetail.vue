@@ -18,7 +18,7 @@ const deleteProduct = async (id) => {
   try {
     await deleteUserById(`${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`, id);
     alert('ลบสินค้าเรียบร้อยแล้ว');
-    router.push('/sale-items'); // หรือโหลดข้อมูลใหม่หากอยู่หน้า list
+    router.push('/sale-items');
   } catch (error) {
     console.error('ลบสินค้าไม่สำเร็จ:', error.message);
     alert('เกิดข้อผิดพลาดในการลบสินค้า');
@@ -101,7 +101,8 @@ const incrementQuantity = () => {
     <div class="bg-white shadow-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div class="flex items-center space-x-2 text-sm text-gray-600">
-          <RouterLink to="/" class="hover:text-blue-600 transition">หน้าหลัก</RouterLink>
+          <RouterLink to="/" 
+          class="itbms-home-button hover:text-blue-600 transition">Home</RouterLink>
           <span class="text-gray-400">/</span>
           <RouterLink to="/sale-items" class="hover:text-blue-600 transition">รายการสินค้า</RouterLink>
           <span class="text-gray-400">/</span>

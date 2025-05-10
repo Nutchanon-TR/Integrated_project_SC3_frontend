@@ -252,6 +252,8 @@ const saveProduct = async () => {
   } finally {
     isSaving.value = false
   }
+
+
 };
 
 // watchEffect(() => {
@@ -362,14 +364,22 @@ const saveProduct = async () => {
     </div>
 
     <!-- Submit Button -->
-    <div class="mt-8 flex justify-end">
-
+    <div class="mt-8 flex justify-end space-x-4">
+      <!-- Save Button -->
       <button type="submit"
-        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        :disabled="isSaving || (prop.mode === 'Edit' && !isProductChanged)" @click="saveProduct">
+        class="itbms-save-button px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        :disabled="isSaving || (prop.mode === 'Edit' && !isProductChanged)" 
+        @click="saveProduct">
         {{ isSaving ? 'Saving...' : 'Save' }}
       </button>
 
+      <!-- Cancel Button -->
+      <button type="button"
+        class="itbms-cancel-button px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-md transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+        @click="router.push('/sale-items')">
+        Cancel
+      </button>
     </div>
+
   </div>
 </template>

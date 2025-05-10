@@ -52,7 +52,9 @@ const isMenuOpen = ref(false)
         <!-- Nav Links -->
         <div class="hidden lg:flex space-x-4 xl:space-x-6">
           <a href="#" class="text-gray-600 hover:text-blue-600 font-medium transition duration-200">Deals</a>
-          <RouterLink :to="{name:'ProuctCreate'}" class="text-gray-600 hover:text-blue-600 font-medium transition duration-200">New</RouterLink>
+          <RouterLink :to="{name:'ProuctCreate'}" 
+          class="itbms-sale-item-add text-gray-600 hover:text-blue-600 font-medium transition duration-200">
+          New</RouterLink>
           <a href="#" class="hidden xl:block text-gray-600 hover:text-blue-600 font-medium transition duration-200">Support</a>
         </div>
         
