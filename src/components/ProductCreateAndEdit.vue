@@ -1,6 +1,6 @@
 <script setup>
-import { ref, reactive, onMounted, watchEffect, defineProps,onBeforeMount } from "vue";
-import { addData, updateData, getDataById,getAllData } from "./../libs/api.js";
+import { ref, reactive, onMounted, watchEffect, defineProps, onBeforeMount, computed } from "vue";
+import { addData, updateData, getDataById, getAllData } from "./../libs/api.js";
 import BlogProductCreateAndEdit from "./../components/BlogProductCreateAndEdit.vue";
 import BrandDropdown from "./BrandDropdown.vue";
 import { useRoute, useRouter } from "vue-router";
@@ -35,7 +35,7 @@ const prop = defineProps({
 
 // onMounted(async () => {
 //   console.log(prop.mode);
-  
+
 //   if (prop.mode === "Edit") {
 //     try {
 //       const data = await getDataById(
@@ -80,6 +80,9 @@ let product = reactive({
   color: "",
 });
 
+let originalProduct = reactive({})
+
+
 onBeforeMount(async () => {
   if (prop.mode === "Edit") {
     try {
@@ -106,6 +109,8 @@ onBeforeMount(async () => {
       product.storageGb = data.storageGb;
       product.color = data.color;
       await getBrandIdByName(data.brandName);
+      Object.assign(originalProduct, JSON.parse(JSON.stringify(product)));
+      console.log(originalProduct)
       console.log("product.brand eeee:", product);
     } catch (error) {
       console.log(error);
@@ -113,8 +118,33 @@ onBeforeMount(async () => {
   }
 });
 
+const compareProduct = (product1, product2) => {
+  if (product1 === product2) {
+    return true
+  }
+  if (
+    typeof product1 !== "object" ||
+    typeof product2 !== "object" ||
+    product1 === null ||
+    product2 === null
+  ) {
+    return false;
+  }
 
+  const keys1 = Object.keys(product1);
+  const keys2 = Object.keys(product2);
+  if (keys1.length !== keys2.length) return false;
 
+  for (const key of keys1) {
+    if (!keys2.includes(key)) return false;
+    if (!compareProduct(product1[key], product2[key])) return false;
+  }
+  return true;
+}
+
+const isProductChanged = computed(() => {
+  return !compareProduct(product, originalProduct)
+})
 const getBrandIdByName = async (brandName) => {
   const data = await getAllData(`${VITE_ROOT_API_URL}/itb-mshop/v1/brands`);
   const brand = await data.find((brand) => brand.name === brandName);
@@ -181,7 +211,7 @@ const saveProduct = async () => {
     boxTextTailwindDesc.value = boxTextTailwindError;
   }
 
-  // ✳️ เช็ค validation แล้ว return ต้องรีเซ็ตปุ่มด้วย
+
   if (
     product.brand.id == null ||
     product.brand.name == "" ||
@@ -192,12 +222,12 @@ const saveProduct = async () => {
     product.quantity < 0 ||
     product.description == ""
   ) {
-    isSaving.value = false  // ✳️ ต้องมี
+    isSaving.value = false
     return
   }
   try {
     console.log(product.id);
-    
+
     if (product.id) {
       console.log("Product updated:", product);
       await updateData(
@@ -206,21 +236,21 @@ const saveProduct = async () => {
         product
       );
     } else if (prop.mode === "Edit") {
-       
-        await updateData(
-          VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`,
-          prop.productId,
-          product
-        );
-      }else{
+
+      await updateData(
+        VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`,
+        prop.productId,
+        product
+      );
+    } else {
       await addData(VITE_ROOT_API_URL + `/itb-mshop/v1/sale-items`, product);
-      }
-      router.push(`/sale-items`);
     }
-   catch (err) {
+    router.push(`/sale-items`);
+  }
+  catch (err) {
     console.error('เกิดข้อผิดพลาดระหว่างบันทึก:', err.message)
   } finally {
-    isSaving.value = false // ✅ ปลดล็อกปุ่ม
+    isSaving.value = false
   }
 };
 
@@ -261,19 +291,12 @@ const saveProduct = async () => {
     <div class="space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-4">
 
-        <label
-          for="brand"
-          class="font-medium text-gray-700 sm:w-32 mb-1 sm:mb-0"
-        >
-          Brand 
+        <label for="brand" class="font-medium text-gray-700 sm:w-32 mb-1 sm:mb-0">
+          Brand
         </label>
         <div class="w-full sm:w-auto">
-          <BrandDropdown
-            :brandError="brandError"
-            :brandName="product.brand.name"
-            @sendBrandId="handleBrandId"
-            @sendBrandName="handleBrandName"
-          />
+          <BrandDropdown :brandError="brandError" :brandName="product.brand.name" @sendBrandId="handleBrandId"
+            @sendBrandName="handleBrandName" />
 
         </div>
       </div>
@@ -340,10 +363,13 @@ const saveProduct = async () => {
 
     <!-- Submit Button -->
     <div class="mt-8 flex justify-end">
-      <button type="submit" :disabled="isSaving" @click="saveProduct"
-        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
+
+      <button type="submit"
+        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        :disabled="isSaving || (prop.mode === 'Edit' && !isProductChanged)" @click="saveProduct">
         {{ isSaving ? 'Saving...' : 'Save' }}
       </button>
+
     </div>
   </div>
 </template>
