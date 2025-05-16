@@ -108,7 +108,7 @@ const isMenuOpen = ref(false)
       <!-- Mobile Nav Links -->
       <div class="space-y-1 py-1">
         <a href="#" class="block py-2 px-3 rounded-lg hover:bg-gray-50 text-gray-600 font-medium">Deals</a>
-        <a href="#" class="block py-2 px-3 rounded-lg hover:bg-gray-50 text-gray-600 font-medium">New Arrivals</a>
+        <a href="#" class="block py-2 px-3 rounded-lg hover:bg-gray-50 text-gray-600 font-medium">New</a>
         <a href="#" class="block py-2 px-3 rounded-lg hover:bg-gray-50 text-gray-600 font-medium">Support</a>
       </div>
       
