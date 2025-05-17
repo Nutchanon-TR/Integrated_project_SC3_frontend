@@ -3,6 +3,7 @@ import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from 'vue-router';
 import { getDataById, deleteUserById } from "../libs/api.js";
 import { unitPrice, nullCatching } from "./../libs/utils.js"
+import { useAlertStore } from "../stores/alertStore.js"
 
 const route = useRoute();
 const router = useRouter();
@@ -10,20 +11,32 @@ const product = ref({});
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
 const loading = ref(true);
 const quantity = ref(1);
+const alertStore = useAlertStore();
+const showDeleteModal = ref(false);
+const pendingDeleteId = ref(null);
 
-const deleteProduct = async (id) => {
-  const confirmDelete = confirm("คุณแน่ใจหรือไม่ว่าต้องการลบสินค้า?");
-  if (!confirmDelete) return;
-
+const confirmDeleteProduct = async () => {
   try {
-    await deleteUserById(`${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`, id);
-    alert('ลบสินค้าเรียบร้อยแล้ว');
+    await deleteUserById(`${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`, pendingDeleteId.value);
+    alertStore.setMessage('The sale item has been deleted.');
     router.push('/sale-items');
   } catch (error) {
-    console.error('ลบสินค้าไม่สำเร็จ:', error.message);
-    alert('เกิดข้อผิดพลาดในการลบสินค้า');
+    if (error.status === 404) {
+      alertStore.setMessage('The requested sale item does not exist.', 'error')
+      router.push('/sale-items');
+    } else {
+      alertStore.setMessage('The requested sale item does not exist.', 'error')
+      router.push('/sale-items');
+    }
+  } finally {
+    showDeleteModal.value = false;
   }
-}
+};
+
+const deleteProduct = (id) => {
+  pendingDeleteId.value = id;
+  showDeleteModal.value = true;
+};
 
 onMounted(async () => {
   try {
@@ -45,11 +58,18 @@ onMounted(async () => {
       console.log(data);
       console.log("product.value: " + product.value.price);
       console.log("product.value: " + typeof (product.value.price));
+      console.log("product.value: " + (product.value.color));
     }
   } catch (error) {
     console.log("โหลดข้อมูลสินค้าไม่สำเร็จ:", error.message);
   } finally {
     loading.value = false;
+  }
+
+  if (alertStore.message) {
+    setTimeout(() => {
+      alertStore.clearMessage()
+    }, 3000)
   }
 });
 
@@ -74,9 +94,10 @@ const incrementQuantity = () => {
 
 <template>
   <!-- Loading Spinner -->
-  <div v-if="loading" class="flex items-center justify-center min-h-[60vh]">
-    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
-  </div>
+    <div v-if="loading" class="flex items-center justify-center min-h-[60vh]">
+      <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
+    </div>
+
 
   <!-- 404 Error Page -->
   <div v-else-if="product == '404_not_found'"
@@ -94,6 +115,8 @@ const incrementQuantity = () => {
   </div>
 
 
+
+
   <!-- Product Detail Page -->
   <div v-else class="itbms-row bg-gray-50 min-h-screen pb-12">
 
@@ -101,10 +124,7 @@ const incrementQuantity = () => {
     <div class="bg-white shadow-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div class="flex items-center space-x-2 text-sm text-gray-600">
-          <RouterLink to="/" 
-          class="itbms-home-button hover:text-blue-600 transition">Home</RouterLink>
-          <span class="text-gray-400">/</span>
-          <RouterLink to="/sale-items" class="hover:text-blue-600 transition">รายการสินค้า</RouterLink>
+          <RouterLink to="/sale-items" class="itbms-home-button hover:text-blue-600 transition">Home</RouterLink>
           <span class="text-gray-400">/</span>
           <span class="text-gray-900 font-medium">{{ product.brandName }} {{ product.model }}</span>
         </div>
@@ -186,12 +206,12 @@ const incrementQuantity = () => {
             <!-- Action Buttons -->
             <div class="py-4 mt-2 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
               <RouterLink :to="{ name: 'Edit', params: { id: product.id } }"
-                class="w-full sm:w-1/2 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition flex items-center justify-center text-center">
+                class="itbms-edit-button w-full sm:w-1/2 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition flex items-center justify-center text-center">
                 Edit
               </RouterLink>
 
               <button @click="deleteProduct(product.id)"
-                class="w-full sm:w-1/2 border border-red-600 text-red-600 py-3 rounded-lg hover:bg-red-50 transition flex items-center justify-center">
+                class="itbms-delete-button w-full sm:w-1/2 border border-red-600 text-red-600 py-3 rounded-lg hover:bg-red-50 transition flex items-center justify-center">
                 Delete
               </button>
 
@@ -287,6 +307,28 @@ const incrementQuantity = () => {
 
       </div>
     </div>
+  </div>
+
+    <!-- Delete Confirmation Modal -->
+  <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">ยืนยันการลบ</h2>
+      <p class="itbms-message text-gray-600 mb-6">Do you want to delete this sale item?</p>
+      <div class="flex justify-end space-x-2">
+        <button @click="showDeleteModal = false"
+          class="itbms-cancel-button px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition">ยกเลิก</button>
+        <button @click="confirmDeleteProduct"
+          class="itbms-confirm-button px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">ยืนยัน</button>
+      </div>
+    </div>
+  </div>
+
+    <!-- Alert Message -->
+  <div v-if="alertStore.message" :class="`itbms-message px-4 py-2 rounded mb-4 ${alertStore.type === 'error'
+      ? 'bg-red-100 text-red-700'
+      : 'bg-green-100 text-green-700'
+    }`">
+    {{ alertStore.message }}
   </div>
 </template>
 

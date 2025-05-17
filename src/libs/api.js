@@ -1,13 +1,32 @@
+// async function getAllData(url) {
+//     try{
+//         const data = await fetch(url);
+//         if (data.status === 404) return undefined;
+//         const finalData = await data.json();
+//         return finalData;
+//     }catch(error){
+//         throw new Error(error);
+//     }
+// }
+
+// @/libs/api.js
 async function getAllData(url) {
-    try{
-        const data = await fetch(url);
-        if (data.status === 404) return undefined;
-        const finalData = await data.json();
-        return finalData;
-    }catch(error){
-        throw new Error(error);
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      if (res.status === 404) {
+        return { error: "not_found" };
+      }
+      throw new Error(`HTTP error! status: ${res.status}`);
     }
+    const data = await res.json();  
+    return data;
+  } catch (error) {
+    throw new Error(`Fetch failed: ${error.message}`);
+  }
 }
+
+
 
 async function getDataById(url, id) {
     try{
@@ -58,16 +77,21 @@ async function updateData(url, id, updatedData) {
   }
 }
 
-async function deleteUserById(url, id) {
-  try {
-    const res = await fetch(`${url}/${id}`, {
-      method: 'DELETE'
-    })
-    return res.status
-  } catch (error) {
-    throw new Error('can not delete your item')
+
+const deleteUserById = async (url, id) => {
+  const res = await fetch(`${url}/${id}`, {
+    method: 'DELETE'
+  });
+
+  if (!res.ok) {
+    const error = new Error('Request failed')
+    error.status = res.status
+    throw error
   }
+
+  return res.status === 204;
 }
+
 
 export {
     getAllData,

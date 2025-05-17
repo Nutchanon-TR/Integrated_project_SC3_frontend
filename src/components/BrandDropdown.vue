@@ -1,106 +1,96 @@
-<script setup>
-import { ref, onMounted,defineProps, watchEffect,onBeforeMount } from "vue";
-import { getAllData } from "@/libs/api";
+<template>
+  <!-- แจ้งเตือน 404 -->
+  <div v-if="brand === '404_not_found'"
+    class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-red-50 border border-red-300 text-red-800 text-sm px-6 py-3 rounded-md shadow-lg z-50 flex items-center space-x-2">
+    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 9v2m0 4h.01M12 5a7 7 0 11-7 7 7 7 0 017-7z" />
+    </svg>
+    <span>ไม่พบข้อมูลแบรนด์ที่คุณเลือก</span>
+  </div>
 
+  <!-- เปลี่ยนเป็น <select> -->
+  <div class="w-48">
+    <select
+      v-model="selectedId"
+      @change="handleChange"
+      :class="`itbms-brand w-full px-4 py-2 text-sm border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${errorColor}`"
+    >
+      <option disabled value="">-- เลือกแบรนด์ --</option>
+      <option
+        v-for="option in options"
+        :key="option.id"
+        :value="option.id"
+      >
+        {{ option.name }}
+      </option>
+    </select>
+  </div>
+</template>
+
+<script setup>
+import { ref, defineProps, watchEffect, onBeforeMount } from "vue";
+import { getAllData } from "@/libs/api";
+import { useRouter } from "vue-router";
+
+// Props
 const prop = defineProps({
-  brandError: {
-    type: Boolean,
-  },
+  brandError: Boolean,
   brandName: {
     type: String,
     default: 'All Brands'
   },
 });
 
-const errorColor = ref("border-gray-300");
+// Emits
+const emit = defineEmits(["sendBrandId", "sendBrandName"]);
 
+// States
+const errorColor = ref("border-gray-300");
+const selectedId = ref('');
+const options = ref([]);
+const brand = ref('');
+const URL = import.meta.env.VITE_ROOT_API_URL;
+const router = useRouter();
+
+// Update border color on brandError
 watchEffect(() => {
-  if(prop.brandError) {
-    errorColor.value = "border-red-300";
-  } else {
-    errorColor.value = "border-gray-300";
-  }
+  errorColor.value = prop.brandError ? "border-red-300" : "border-gray-300";
 });
 
-const isOpen = ref(false)
-
-const selected = ref(prop.brandName || 'All Brands');
-
-const options = ref([])
-const emit = defineEmits(["sendBranId","sendBranName"])
-const URL = import.meta.env.VITE_ROOT_API_URL
-
-const sendBrand = (name,id) =>{
-  selected.value = name
-  isOpen.value = false
-  prop.brandError = false
-  errorColor.value = "border-gray-300"
-  emit("sendBrandId",id)
-  emit("sendBrandName",name)
-  console.log("sendBrandId: ",name)
-  console.log("sendBrandId: ",id)
-
-}
-
+// Load brand list
 onBeforeMount(async () => {
   try {
     const data = await getAllData(`${URL}/itb-mshop/v1/brands`);
-    data.sort((a, b) => a.name.localeCompare(b.name));
-    options.value = data
-    console.log("Brands loaded:", options.value);
-    console.log("load brand input: ",prop.brandError);
-    console.log("load brandName input: ",prop.brandName);
-    if (prop.brandName) {
-      selected.value = prop.brandName;
+    if (data?.error === "not_found") {
+      brand.value = "404_not_found";
+      setTimeout(() => router.push('/sale-items'), 2000);
+      return;
     }
+
+    data.sort((a, b) => a.name.localeCompare(b.name));
+    options.value = data;
+
+    // Set selectedId จาก brandName ที่รับมา
+    const found = data.find((b) => b.name === prop.brandName);
+    if (found) {
+      selectedId.value = found.id;
+      emit("sendBrandId", found.id);
+      emit("sendBrandName", found.name);
+    }
+
   } catch (error) {
     console.error("โหลดข้อมูลแบรนด์ไม่สำเร็จ:", error.message);
+    alert("เกิดข้อผิดพลาดในการโหลดแบรนด์");
   }
 });
+
+// เมื่อเลือกแบรนด์จาก select
+function handleChange() {
+  const brandObj = options.value.find(b => b.id === selectedId.value);
+  if (brandObj) {
+    emit("sendBrandId", brandObj.id);
+    emit("sendBrandName", brandObj.name);
+  }
+}
 </script>
-
-
-<template>
-  <div class="relative inline-block w-48">
-    <!-- Dropdown Button -->
-    <button
-      @click="isOpen = !isOpen"
-      type="button"
-      :class="`w-full flex justify-between items-center bg-white border ${errorColor} rounded-md shadow-sm px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500`"
-    >
-      {{ selected || 'เลือกแบรนด์' }}
-      <!-- Dropdown icon -->
-      <svg
-        class="w-5 h-5 ml-2 text-gray-500"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-      </svg>
-    </button>
-
-    <!-- Dropdown List -->
-    <div
-      v-if="isOpen"
-      class="absolute z-10 mt-2 w-full rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5"
-
-    >
-      <div class="py-1 max-h-60 overflow-y-auto">
-        <button
-          v-for="option in options"
-          :key="option"
-          @click="
-            selected = option;
-            isOpen = false;
-            sendBrand(option.name,option.id)
-          "
-          class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-700"
-        >
-          {{ option.name }}
-        </button>
-      </div>
-    </div>
-  </div>
-</template>
