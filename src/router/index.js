@@ -5,6 +5,7 @@ import HomePage from '@/views/HomePage.vue'
 import ProductDetail from '@/views/ProductDetail.vue'
 import ProuctEdit from '@/views/ProuctEdit.vue'
 import ProuctCreate from '@/views/ProuctCreate.vue'
+import BrandCreate from '@/views/BrandCreate.vue'
 
 
 
@@ -37,6 +38,11 @@ const router = createRouter({
       name: 'ProuctCreate',
       component: ProuctCreate
 
+    },
+    {
+      path: '/brands/add',
+      name: 'BrandCreate',
+      component: BrandCreate
     }
   ],
 })
