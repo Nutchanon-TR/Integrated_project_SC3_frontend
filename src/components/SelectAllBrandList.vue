@@ -43,7 +43,7 @@ const confirmDeleteProduct = async () => {
 
 
 
-const deleteBran = (id) => {
+const deleteBrand = (id) => {
   pendingDeleteId.value = id;
   showDeleteModal.value = true;
 };
@@ -111,7 +111,7 @@ onMounted(() => {
                   class="bg-blue-700 hover:bg-blue-800 text-white w-8 h-8 flex items-center justify-center rounded transition duration-150 hover:cursor-pointer">
                   🖋️
                 </button>
-                <button @click="deleteBran(item.id)"
+                <button @click="deleteBrand(item.id)"
                   class="bg-white hover:bg-red-500 border border-gray-300 text-gray-700 w-8 h-8 flex items-center justify-center rounded transition duration-150 hover:cursor-pointer">
                   🗑️
                 </button>

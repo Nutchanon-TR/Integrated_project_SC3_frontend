@@ -21,11 +21,18 @@ import { RouterLink } from "vue-router";
         </p>
         <RouterLink to="/sale-items">
           <button
-            class="bg-blue-600 text-white text-lg px-6 py-3 rounded hover:bg-blue-700 transition"
+            class="itbms-shopnow bg-blue-600 text-white text-lg px-6 py-3 rounded hover:bg-blue-700 transition mr-[10px]"
           >
             Shop Now
           </button>
         </RouterLink>
+        <RouterLink to="/sale-items/list">
+        <button
+        class="itbms-seller bg-blue-600 text-white text-lg px-6 py-3 rounded hover:bg-blue-700 transition ml-[10px]"
+        >
+        Seller
+      </button>
+    </RouterLink>
       </div>
     </section>
 
