@@ -11,6 +11,7 @@ onMounted(async () => {
     const brandDdta = await getAllData(
       VITE_ROOT_API_URL + "/itb-mshop/v1/brands"
     );
+
     brand.value = brandDdta;
   } catch (error) {
     console.error("Error fetching data:", error);

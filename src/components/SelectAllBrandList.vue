@@ -2,8 +2,11 @@
 import { onMounted } from "vue";
 import { unitPrice, nullCatching } from "../libs/utils.js"
 import { useAlertStore } from "../stores/alertStore.js"
+import { useRouter } from "vue-router"; 
+import BrandCreate from "@/views/BrandCreate.vue";
 
 const alertStore = useAlertStore();
+const router = useRouter();  
 
 const props = defineProps({
   brand: {
@@ -11,6 +14,9 @@ const props = defineProps({
     default: () => []
   }
 });
+const goToEdit = (id) =>{
+  router.push({name:"BrandEdit",params: {id}})
+}
 
 onMounted(() => {
   console.log('brandList mounted');
@@ -22,6 +28,7 @@ onMounted(() => {
     }, 3000);
   }
 });
+
 </script>
 
 <template>
@@ -29,7 +36,7 @@ onMounted(() => {
     <!-- Navigation Links -->
     <div class="flex mb-4">
       <RouterLink :to="{name: 'ProductManage'}" class="text-blue-500 mr-6">Sale Item List</RouterLink>
-      <a href="#" class="text-blue-500">Add Brand</a>
+      <RouterLink :to="{name: 'BrandCreate'}" class="text-blue-500">Add new brand</RouterLink>
     </div>
     
     <!-- Alert Message -->
@@ -56,7 +63,7 @@ onMounted(() => {
             <td class="py-2 px-4 text-center border-r border-gray-200">{{ item.name }}</td>
             <td class="py-2 px-4 text-center">
               <div class="flex justify-center space-x-2">
-                 <button class="bg-blue-700 hover:bg-blue-800 text-white w-8 h-8 flex items-center justify-center rounded transition duration-150 hover:cursor-pointer">
+                 <button @click="goToEdit(item.id)" class="bg-blue-700 hover:bg-blue-800 text-white w-8 h-8 flex items-center justify-center rounded transition duration-150 hover:cursor-pointer">
                   🖋️
                 </button>
                 <button class="bg-white hover:bg-red-500 border border-gray-300 text-gray-700 w-8 h-8 flex items-center justify-center rounded transition duration-150 hover:cursor-pointer">
