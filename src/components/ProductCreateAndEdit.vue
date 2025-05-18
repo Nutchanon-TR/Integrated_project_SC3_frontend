@@ -1,5 +1,13 @@
 <script setup>
-import { ref, reactive, onMounted, watchEffect, defineProps, onBeforeMount, computed } from "vue";
+import {
+  ref,
+  reactive,
+  onMounted,
+  watchEffect,
+  defineProps,
+  onBeforeMount,
+  computed,
+} from "vue";
 import { addData, updateData, getDataById, getAllData } from "./../libs/api.js";
 import BlogProductCreateAndEdit from "./../components/BlogProductCreateAndEdit.vue";
 import BrandDropdown from "./BrandDropdown.vue";
@@ -8,8 +16,10 @@ import { useAlertStore } from "../stores/alertStore.js";
 
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
 
-const boxTextTailwind = "w-full p-2 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-blue-50";
-const boxTextTailwindError = "w-full p-2 border border-red-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none bg-blue-50";
+const boxTextTailwind =
+  "w-full p-3 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white shadow-sm transition-all duration-200";
+const boxTextTailwindError =
+  "w-full p-3 border-2 border-red-400 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none bg-white shadow-sm transition-all duration-200";
 
 const brandError = ref(false);
 const boxTextTailwindModel = ref(boxTextTailwind);
@@ -45,7 +55,10 @@ const originalProduct = reactive({});
 onBeforeMount(async () => {
   if (prop.mode === "Edit") {
     try {
-      const data = await getDataById(`${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`, route.params.id);
+      const data = await getDataById(
+        `${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`,
+        route.params.id
+      );
       if (!data) {
         product.model = "404_not_found";
         setTimeout(() => router.push("/sale-items"), 2000);
@@ -84,7 +97,8 @@ const handleBrandId = (id) => (product.brand.id = id);
 const handleBrandName = (name) => (product.brand.name = name);
 
 const trimField = (field) => {
-  if (typeof product[field] === "string") product[field] = product[field].trim();
+  if (typeof product[field] === "string")
+    product[field] = product[field].trim();
 };
 
 const defaultQuantity = () => {
@@ -94,7 +108,13 @@ const defaultQuantity = () => {
 // ตรวจสอบว่า product ถูกเปลี่ยนแปลงหรือไม่ (ใช้สำหรับ Edit mode)
 const compareProduct = (a, b) => {
   if (a === b) return true;
-  if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) return false;
+  if (
+    typeof a !== "object" ||
+    typeof b !== "object" ||
+    a === null ||
+    b === null
+  )
+    return false;
 
   const keysA = Object.keys(a);
   const keysB = Object.keys(b);
@@ -103,7 +123,9 @@ const compareProduct = (a, b) => {
   return keysA.every((key) => compareProduct(a[key], b[key]));
 };
 
-const isProductChanged = computed(() => !compareProduct(product, originalProduct));
+const isProductChanged = computed(
+  () => !compareProduct(product, originalProduct)
+);
 
 const isFormValid = computed(() => {
   return (
@@ -128,7 +150,6 @@ const normalizeEmptyStringsToNull = (obj) => {
   }
 };
 
-
 const saveProduct = async () => {
   isSaving.value = false;
 
@@ -142,8 +163,10 @@ const saveProduct = async () => {
   // Validate fields
   if (!product.brand.id || !product.brand.name) brandError.value = true;
   if (!product.model) boxTextTailwindModel.value = boxTextTailwindError;
-  if (!product.price || product.price <= 0) boxTextTailwindPrice.value = boxTextTailwindError;
-  if (!product.quantity || product.quantity <= 0) boxTextTailwindQuantity.value = boxTextTailwindError;
+  if (!product.price || product.price <= 0)
+    boxTextTailwindPrice.value = boxTextTailwindError;
+  if (!product.quantity || product.quantity <= 0)
+    boxTextTailwindQuantity.value = boxTextTailwindError;
   if (!product.description) boxTextTailwindDesc.value = boxTextTailwindError;
 
   if (!isFormValid.value) {
@@ -155,22 +178,29 @@ const saveProduct = async () => {
 
   try {
     if (product.id) {
-      await updateData(`${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`, product.id, product);
+      await updateData(
+        `${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`,
+        product.id,
+        product
+      );
       alertStore.setMessage("The sale item has been updated.");
-      router.push(`/sale-items/${product.id}`); 
+      router.go(-1);
     } else if (prop.mode === "Edit") {
-      await updateData(`${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`, prop.productId, product);
+      await updateData(
+        `${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`,
+        prop.productId,
+        product
+      );
       alertStore.setMessage("The sale item has been updated.");
-      router.push(`/sale-items/${prop.productId}`); 
+      router.go(-1);
     } else {
       await addData(`${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`, product);
       alertStore.setMessage("The sale item has been successfully added.");
-      router.push(`/sale-items`);
+      router.go(-1);
     }
-  }
-  catch (err) {
-    console.error('เกิดข้อผิดพลาดระหว่างบันทึก:', err.message)
-    alert(err.message)
+  } catch (err) {
+    console.error("เกิดข้อผิดพลาดระหว่างบันทึก:", err.message);
+    alert(err.message);
     router.push(`/sale-items`);
   } finally {
     isSaving.value = true;
@@ -179,100 +209,318 @@ const saveProduct = async () => {
 </script>
 
 <template>
-  <div class="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg border border-blue-200">
-    <h2 class="text-2xl font-bold text-blue-700 mb-6 text-center">
-      Phone Details
-    </h2>
-    <div class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-4">
-        <label for="brand" class="font-medium text-gray-700 sm:w-32 mb-1 sm:mb-0">
-          Brand
-        </label>
-
-        <!-- เปลี่ยนจาก <select> ครอบ <BrandDropdown> เป็นใช้ component โดยตรง -->
-        <div class="w-full sm:w-auto">
-          <BrandDropdown :brandError="brandError" :brandName="product.brand.name" @sendBrandId="handleBrandId"
-            @sendBrandName="handleBrandName" />
+  <div class="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4 sm:px-6">
+    <div class="max-w-3xl mx-auto">
+      <!-- Header with decorative elements -->
+      <div class="relative mb-8">
+        <div class="absolute inset-0 flex items-center" aria-hidden="true">
+          <div class="w-full border-t border-blue-300"></div>
+        </div>
+        <div class="relative flex justify-center">
+          <span class="bg-gradient-to-r from-blue-100 via-white to-blue-100 px-6 py-2 rounded-full">
+            <h1 class="text-2xl font-bold text-blue-700 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12" y2="18"></line>
+              </svg>
+              {{ prop.mode === "Edit" ? "Edit Phone Details" : "Add New Phone" }}
+            </h1>
+          </span>
         </div>
       </div>
 
+      <!-- Main Form Card -->
+      <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-blue-200">
+        <!-- Card Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-4">
+          <h2 class="text-xl font-semibold text-white flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"></path>
+            </svg>
+            Phone Specifications
+          </h2>
+        </div>
 
-      <BlogProductCreateAndEdit>
-        <template #text> Model </template>
-        <template #inputText>
-          <input type="text" v-model="product.model" @blur="trimField('model')"
-            :class="`itbms-model ${boxTextTailwindModel}`" />
-        </template>
-      </BlogProductCreateAndEdit>
+        <!-- Form Content -->
+        <div class="p-6">
+          <div class="space-y-6">
+            <!-- Brand Selection -->
+            <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+              <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                <label for="brand" class="font-medium text-blue-800 sm:w-40 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"></path>
+                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                  </svg>
+                  Brand
+                  <span class="text-red-500 ml-1">*</span>
+                </label>
+                <div class="flex-1">
+                  <BrandDropdown
+                    :brandError="brandError"
+                    :brandName="product.brand.name"
+                    @sendBrandId="handleBrandId"
+                    @sendBrandName="handleBrandName"
+                  />
+                  <p v-if="brandError" class="mt-1 text-sm text-red-500">
+                    Please select a brand
+                  </p>
+                </div>
+              </div>
+            </div>
 
-      <BlogProductCreateAndEdit>
-        <template #text> Price (Baht) </template>
-        <template #inputText>
-          <input type="number" v-model="product.price" :class="`itbms-price ${boxTextTailwindPrice}`" /></template>
-      </BlogProductCreateAndEdit>
+            <!-- Main Form Fields -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Left Column -->
+              <div class="space-y-6">
+                <!-- Model -->
+                <div>
+                  <label class="block font-medium text-gray-700 mb-1 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                      <line x1="8" y1="21" x2="16" y2="21"></line>
+                      <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                    Model
+                    <span class="text-red-500 ml-1">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    v-model="product.model"
+                    @blur="trimField('model')"
+                    :class="`itbms-model ${boxTextTailwindModel}`"
+                    placeholder="e.g. iPhone 13 Pro"
+                  />
+                  <p v-if="boxTextTailwindModel === boxTextTailwindError" class="mt-1 text-sm text-red-500">
+                    Model name is required
+                  </p>
+                </div>
 
-      <BlogProductCreateAndEdit>
-        <template #text> Description </template>
-        <template #inputText>
-          <textarea v-model="product.description" rows="4" @blur="trimField('description')"
-            :class="`itbms-description ${boxTextTailwindDesc}`"></textarea>
-        </template>
-      </BlogProductCreateAndEdit>
+                <!-- Price -->
+                <div>
+                  <label class="block font-medium text-gray-700 mb-1 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="12" y1="1" x2="12" y2="23"></line>
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    Price (Baht)
+                    <span class="text-red-500 ml-1">*</span>
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span class="text-gray-500">฿</span>
+                    </div>
+                    <input
+                      type="number"
+                      v-model="product.price"
+                      :class="`itbms-price pl-8 ${boxTextTailwindPrice}`"
+                      placeholder="e.g. 29900"
+                    />
+                  </div>
+                  <p v-if="boxTextTailwindPrice === boxTextTailwindError" class="mt-1 text-sm text-red-500">
+                    Price must be greater than 0
+                  </p>
+                </div>
 
-      <BlogProductCreateAndEdit>
-        <template #text> RAM (GB) </template>
-        <template #inputText>
-          <input type="number" v-model="product.ramGb" :class="`itbms-ramGb ${boxTextTailwind}`" /></template>
-      </BlogProductCreateAndEdit>
+                <!-- RAM -->
+                <div>
+                  <label class="block font-medium text-gray-700 mb-1 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                      <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                    </svg>
+                    RAM (GB)
+                  </label>
+                  <input
+                    type="number"
+                    v-model="product.ramGb"
+                    :class="`itbms-ramGb ${boxTextTailwind}`"
+                    placeholder="e.g. 8"
+                  />
+                </div>
 
-      <BlogProductCreateAndEdit>
-        <template #text> Screen Size (Inches) </template>
-        <template #inputText>
-          <input type="number" v-model="product.screenSizeInch" step="0.1"
-            :class="`itbms-screenSizeInch ${boxTextTailwind}`" />
-        </template>
-      </BlogProductCreateAndEdit>
+                <!-- Storage -->
+                <div>
+                  <label class="block font-medium text-gray-700 mb-1 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    </svg>
+                    Storage (GB)
+                  </label>
+                  <input
+                    type="number"
+                    v-model="product.storageGb"
+                    :class="`itbms-storageGb ${boxTextTailwind}`"
+                    placeholder="e.g. 128"
+                  />
+                </div>
+              </div>
 
-      <BlogProductCreateAndEdit>
-        <template #text> Storage (GB) </template>
-        <template #inputText>
-          <input type="number" v-model="product.storageGb" :class="`itbms-storageGb ${boxTextTailwind}`" />
-        </template>
-      </BlogProductCreateAndEdit>
+              <!-- Right Column -->
+              <div class="space-y-6">
+                <!-- Screen Size -->
+                <div>
+                  <label class="block font-medium text-gray-700 mb-1 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                      <line x1="8" y1="21" x2="16" y2="21"></line>
+                      <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                    Screen Size (Inches)
+                  </label>
+                  <input
+                    type="number"
+                    v-model="product.screenSizeInch"
+                    step="0.1"
+                    :class="`itbms-screenSizeInch ${boxTextTailwind}`"
+                    placeholder="e.g. 6.1"
+                  />
+                </div>
 
-      <BlogProductCreateAndEdit>
-        <template #text> Color </template>
-        <template #inputText>
-          <input type="text" v-model="product.color" @blur="trimField('color')"
-            :class="`itbms-color ${boxTextTailwind}`" />
-        </template>
-      </BlogProductCreateAndEdit>
+                <!-- Color -->
+                <div>
+                  <label class="block font-medium text-gray-700 mb-1 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="13.5" cy="6.5" r="2.5"></circle>
+                      <circle cx="19" cy="13" r="2.5"></circle>
+                      <circle cx="6" cy="12" r="2.5"></circle>
+                      <circle cx="10" cy="20" r="2.5"></circle>
+                    </svg>
+                    Color
+                  </label>
+                  <input
+                    type="text"
+                    v-model="product.color"
+                    @blur="trimField('color')"
+                    :class="`itbms-color ${boxTextTailwind}`"
+                    placeholder="e.g. Midnight Blue"
+                  />
+                </div>
 
-      <BlogProductCreateAndEdit>
-        <template #text> Quantity </template>
-        <template #inputText>
-          <input type="number" v-model="product.quantity" @focus="product.quantity = null" @blur="defaultQuantity()"
-            :class="`itbms-quantity ${boxTextTailwindQuantity}`" />
-        </template>
-      </BlogProductCreateAndEdit>
+                <!-- Quantity -->
+                <div>
+                  <label class="block font-medium text-gray-700 mb-1 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                      <line x1="3" y1="6" x2="21" y2="6"></line>
+                      <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                    Quantity
+                    <span class="text-red-500 ml-1">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    v-model="product.quantity"
+                    @focus="product.quantity = null"
+                    @blur="defaultQuantity()"
+                    :class="`itbms-quantity ${boxTextTailwindQuantity}`"
+                    placeholder="e.g. 10"
+                  />
+                  <p v-if="boxTextTailwindQuantity === boxTextTailwindError" class="mt-1 text-sm text-red-500">
+                    Quantity must be greater than 0
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Description (Full Width) -->
+            <div>
+              <label class="block font-medium text-gray-700 mb-1 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="8" y1="6" x2="21" y2="6"></line>
+                  <line x1="8" y1="12" x2="21" y2="12"></line>
+                  <line x1="8" y1="18" x2="21" y2="18"></line>
+                  <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                  <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                  <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
+                Description
+                <span class="text-red-500 ml-1">*</span>
+              </label>
+              <textarea
+                v-model="product.description"
+                rows="4"
+                @blur="trimField('description')"
+                :class="`itbms-description ${boxTextTailwindDesc}`"
+                placeholder="Enter product description..."
+              ></textarea>
+              <p v-if="boxTextTailwindDesc === boxTextTailwindError" class="mt-1 text-sm text-red-500">
+                Description is required
+              </p>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="mt-8 flex flex-col sm:flex-row sm:justify-end gap-4">
+            <button
+              type="button"
+              class="itbms-cancel-button order-2 sm:order-1 flex items-center justify-center px-6 py-3 border border-blue-300 text-blue-700 font-medium rounded-lg shadow-sm hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+              @click="router.go(-1)"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              Cancel
+            </button>
+            
+            <button
+              type="submit"
+              class="itbms-save-button order-1 sm:order-2 flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-medium rounded-lg shadow-sm hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="
+                !isSaving ||
+                !isFormValid ||
+                (prop.mode === 'Edit' && !isProductChanged)
+              "
+              @click="saveProduct"
+            >
+              <svg v-if="!isSaving" class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+              {{ isSaving ? "Save" : "Saving..." }}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <!-- Submit Button -->
-    <div class="mt-8 flex justify-end space-x-4">
-      <!-- Save Button -->
-      <button type="submit"
-        class="itbms-save-button px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        :disabled="!isSaving || !isFormValid || (prop.mode === 'Edit' && !isProductChanged)" @click="saveProduct">
-        {{ isSaving ? 'Save' : 'Saving...' }}
-      </button>
-
-      <!-- Cancel Button -->
-      <button type="button"
-        class="itbms-cancel-button px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-md transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-        @click="router.push('/sale-items')">
-        Cancel
-      </button>
-    </div>
-
   </div>
 </template>
+
+<style scoped>
+/* Custom focus styles */
+input:focus, textarea:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Custom scrollbar for textarea */
+textarea::-webkit-scrollbar {
+  width: 8px;
+}
+
+textarea::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+textarea::-webkit-scrollbar-thumb {
+  background: #93c5fd;
+  border-radius: 4px;
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+  background: #60a5fa;
+}
+
+/* Number input arrows styling */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  opacity: 1;
+  height: 24px;
+}
+</style>
