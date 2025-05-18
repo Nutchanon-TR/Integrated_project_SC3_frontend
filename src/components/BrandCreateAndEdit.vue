@@ -1,4 +1,5 @@
 <script setup>
+
 import { computed, ref, reactive, onMounted, onBeforeMount } from 'vue';
 import { addData, getDataById, updateData } from '@/libs/api';
 import { useRoute, useRouter } from 'vue-router';
@@ -41,18 +42,27 @@ onBeforeMount(async () => {
     }
   }
 })
+
 const trimField = (field) => {
   if (typeof brand[field] === "string") brand[field] = brand[field].trim();
 };
 // const allBrand = ref([])
+
 const originalBrand = reactive({})
 const handleCancel = () => {
   router.push({ name: 'BrandManage' })
 }
 
+
 const compareProduct = (a, b) => {
   if (a === b) return true;
-  if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) return false;
+  if (
+    typeof a !== "object" ||
+    typeof b !== "object" ||
+    a === null ||
+    b === null
+  )
+    return false;
 
   const keysA = Object.keys(a);
   const keysB = Object.keys(b);
@@ -61,7 +71,9 @@ const compareProduct = (a, b) => {
   return keysA.every((key) => compareProduct(a[key], b[key]));
 };
 
+
 const isBrandChanged = computed(() => !compareProduct(brand, originalBrand))
+
 const isSaving = ref(true);
 
 const isFormValid = computed(() => {
@@ -94,7 +106,6 @@ const handleSave = async () => {
     isSaving.value = true
     return
   }
-
   normalizeEmptyStringsToNull(brand);
   try {
     if (prop.mode === 'edit' && isEdit) {
@@ -103,7 +114,7 @@ const handleSave = async () => {
     } else {
       await addData(VITE_ROOT_API_URL + `/itb-mshop/v1/brands`, newBrand)
       router.push({ name: 'BrandManage' })
-
+      console.log(brand.isActive);
     }
   } catch (err) {
     console.log(err)
@@ -115,31 +126,40 @@ const handleSave = async () => {
 
 }
 
+
 </script>
 
 <template>
   <div class="p-6">
     <div class="mb-4 text-xl font-bold text-blue-700">ITB MShop</div>
     <div class="flex space-x-4 mb-6">
+
       <button id="itbms-item-list" class="border border-dashed border-red-500 px-2 py-1 text-sm rounded">Sale Item
         List</button>
       <button id="itbms-manage-brand" class="border border-dashed border-red-500 px-2 py-1 text-sm rounded">Brand
         List</button>
+
     </div>
 
     <div class="bg-blue-50 p-6 rounded-xl shadow-md max-w-xl">
-      <h2 class="text-lg font-semibold mb-4">{{ isEdit ? 'Edit Brand' : 'New Brand' }}</h2>
+      <h2 class="text-lg font-semibold mb-4">
+        {{ isEdit ? "Edit Brand" : "New Brand" }}
+      </h2>
 
       <div class="mb-4">
+
         <label for="name" class="block font-medium">Name <span class="text-red-500">*</span></label>
         <input id="itbms-name" v-model="brand.name" type="text" required @blur="trimField('name')"
           class="w-full border p-2 rounded" />
+
       </div>
 
       <div class="mb-4">
         <label for="websiteUrl" class="block font-medium">Website URL</label>
+
         <input id="itbms-websiteUrl" v-model="brand.websiteUrl" type="text" @blur="trimField('websiteUrl')"
           class="w-full border p-2 rounded" />
+
       </div>
 
       <div class="mb-4 flex items-center space-x-2">
@@ -148,6 +168,7 @@ const handleSave = async () => {
       </div>
 
       <div class="mb-4">
+
         <label for="countryOfOrigin" class="block font-medium">Country Of Origin</label>
         <input id="itbms-countryOfOrigin" v-model="brand.countryOfOrigin" type="text"
           @blur="trimField('countryOfOrigin')" class="w-full border p-2 rounded" />
@@ -161,6 +182,7 @@ const handleSave = async () => {
 
         <button id="itbms-cancel-button" type="button" @click="handleCancel"
           class="border border-blue-500 text-blue-500 px-4 py-2 rounded hover:bg-blue-100">
+
           Cancel
         </button>
       </div>
