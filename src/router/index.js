@@ -1,5 +1,5 @@
 
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import ProductList from "../views/ProductList.vue"
 import HomePage from '@/views/HomePage.vue'
 import ProductDetail from '@/views/ProductDetail.vue'
@@ -13,7 +13,7 @@ import BrandEdit from '@/views/BrandEdit.vue'
 
 
 const router = createRouter({
-  history: createWebHashHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
