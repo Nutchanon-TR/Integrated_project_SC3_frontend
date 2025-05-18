@@ -73,13 +73,11 @@
   ],
   "Brands": [
     {
-      "id": "1",
       "name": "TechNova",
       "websiteUrl": "https://www.technova.com",
       "isActive": true,
       "countryOfOrigin": "USA",
-      "createdOn": "1482-05-09T13:14:05Z",
-      "updatedOn": "1482-05-09T13:14:05Z"
+      "id": "1"
     },
     {
       "id": "2",
@@ -118,14 +116,11 @@
       "updatedOn": "1482-05-09T13:14:05Z"
     },
     {
-      "id": "6",
       "name": "Sony",
       "websiteUrl": "https://www.sony.com",
+      "isActive": true,
       "countryOfOrigin": "Japan",
-      "noOfSaleItems": 0,
-      "createdOn": "2025-05-16 23:20:44.0",
-      "updatedOn": "2025-05-16 23:20:44.0",
-      "isActive": true
+      "id": "6"
     },
     {
       "id": "7",
@@ -138,28 +133,11 @@
       "isActive": true
     },
     {
-      "id": "8",
       "name": "Nokia",
       "websiteUrl": "https://www.nokia.com",
-      "countryOfOrigin": "Finland",
-      "noOfSaleItems": 0,
-      "createdOn": "2025-05-16 23:20:44.0",
-      "updatedOn": "2025-05-16 23:20:44.0",
-      "isActive": false
-    },
-    {
-      "id": "d92e",
-      "name": "Jill",
-      "websiteUrl": "www.jill4455.co.th",
       "isActive": false,
-      "countryOfOrigin": "Japan"
-    },
-    {
-      "id": "8839",
-      "name": "Ter",
-      "websiteUrl": "www.Ter999.com",
-      "isActive": true,
-      "countryOfOrigin": "Thailand"
+      "countryOfOrigin": "Finland",
+      "id": "8"
     }
   ]
 }

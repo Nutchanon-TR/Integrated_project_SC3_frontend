@@ -6,6 +6,9 @@ import ProductDetail from '@/views/ProductDetail.vue'
 import ProuctEdit from '@/views/ProuctEdit.vue'
 import ProuctCreate from '@/views/ProuctCreate.vue'
 import BrandCreate from '@/views/BrandCreate.vue'
+import ProductManage from '@/views/ProductManage.vue'
+import BrandManage from '@/views/BrandManage.vue'
+import BrandEdit from '@/views/BrandEdit.vue'
 
 
 
@@ -40,10 +43,27 @@ const router = createRouter({
 
     },
     {
+      path: '/sale-items/list',
+      name: 'ProductManage',
+      component: ProductManage
+    },
+    {
       path: '/brands/add',
       name: 'BrandCreate',
       component: BrandCreate
+    },
+    {
+      path: '/brand',
+      name: 'BrandManage',
+      component: BrandManage
+
+    },
+    {
+      path: '/brand/:id/edit',
+      name: 'BrandEdit',
+      component: BrandEdit
     }
+
   ],
 })
 

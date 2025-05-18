@@ -169,7 +169,9 @@ const saveProduct = async () => {
     }
   }
   catch (err) {
-    console.error("เกิดข้อผิดพลาดระหว่างบันทึก:", err.message);
+    console.error('เกิดข้อผิดพลาดระหว่างบันทึก:', err.message)
+    alert(err.message)
+    router.push(`/sale-items`);
   } finally {
     isSaving.value = true;
   }

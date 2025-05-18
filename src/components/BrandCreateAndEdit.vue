@@ -1,5 +1,5 @@
 <script setup>
-import {ref,reactive,onMounted} from 'vue';
+import {computed,ref,reactive,onMounted,onBeforeMount} from 'vue';
 import {addData,getDataById,updateData} from '@/libs/api';
 import {useRoute,useRouter} from 'vue-router';
 
@@ -22,22 +22,64 @@ const brand = reactive({
     isActive:false,
 
 })
-onMounted(async ()=>{
+onBeforeMount(async ()=>{
     if(prop.mode === "edit" && isEdit){
        try{
-            const data = await getDataById(VITE_ROOT_API_URL + `/itb-mshop/v1/brands`,isEdit)
+      //       const data = await getDataById(VITE_ROOT_API_URL + `/itb-mshop/v1/brands`,isEdit)
+            const data = await getDataById(VITE_ROOT_API_URL + `/Brands`,isEdit)
             brand.id = data.id
             brand.name = data.name
             brand.websiteUrl = data.websiteUrl
             brand.countryOfOrigin = data.countryOfOrigin
             brand.isActive = data.isActive
-            console.log(brand.value)
+            Object.assign(originalBrand,JSON.parse(JSON.stringify(brand)))
+            console.log(brand)
        }catch(err){
         console.log(err)
        }
     }
 })
-const allBrand = ref([])
+const trimField = (field) => {
+  if (typeof brand[field] === "string") brand[field] = brand[field].trim();
+};
+// const allBrand = ref([])
+const originalBrand = reactive({})
+const handleCancel = () =>{
+  router.push({name:'BrandManage'})
+}
+
+const compareProduct = (a, b) => {
+  if (a === b) return true;
+  if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) return false;
+
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) return false;
+
+  return keysA.every((key) => compareProduct(a[key], b[key]));
+};
+
+const isBrandChanged = computed(()=>!compareProduct(brand,originalBrand))
+const isSaving = ref(true);
+const isFormValid = computed(() => {
+  return (
+    brand.id !== null &&
+    brand.name !== null &&
+    brand.name.trim() !== "" &&
+    brand.websiteUrl.trim() !== "" &&
+    brand.countryOfOrigin.trim() !== ""
+  );
+});
+
+const normalizeEmptyStringsToNull = (obj) => {
+  for (const key in obj) {
+    if (typeof obj[key] === "string" && obj[key].trim() === "") {
+      obj[key] = null;
+    } else if (typeof obj[key] === "object" && obj[key] !== null) {
+      normalizeEmptyStringsToNull(obj[key]);
+    }
+  }
+};
 const handleSave = async () =>{
     const newBrand = {
     name:brand.name,
@@ -45,22 +87,30 @@ const handleSave = async () =>{
     isActive:brand.isActive,
     countryOfOrigin:brand.countryOfOrigin
     }
+    isSaving.value = false;
+    if(!isFormValid){
+      isSaving.value = true
+    }
+
+    normalizeEmptyStringsToNull(brand);
     try{
         if(prop.mode === 'edit' && isEdit){
-            const data = await updateData(VITE_ROOT_API_URL + `/itb-mshop/v1/brands`,isEdit, newBrand)
+        await updateData(VITE_ROOT_API_URL + `/itb-mshop/v1/brands`,isEdit, newBrand)
+        router.push({name:'BrandManage'})
         }else{
-        // const data = await addData(VITE_ROOT_API_URL + `/itb-mshop/v1/brands`, newBrand)
-        const data = await addData(VITE_ROOT_API_URL + `/Brands`, newBrand)
-        allBrand.value.push(data.value)
-        console.log(allBrand.value)
+        await addData(VITE_ROOT_API_URL + `/itb-mshop/v1/brands`, newBrand)
+        router.push({name:'BrandManage'})
+        
         }
    
     
-    
-    
     }catch(err){
         console.log(err)
+    }finally{
+       isSaving.value = true;
     }
+
+
    
 }
 
@@ -77,15 +127,16 @@ const handleSave = async () =>{
     <div class="bg-blue-50 p-6 rounded-xl shadow-md max-w-xl">
       <h2 class="text-lg font-semibold mb-4">{{ isEdit ? 'Edit Brand' : 'New Brand' }}</h2>
 
-      <form @submit.prevent="handleSave">
         <div class="mb-4">
           <label for="name" class="block font-medium">Name <span class="text-red-500">*</span></label>
-          <input id="itbms-name" v-model="brand.name" type="text" required class="w-full border p-2 rounded" />
+          <input id="itbms-name" v-model="brand.name" type="text" required @blur="trimField('name')"
+          class="w-full border p-2 rounded" />
         </div>
 
         <div class="mb-4">
           <label for="websiteUrl" class="block font-medium">Website URL</label>
-          <input id="itbms-websiteUrl" v-model="brand.websiteUrl" type="text" class="w-full border p-2 rounded" />
+          <input id="itbms-websiteUrl" v-model="brand.websiteUrl" type="text" @blur="trimField('websiteUrl')"
+           class="w-full border p-2 rounded" />
         </div>
 
         <div class="mb-4 flex items-center space-x-2">
@@ -95,18 +146,19 @@ const handleSave = async () =>{
 
         <div class="mb-4">
           <label for="countryOfOrigin" class="block font-medium">Country Of Origin</label>
-          <input id="itbms-countryOfOrigin" v-model="brand.countryOfOrigin" type="text" class="w-full border p-2 rounded" />
+          <input id="itbms-countryOfOrigin" v-model="brand.countryOfOrigin" type="text" @blur="trimField('countryOfOrigin')"
+           class="w-full border p-2 rounded" />
         </div>
 
         <div class="flex space-x-4 mt-6">
-          <button id="itbms-save-button" type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-            Save
+          <button @click="handleSave" :disabled="!isSaving || !isFormValid || prop.mode === 'Edit' && !isBrandChanged" id="itbms-save-button" type="submit"
+           class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+              {{ isSaving ? 'Save' : 'Saving...' }}
           </button>
           <button id="itbms-cancel-button" type="button" @click="handleCancel" class="border border-blue-500 text-blue-500 px-4 py-2 rounded hover:bg-blue-100">
             Cancel
           </button>
         </div>
-      </form>
     </div>
   </div>
 </template>
