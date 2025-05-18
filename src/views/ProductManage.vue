@@ -27,8 +27,7 @@ onMounted(async () => {
 );
 </script>
 <template>
-  <div class="flex items-center justify-between gap-4 mx-[225px] mt-[50px]">
-
+       <div class="flex items-center justify-between gap-4 mx-[225px] mt-[50px]">
   <RouterLink
     :to="{ name: 'ProuctCreate' }"
     class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-m font-medium px-5 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
@@ -40,18 +39,19 @@ onMounted(async () => {
   </RouterLink>
 
   <RouterLink
-    :to="{ name: 'ProductManage' }"
+    :to="{ name: 'BrandManage' }"
     class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-m font-medium px-5 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
   >
     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
     </svg>
-    <span class="tracking-wide">Manage Sale Items</span>
+    <span class="tracking-wide">Brand Manage</span>
   </RouterLink>
-</div>
+  
+  </div>
 
-      <SelectAllSaleItemGallery :product="product" />
- 
+        <SelectAllSaleItemList :product="product" />
+
+
+
 </template>
-
-<style scoped></style>

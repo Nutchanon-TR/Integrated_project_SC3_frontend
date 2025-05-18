@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted } from "vue";
-import { unitPrice, nullCatching } from "./../libs/utils.js"
+import { unitPrice, nullCatching } from "../libs/utils.js"
 import { useAlertStore } from "../stores/alertStore.js"
 
 const alertStore = useAlertStore()
@@ -11,7 +11,7 @@ const props = defineProps({
 })
 
 onMounted(() => {
-  console.log('ProductList mounted')
+  console.log('ProductGallery mounted')
   console.log(props.product)
 
   if (alertStore.message) {
@@ -39,13 +39,13 @@ onMounted(() => {
       no sale item
     </div>
 
-    <RouterLink :to="{ name: 'ProuctCreate' }"
+    <!-- <RouterLink :to="{ name: 'ProuctCreate' }"
       class="itbms-sale-item-add inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-full shadow-sm hover:shadow-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
       </svg>
       New
-    </RouterLink>
+    </RouterLink> -->
 
 
     <!-- Product Grid -->

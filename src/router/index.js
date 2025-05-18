@@ -5,6 +5,8 @@ import HomePage from '@/views/HomePage.vue'
 import ProductDetail from '@/views/ProductDetail.vue'
 import ProuctEdit from '@/views/ProuctEdit.vue'
 import ProuctCreate from '@/views/ProuctCreate.vue'
+import ProductManage from '@/views/ProductManage.vue'
+import BrandManage from '@/views/BrandManage.vue'
 
 
 
@@ -37,6 +39,16 @@ const router = createRouter({
       name: 'ProuctCreate',
       component: ProuctCreate
 
+    },
+    {
+      path: '/sale-items/list',
+      name: 'ProductManage',
+      component: ProductManage
+    },
+    {
+      path: '/brand',
+      name: 'BrandManage',
+      component: BrandManage
     }
   ],
 })
