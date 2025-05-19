@@ -28,7 +28,7 @@ onMounted(() => {
   <div class="p-6 max-w-7xl mx-auto">
     <!-- Alert Message -->
     <div v-if="alertStore.message" 
-         :class="`px-4 py-2 rounded mb-4 ${alertStore.type === 'error' 
+         :class="`itbms-message px-4 py-2 rounded mb-4 ${alertStore.type === 'error' 
            ? 'bg-red-100 text-red-700' 
            : 'bg-blue-100 text-blue-700'}`">
       {{ alertStore.message }}
@@ -80,13 +80,15 @@ onMounted(() => {
             <td class="px-6 py-4 whitespace-nowrap text-base text-gray-500 itbms-price">{{ unitPrice(product.price) }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-base text-gray-500">
               <div class="flex space-x-2">
-                <button class="bg-blue-700 hover:bg-blue-800 text-white w-8 h-8 flex items-center justify-center rounded transition duration-150 hover:cursor-pointer">
-                  🖋️
-                </button>
-                <button class="bg-white hover:bg-red-500 border border-gray-300 text-gray-700 w-8 h-8 flex items-center justify-center rounded transition duration-150 hover:cursor-pointer">
-                  🗑️
-                </button>
-              </div>
+                <RouterLink :to="{  name: 'Edit', params: { id: product.id }}">
+                  <button class="itbms-edit-button bg-blue-700 hover:bg-blue-800 text-white w-8 h-8 flex items-center justify-center rounded transition duration-150 hover:cursor-pointer">
+                    🖋️
+                  </button>
+                </RouterLink>
+                  <button class="itbms-delete-button bg-white hover:bg-red-500 border border-gray-300 text-gray-700 w-8 h-8 flex items-center justify-center rounded transition duration-150 hover:cursor-pointer">
+                    🗑️
+                  </button>
+                </div>
             </td>
           </tr>
           

@@ -1,56 +1,68 @@
 <script setup>
-import {computed,ref,reactive,onMounted,onBeforeMount} from 'vue';
-import {addData,getDataById,updateData} from '@/libs/api';
-import {useRoute,useRouter} from 'vue-router';
+import { computed, ref, reactive, onBeforeMount } from "vue";
+import { addData, getDataById, updateData } from "@/libs/api";
+import { useRoute, useRouter } from "vue-router";
+import { useAlertStore } from "../stores/alertStore.js";
 
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
-const router = useRouter()
-const route = useRoute()
-const prop = defineProps({
-    mode:{
-        type:String
-    },
-     brandId: [String, Number],
-})
-// const isEdit = route.params.id !== undefined;
-const isEdit = prop.brandId
-const brand = reactive({
-    id:null,
-    name:'',
-    websiteUrl:'',
-    countryOfOrigin:'',
-    isActive:false,
 
-})
-onBeforeMount(async ()=>{
-    if(prop.mode === "edit" && isEdit){
-       try{
-            const data = await getDataById(VITE_ROOT_API_URL + `/itb-mshop/v1/brands`,isEdit)
-            // const data = await getDataById(VITE_ROOT_API_URL + `/Brands`,isEdit)
-            brand.id = data.id
-            brand.name = data.name
-            brand.websiteUrl = data.websiteUrl
-            brand.countryOfOrigin = data.countryOfOrigin
-            brand.isActive = data.isActive
-            Object.assign(originalBrand,JSON.parse(JSON.stringify(brand)))
-            console.log(brand)
-       }catch(err){
-        console.log(err)
-       }
+const alertStore = useAlertStore();
+const router = useRouter();
+const route = useRoute();
+
+const prop = defineProps({
+  mode: {
+    type: String,
+  },
+  brandId: [String, Number],
+});
+
+const isEdit = prop.brandId;
+const brand = reactive({
+  id: null,
+  name: "",
+  websiteUrl: "",
+  countryOfOrigin: "",
+  isActive: false,
+});
+
+onBeforeMount(async () => {
+  if (prop.mode === "edit" && isEdit) {
+    try {
+      const data = await getDataById(
+        VITE_ROOT_API_URL + `/itb-mshop/v1/brands`,
+        isEdit
+      );
+      brand.id = data.id;
+      brand.name = data.name;
+      brand.websiteUrl = data.websiteUrl;
+      brand.countryOfOrigin = data.countryOfOrigin;
+      brand.isActive = data.isActive;
+      Object.assign(originalBrand, JSON.parse(JSON.stringify(brand)));
+    } catch (err) {
+      console.log(err);
     }
-})
+  }
+});
+
 const trimField = (field) => {
   if (typeof brand[field] === "string") brand[field] = brand[field].trim();
 };
-// const allBrand = ref([])
-const originalBrand = reactive({})
-const handleCancel = () =>{
-  router.push({name:'BrandManage'})
-}
+
+const originalBrand = reactive({});
+const handleCancel = () => {
+  router.push({ name: "BrandManage" });
+};
 
 const compareProduct = (a, b) => {
   if (a === b) return true;
-  if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) return false;
+  if (
+    typeof a !== "object" ||
+    typeof b !== "object" ||
+    a === null ||
+    b === null
+  )
+    return false;
 
   const keysA = Object.keys(a);
   const keysB = Object.keys(b);
@@ -59,15 +71,16 @@ const compareProduct = (a, b) => {
   return keysA.every((key) => compareProduct(a[key], b[key]));
 };
 
-const isBrandChanged = computed(()=>!compareProduct(brand,originalBrand))
+const isBrandChanged = computed(() => !compareProduct(brand, originalBrand));
+
 const isSaving = ref(true);
+
 const isFormValid = computed(() => {
   return (
-    brand.id !== null &&
-    brand.name !== null &&
-    brand.name.trim() !== "" &&
-    brand.websiteUrl.trim() !== "" &&
-    brand.countryOfOrigin.trim() !== ""
+    brand.name !== null && 
+    brand.name.trim() !== "" 
+    // brand.websiteUrl.trim() !== "" &&
+    // brand.countryOfOrigin.trim() !== ""
   );
 });
 
@@ -80,84 +93,248 @@ const normalizeEmptyStringsToNull = (obj) => {
     }
   }
 };
-const handleSave = async () =>{
-    const newBrand = {
-    name:brand.name,
-    websiteUrl:brand.websiteUrl,
-    isActive:brand.isActive,
-    countryOfOrigin:brand.countryOfOrigin
-    }
-    // isSaving.value = false;
-    // if(!isFormValid){
-    //   isSaving.value = true
-    // }
 
-    normalizeEmptyStringsToNull(brand);
-    try{
-        if(prop.mode === "edit" && isEdit){
-        await updateData(VITE_ROOT_API_URL + `/itb-mshop/v1/brands`,isEdit, newBrand)
-        router.push({name:'BrandManage'})
-        }else{
-        await addData(VITE_ROOT_API_URL + `/itb-mshop/v1/brands`, newBrand)
-        router.push({name:'BrandManage'})
-        
-        }
-   
-    
-    }catch(err){
-        console.log(err)
+const handleSave = async () => {
+  const newBrand = {
+    name: brand.name,
+    websiteUrl: brand.websiteUrl,
+    isActive: brand.isActive,
+    countryOfOrigin: brand.countryOfOrigin,
+  };
+  isSaving.value = false;
+  if (!isFormValid.value) {
+    isSaving.value = true;
+    return;
+  }
+  normalizeEmptyStringsToNull(newBrand);
+  try {
+    if (prop.mode === "edit" && isEdit) {
+      await updateData(
+        VITE_ROOT_API_URL + `/itb-mshop/v1/brands`,
+        isEdit,
+        newBrand
+      );
+      router.push({ name: "BrandManage" });
+      alertStore.setMessage("The brand has been updated.");
+    } else {
+      await addData(VITE_ROOT_API_URL + `/itb-mshop/v1/brands`, newBrand);
+      router.push({ name: "BrandManage" });
+      alertStore.setMessage("The brand has been added.");
     }
-    // finally{
-    //    isSaving.value = true;
-    // }
-   
-}
+
+  } catch (err) {
+    console.log(err);
+  } finally {
+    isSaving.value = true;
+  }
+};
 
 </script>
 
 <template>
-    <div class="p-6">
-    <div class="mb-4 text-xl font-bold text-blue-700">ITB MShop</div>
-    <div class="flex space-x-4 mb-6">
-      <button id="itbms-item-list" class="border border-dashed border-red-500 px-2 py-1 text-sm rounded">Sale Item List</button>
-      <button id="itbms-manage-brand" class="border border-dashed border-red-500 px-2 py-1 text-sm rounded">Brand List</button>
-    </div>
+  <div class="min-h-screen bg-gradient-to-b from-blue-50 to-white p-6">
+    <div class="max-w-4xl mx-auto">
+      <!-- Header -->
+      <div class="mb-6">
+        <div class="text-2xl font-bold text-blue-600 mb-4 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          ITB MShop
+        </div>
+        
+        <!-- Breadcrumbs -->
+        <nav class="flex items-center text-sm font-medium">
+          <RouterLink
+            :to="{ name: 'ProductManage' }"
+            class="text-blue-500 hover:text-blue-700 transition-colors duration-200"
+          >
+            Sale Item List
+          </RouterLink>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-2 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+          <RouterLink
+            :to="{ name: 'BrandManage' }"
+            class="text-blue-500 hover:text-blue-700 transition-colors duration-200"
+          >
+            Brand List
+          </RouterLink>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-2 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+          <span class="text-gray-600">
+            {{ isEdit ? "Edit Brand" : "New Brand" }}
+            <span v-if="isEdit" class="text-gray-500 ml-1">
+              - {{ brand.name }}
+            </span>
+          </span>
+        </nav>
+      </div>
 
-    <div class="bg-blue-50 p-6 rounded-xl shadow-md max-w-xl">
-      <h2 class="text-lg font-semibold mb-4">{{ isEdit ? 'Edit Brand' : 'New Brand' }}</h2>
-
-        <div class="mb-4">
-          <label for="name" class="block font-medium">Name <span class="text-red-500">*</span></label>
-          <input id="itbms-name" v-model="brand.name" type="text" required @blur="trimField('name')"
-          class="w-full border p-2 rounded" />
+      <!-- Form Card -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-blue-100">
+        <!-- Card Header -->
+        <div class="bg-blue-600 px-6 py-4">
+          <h2 class="text-xl font-semibold text-white flex items-center">
+            <svg v-if="isEdit" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5v14M5 12h14"></path>
+            </svg>
+            {{ isEdit ? "Edit Brand" : "New Brand" }}
+          </h2>
         </div>
 
-        <div class="mb-4">
-          <label for="websiteUrl" class="block font-medium">Website URL</label>
-          <input id="itbms-websiteUrl" v-model="brand.websiteUrl" type="text" @blur="trimField('websiteUrl')"
-           class="w-full border p-2 rounded" />
-        </div>
+        <!-- Form Content -->
+        <div class="p-6">
+          <div class="space-y-6">
+            <!-- Name Field -->
+            <div>
+              <label for="itbms-name" class="block text-sm font-medium text-gray-700 mb-1">
+                Brand Name <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                  </svg>
+                </div>
+                <input
+                  
+                  v-model="brand.name"
+                  type="text"
+                  required
+                  @blur="trimField('name')"
+                  class="itbms-name block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Enter brand name"
+                />
+              </div>
+            </div>
 
-        <div class="mb-4 flex items-center space-x-2">
-          <label for="isActive" class="font-medium">Active</label>
-          <input id="itbms-isActive" type="checkbox" v-model="brand.isActive" />
-        </div>
+            <!-- Website URL Field -->
+            <div>
+              <label for="itbms-websiteUrl" class="block text-sm font-medium text-gray-700 mb-1">
+                Website URL
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                  </svg>
+                </div>
+                <input
+                  
+                  v-model="brand.websiteUrl"
+                  type="text"
+                  @blur="trimField('websiteUrl')"
+                  class="itbms-websiteUrl block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="https://example.com"
+                />
+              </div>
+            </div>
 
-        <div class="mb-4">
-          <label for="countryOfOrigin" class="block font-medium">Country Of Origin</label>
-          <input id="itbms-countryOfOrigin" v-model="brand.countryOfOrigin" type="text" @blur="trimField('countryOfOrigin')"
-           class="w-full border p-2 rounded" />
-        </div>
+            <!-- Country of Origin Field -->
+            <div>
+              <label for="itbms-countryOfOrigin" class="block text-sm font-medium text-gray-700 mb-1">
+                Country of Origin
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M2 12h20"></path>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                  </svg>
+                </div>
+                <input
+                  
+                  v-model="brand.countryOfOrigin"
+                  type="text"
+                  @blur="trimField('countryOfOrigin')"
+                  class="itbms-countryOfOrigin block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Enter country of origin"
+                />
+              </div>
+            </div>
 
-        <div class="flex space-x-4 mt-6">
-          <button @click="handleSave" :disabled="!isSaving || !isFormValid || prop.mode === 'Edit' && !isBrandChanged" id="itbms-save-button" type="submit"
-           class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-              {{ isSaving ? 'Save' : 'Saving...' }}
-          </button>
-          <button id="itbms-cancel-button" type="button" @click="handleCancel" class="border border-blue-500 text-blue-500 px-4 py-2 rounded hover:bg-blue-100">
-            Cancel
-          </button>
+            <!-- Active Status -->
+            <div class="flex items-center">
+              <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                <input 
+                  type="checkbox" 
+                  name="toggle" 
+                  
+                  v-model="brand.isActive"
+                  class="itbms-isActive toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                />
+                <label 
+                  for="itbms-isActive" 
+                  class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
+                ></label>
+              </div>
+              <div class="ml-3 text-sm">
+                <label for="itbms-isActive" class="font-medium text-gray-700">Active</label>
+                <p class="text-gray-500">Set the brand as active in the system</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="mt-8 flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0">
+            <button
+              @click="handleSave"
+              :disabled="
+                !isSaving ||
+                !isFormValid ||
+                (prop.mode === 'edit' && !isBrandChanged)
+              "
+              
+              type="submit"
+              class="itbms-save-button w-full sm:w-auto flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg v-if="!isSaving" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ isSaving ? "Save" : "Saving..." }}
+            </button>
+
+            <button
+             
+              type="button"
+              @click="handleCancel"
+              class="itbms-cancel-button w-full sm:w-auto flex justify-center items-center px-6 py-3 border border-blue-300 text-base font-medium rounded-lg shadow-sm text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
+      </div>
     </div>
   </div>
+  
 </template>
+
+<style scoped>
+.toggle-checkbox:checked {
+  right: 0;
+  border-color: #3b82f6;
+}
+.toggle-checkbox:checked + .toggle-label {
+  background-color: #3b82f6;
+}
+.toggle-label {
+  transition: background-color 0.2s ease-in;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+</style>

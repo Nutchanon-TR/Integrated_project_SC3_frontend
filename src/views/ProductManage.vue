@@ -35,7 +35,7 @@ onMounted(async () => {
     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
     </svg>
-    <span class="tracking-wide">New Product</span>
+    <span class="itbms-sale-item-add tracking-wide">New Product</span>
   </RouterLink>
 
   <RouterLink
@@ -45,11 +45,11 @@ onMounted(async () => {
     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
     </svg>
-    <span class="tracking-wide">Brand Manage</span>
+    <span class="itbms-manage-brand tracking-wide">Brand Manage</span>
   </RouterLink>
   
   </div>
-
+        
         <SelectAllSaleItemList :product="product" />
 
 
