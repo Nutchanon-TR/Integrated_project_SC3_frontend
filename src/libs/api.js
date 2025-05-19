@@ -86,6 +86,7 @@ const deleteUserById = async (url, id) => {
   if (!res.ok) {
     const error = new Error('Request failed')
     error.status = res.status
+    error.json = () => res.json();
     throw error
   }
 

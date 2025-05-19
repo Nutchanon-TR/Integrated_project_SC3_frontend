@@ -11,6 +11,11 @@ const alertStore = useAlertStore();
 const router = useRouter();
 const showDeleteModal = ref(false);
 const pendingDeleteId = ref(null);
+const brandToDeleteName = ref("");
+const cannotdelete = ref(false)
+
+const emit = defineEmits(["brandDeleted"]);
+
 
 const props = defineProps({
   brand: {
@@ -26,15 +31,20 @@ const goToEdit = (id) => {
 const confirmDeleteProduct = async () => {
   try {
     await deleteUserById(`${VITE_ROOT_API_URL}/itb-mshop/v1/brands`, pendingDeleteId.value);
-    alertStore.setMessage('The sale item has been deleted.');
-    router.push('/sale-items');
+    alertStore.setMessage('The brand has been deleted.');
+    // router.push('/brands');
+    emit("brandDeleted");
   } catch (error) {
-    if (error.status === 404) {
-      alertStore.setMessage('The requested sale item does not exist.', 'error')
-      router.push('/sale-items');
+    if (error.status === 400) {
+      const data = await error.json?.();
+      alertStore.setMessage(data?.message || 'Cannot delete brand.', 'error');
+    }
+    else if (error.status === 404) {
+      alertStore.setMessage('An error has occurred, the brand does not exist.', 'error')
+      router.push('/brands');
     } else {
       alertStore.setMessage('The requested sale item does not exists.', 'error')
-      router.push('/sale-items');
+      router.push('/brands');
     }
   } finally {
     showDeleteModal.value = false;
@@ -43,9 +53,24 @@ const confirmDeleteProduct = async () => {
 
 
 
-const deleteBrand = (id) => {
+const deleteBrand = (id, name, noOfSaleItems) => {
+  console.log(noOfSaleItems);
+  if (noOfSaleItems > 0) {
+    cannotdelete.value = true
+    brandToDeleteName.value = name;
+    // alertStore.setMessage(`Delete ${name} is not allowed. There are sale items with ${name} brand.`, 'error');
+
+    // setTimeout(() => {
+    //   alertStore.clearMessage();
+    //   router.push('/brands'); // หรือ router.push('/brands')
+    // }, 2500);
+
+    return;
+  }
   pendingDeleteId.value = id;
   showDeleteModal.value = true;
+  brandToDeleteName.value = name
+
 };
 
 onMounted(() => {
@@ -63,12 +88,20 @@ onMounted(() => {
 
 <template>
   <div class="max-w-7xl mx-auto mt-[40px]">
-    
+
     <!-- Navigation Links -->
-    <div class="flex mb-4">
-      <RouterLink :to="{ name: 'ProductManage' }" class="text-blue-500 mr-6">Sale Item List</RouterLink>
-      <RouterLink :to="{ name: 'BrandCreate' }" class="itbms-add-button text-blue-500">Add new brand</RouterLink>
+    <div class="flex mb-4 space-x-4">
+      <RouterLink :to="{ name: 'ProductManage' }"
+        class="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md shadow-sm transition">
+        🛒 Sale Item List
+      </RouterLink>
+
+      <RouterLink :to="{ name: 'BrandCreate' }"
+        class="itbms-add-button px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-md shadow-sm transition">
+        ➕ Add New Brand
+      </RouterLink>
     </div>
+
 
     <!-- Alert Message -->
     <div v-if="alertStore.message" :class="`itbms-message px-4 py-2 rounded mb-4 ${alertStore.type === 'error'
@@ -80,7 +113,8 @@ onMounted(() => {
     <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
         <h2 class="text-lg font-semibold text-gray-800 mb-4">ยืนยันการลบ</h2>
-        <p class="itbms-message text-gray-600 mb-6">Do you want to delete Nothing brand?</p>
+        <p class="itbms-message text-gray-600 mb-6">Do you want to delete <strong>{{ brandToDeleteName }}</strong>
+          brand?</p>
         <div class="flex justify-end space-x-2">
           <button @click="showDeleteModal = false"
             class="itbms-cancel-button px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition">ยกเลิก</button>
@@ -89,6 +123,24 @@ onMounted(() => {
         </div>
       </div>
     </div>
+
+    <!-- Modal: Cannot Delete Brand -->
+    <div v-if="cannotdelete" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+        <h2 class="text-lg font-semibold text-red-700 mb-4">Delete Not Allowed</h2>
+        <p class="itbms-message text-gray-700 mb-6">
+          Delete <strong>{{ brandToDeleteName }}</strong> is not allowed. There are sale items with <strong>{{
+            brandToDeleteName }}</strong> brand.
+        </p>
+        <div class="flex justify-end">
+          <button @click="cannotdelete = false"
+            class="itbms-cancel-button px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
 
     <!-- Table -->
     <div class="overflow-x-auto">
@@ -108,11 +160,11 @@ onMounted(() => {
             <td class="py-2 px-4 text-center">
               <div class="flex justify-center space-x-2">
                 <button @click="goToEdit(item.id)"
-                  class="bg-blue-700 hover:bg-blue-800 text-white w-8 h-8 flex items-center justify-center rounded transition duration-150 hover:cursor-pointer">
+                  class="itbms-edit-button bg-blue-700 hover:bg-blue-800 text-white w-8 h-8 flex items-center justify-center rounded transition duration-150 hover:cursor-pointer">
                   🖋️
                 </button>
-                <button @click="deleteBrand(item.id)"
-                  class="bg-white hover:bg-red-500 border border-gray-300 text-gray-700 w-8 h-8 flex items-center justify-center rounded transition duration-150 hover:cursor-pointer">
+                <button @click="deleteBrand(item.id, item.name, item.noOfSaleItems)"
+                  class="itbms-delete-button bg-white hover:bg-red-500 border border-gray-300 text-gray-700 w-8 h-8 flex items-center justify-center rounded transition duration-150 hover:cursor-pointer">
                   🗑️
                 </button>
               </div>

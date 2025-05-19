@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, watchEffect, onBeforeMount } from "vue";
+import { ref, defineProps, watchEffect, onBeforeMount, onMounted,watch } from "vue";
 import { getAllData } from "@/libs/api";
 import { useRouter } from "vue-router";
 
@@ -40,6 +40,9 @@ const prop = defineProps({
     type: String,
     default: 'All Brands'
   },
+  reloadData:{
+    type:Number
+  }
 });
 
 // Emits
@@ -84,6 +87,16 @@ onBeforeMount(async () => {
     alert("เกิดข้อผิดพลาดในการโหลดแบรนด์");
   }
 });
+async function fetchBrands() {
+  const data = await getAllData(`${URL}/itb-mshop/v1/brands`);
+  options.value = data.sort((a, b) => a.name.localeCompare(b.name));
+}
+fetchBrands();
+watch(() =>{
+  prop.reloadData, () =>{
+    fetchBrands();
+  }
+})
 
 // เมื่อเลือกแบรนด์จาก select
 function handleChange() {

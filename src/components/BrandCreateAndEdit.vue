@@ -6,6 +6,7 @@ import { useAlertStore } from "../stores/alertStore.js";
 
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
 
+
 const router = useRouter();
 const route = useRoute();
 const alertStore = useAlertStore();
@@ -77,7 +78,7 @@ const isSaving = ref(true);
 
 const isFormValid = computed(() => {
   return (
-    brand.name !== null &&
+    brand.name !== null && 
     brand.name.trim() !== "" 
     // brand.websiteUrl.trim() !== "" &&
     // brand.countryOfOrigin.trim() !== ""
@@ -102,11 +103,11 @@ const handleSave = async () => {
     countryOfOrigin: brand.countryOfOrigin,
   };
   isSaving.value = false;
-  if (!isFormValid) {
+  if (!isFormValid.value) {
     isSaving.value = true;
     return;
   }
-  normalizeEmptyStringsToNull(brand);
+  normalizeEmptyStringsToNull(newBrand);
   try {
     if (prop.mode === "edit" && isEdit) {
       await updateData(
@@ -116,17 +117,21 @@ const handleSave = async () => {
       );
       alertStore.setMessage("The sale item has been updated.");
       router.push({ name: "BrandManage" });
+      alertStore.setMessage("The brand has been updated.");
     } else {
       await addData(VITE_ROOT_API_URL + `/itb-mshop/v1/brands`, newBrand);
       alertStore.setMessage("The brand has been added.");
       router.push({ name: "BrandManage" });
+      alertStore.setMessage("The brand has been added.");
     }
+
   } catch (err) {
     console.log(err);
   } finally {
     isSaving.value = true;
   }
 };
+
 </script>
 
 <template>
@@ -291,6 +296,7 @@ const handleSave = async () => {
                 !isFormValid ||
                 (prop.mode === 'edit' && !isBrandChanged)
               "
+
               type="submit"
               class="itbms-save-button w-full sm:w-auto flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -302,6 +308,7 @@ const handleSave = async () => {
             </button>
 
             <button
+
               type="button"
               @click="handleCancel"
               class="itbms-cancel-button w-full sm:w-auto flex justify-center items-center px-6 py-3 border border-blue-300 text-base font-medium rounded-lg shadow-sm text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"

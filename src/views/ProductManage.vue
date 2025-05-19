@@ -4,12 +4,14 @@ import { getAllData } from "../libs/api.js";
 import SelectAllSaleItemList from "@/components/SelectAllSaleItemList.vue";
 import SelectAllSaleItemGallery from "@/components/SelectAllSaleItemGallery.vue";
 
+// alertStore.setMessage('The brand has been deleted.');
+
 const product = ref([]);
 const brand = ref([]);
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
 
-onMounted(async () => {
-  try {
+const fetchselect = async () => {
+    try {
     const productData = await getAllData(
       VITE_ROOT_API_URL + "/itb-mshop/v1/sale-items"
     );
@@ -24,7 +26,10 @@ onMounted(async () => {
   }
 }
 
-);
+onMounted(async () => {
+  await fetchselect();
+});
+
 </script>
 <template>
        <div class="flex items-center justify-between gap-4 mx-[225px] mt-[50px]">
@@ -49,8 +54,8 @@ onMounted(async () => {
   </RouterLink>
   
   </div>
-
-        <SelectAllSaleItemList :product="product" />
+        
+        <SelectAllSaleItemList :product="product" @selestDeleted="fetchselect"/>
 
 
 

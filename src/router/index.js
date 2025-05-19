@@ -59,7 +59,7 @@ const router = createRouter({
 
     },
     {
-      path: '/brand/:id/edit',
+      path: '/brands/:id/edit',
       name: 'BrandEdit',
       component: BrandEdit
     }
