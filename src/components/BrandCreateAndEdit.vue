@@ -25,8 +25,8 @@ const brand = reactive({
 onBeforeMount(async ()=>{
     if(prop.mode === "edit" && isEdit){
        try{
-      //       const data = await getDataById(VITE_ROOT_API_URL + `/itb-mshop/v1/brands`,isEdit)
-            const data = await getDataById(VITE_ROOT_API_URL + `/Brands`,isEdit)
+            const data = await getDataById(VITE_ROOT_API_URL + `/itb-mshop/v1/brands`,isEdit)
+            // const data = await getDataById(VITE_ROOT_API_URL + `/Brands`,isEdit)
             brand.id = data.id
             brand.name = data.name
             brand.websiteUrl = data.websiteUrl
@@ -87,14 +87,14 @@ const handleSave = async () =>{
     isActive:brand.isActive,
     countryOfOrigin:brand.countryOfOrigin
     }
-    isSaving.value = false;
-    if(!isFormValid){
-      isSaving.value = true
-    }
+    // isSaving.value = false;
+    // if(!isFormValid){
+    //   isSaving.value = true
+    // }
 
     normalizeEmptyStringsToNull(brand);
     try{
-        if(prop.mode === 'edit' && isEdit){
+        if(prop.mode === "edit" && isEdit){
         await updateData(VITE_ROOT_API_URL + `/itb-mshop/v1/brands`,isEdit, newBrand)
         router.push({name:'BrandManage'})
         }else{
@@ -106,11 +106,10 @@ const handleSave = async () =>{
     
     }catch(err){
         console.log(err)
-    }finally{
-       isSaving.value = true;
     }
-
-
+    // finally{
+    //    isSaving.value = true;
+    // }
    
 }
 
