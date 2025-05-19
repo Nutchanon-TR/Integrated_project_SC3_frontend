@@ -67,11 +67,11 @@ onMounted(() => {
     <!-- Navigation Links -->
     <div class="flex mb-4">
       <RouterLink :to="{ name: 'ProductManage' }" class="text-blue-500 mr-6">Sale Item List</RouterLink>
-      <RouterLink :to="{ name: 'BrandCreate' }" class="text-blue-500">Add new brand</RouterLink>
+      <RouterLink :to="{ name: 'BrandCreate' }" class="itbms-add-button text-blue-500">Add new brand</RouterLink>
     </div>
 
     <!-- Alert Message -->
-    <div v-if="alertStore.message" :class="`px-4 py-2 rounded mb-4 ${alertStore.type === 'error'
+    <div v-if="alertStore.message" :class="`itbms-message px-4 py-2 rounded mb-4 ${alertStore.type === 'error'
       ? 'bg-red-100 text-red-700'
       : 'bg-blue-100 text-blue-700'}`">
       {{ alertStore.message }}
@@ -102,9 +102,9 @@ onMounted(() => {
         </thead>
         <tbody>
           <tr v-for="(item, index) in props.brand" :key="item.id" :class="index % 2 === 0 ? 'bg-blue-50' : 'bg-white'"
-            class="border border-gray-200">
-            <td class="py-2 px-4 text-center border-r border-gray-200">{{ item.id }}</td>
-            <td class="py-2 px-4 text-center border-r border-gray-200">{{ item.name }}</td>
+            class="itbms-row border border-gray-200">
+            <td class="itbms-id py-2 px-4 text-center border-r border-gray-200">{{ item.id }}</td>
+            <td class="itbms-name py-2 px-4 text-center border-r border-gray-200">{{ item.name }}</td>
             <td class="py-2 px-4 text-center">
               <div class="flex justify-center space-x-2">
                 <button @click="goToEdit(item.id)"

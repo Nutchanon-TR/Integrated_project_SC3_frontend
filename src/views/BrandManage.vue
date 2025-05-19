@@ -25,6 +25,4 @@ onMounted(async () => {
 </script>
 <template>
         <SelectAllBrandList :brand="brand"/>
-
-     
 </template>

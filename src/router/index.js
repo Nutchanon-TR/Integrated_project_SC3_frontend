@@ -53,7 +53,7 @@ const router = createRouter({
       component: BrandCreate
     },
     {
-      path: '/brand',
+      path: '/brands',
       name: 'BrandManage',
       component: BrandManage
 

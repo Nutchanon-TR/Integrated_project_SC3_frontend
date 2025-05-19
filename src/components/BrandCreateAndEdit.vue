@@ -2,11 +2,13 @@
 import { computed, ref, reactive, onBeforeMount } from "vue";
 import { addData, getDataById, updateData } from "@/libs/api";
 import { useRoute, useRouter } from "vue-router";
+import { useAlertStore } from "../stores/alertStore.js";
 
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
 
 const router = useRouter();
 const route = useRoute();
+const alertStore = useAlertStore();
 
 const prop = defineProps({
   mode: {
@@ -76,9 +78,9 @@ const isSaving = ref(true);
 const isFormValid = computed(() => {
   return (
     brand.name !== null &&
-    brand.name.trim() !== "" &&
-    brand.websiteUrl.trim() !== "" &&
-    brand.countryOfOrigin.trim() !== ""
+    brand.name.trim() !== "" 
+    // brand.websiteUrl.trim() !== "" &&
+    // brand.countryOfOrigin.trim() !== ""
   );
 });
 
@@ -112,9 +114,11 @@ const handleSave = async () => {
         isEdit,
         newBrand
       );
+      alertStore.setMessage("The sale item has been updated.");
       router.push({ name: "BrandManage" });
     } else {
       await addData(VITE_ROOT_API_URL + `/itb-mshop/v1/brands`, newBrand);
+      alertStore.setMessage("The brand has been added.");
       router.push({ name: "BrandManage" });
     }
   } catch (err) {
@@ -199,12 +203,11 @@ const handleSave = async () => {
                   </svg>
                 </div>
                 <input
-                  id="itbms-name"
                   v-model="brand.name"
                   type="text"
                   required
                   @blur="trimField('name')"
-                  class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  class="itbms-name block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Enter brand name"
                 />
               </div>
@@ -224,11 +227,10 @@ const handleSave = async () => {
                   </svg>
                 </div>
                 <input
-                  id="itbms-websiteUrl"
                   v-model="brand.websiteUrl"
                   type="text"
                   @blur="trimField('websiteUrl')"
-                  class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  class="itbms-websiteUrl block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="https://example.com"
                 />
               </div>
@@ -248,11 +250,11 @@ const handleSave = async () => {
                   </svg>
                 </div>
                 <input
-                  id="itbms-countryOfOrigin"
+                  
                   v-model="brand.countryOfOrigin"
                   type="text"
                   @blur="trimField('countryOfOrigin')"
-                  class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  class="itbms-countryOfOrigin block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Enter country of origin"
                 />
               </div>
@@ -264,9 +266,9 @@ const handleSave = async () => {
                 <input 
                   type="checkbox" 
                   name="toggle" 
-                  id="itbms-isActive" 
+                  
                   v-model="brand.isActive"
-                  class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                  class="itbms-isActive toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
                 />
                 <label 
                   for="itbms-isActive" 
@@ -289,9 +291,8 @@ const handleSave = async () => {
                 !isFormValid ||
                 (prop.mode === 'edit' && !isBrandChanged)
               "
-              id="itbms-save-button"
               type="submit"
-              class="w-full sm:w-auto flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="itbms-save-button w-full sm:w-auto flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg v-if="!isSaving" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -301,10 +302,9 @@ const handleSave = async () => {
             </button>
 
             <button
-              id="itbms-cancel-button"
               type="button"
               @click="handleCancel"
-              class="w-full sm:w-auto flex justify-center items-center px-6 py-3 border border-blue-300 text-base font-medium rounded-lg shadow-sm text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+              class="itbms-cancel-button w-full sm:w-auto flex justify-center items-center px-6 py-3 border border-blue-300 text-base font-medium rounded-lg shadow-sm text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
             >
               Cancel
             </button>
