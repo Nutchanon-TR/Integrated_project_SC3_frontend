@@ -39,6 +39,7 @@ const confirmDeleteProduct = async () => {
     }
   } finally {
     showDeleteModal.value = false;
+    localStorage.setItem('product-updated', Date.now().toString());
   }
 };
 

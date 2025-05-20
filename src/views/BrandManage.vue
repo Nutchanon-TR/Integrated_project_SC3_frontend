@@ -1,6 +1,6 @@
 <script setup>
 import SelectAllBrandList from "@/components/SelectAllBrandList.vue";
-import { ref, onMounted } from "vue";
+import { ref, onMounted,onBeforeUnmount } from "vue";
 import { getAllData } from "../libs/api.js";
 
 const brand = ref([]);
@@ -18,8 +18,19 @@ const fetchBrands = async () => {
   }
 };
 
+function onStorageChange(event) {
+  if (event.key === 'brand-updated') {
+    console.log('Brand data changed in another tab');
+    fetchBrands(); // โหลดข้อมูลใหม่
+  }
+}
+
 onMounted(() => {
   fetchBrands();
+  window.addEventListener('storage', onStorageChange);
+});
+onBeforeUnmount(() => {
+  window.removeEventListener('storage', onStorageChange);
 });
 </script>
 

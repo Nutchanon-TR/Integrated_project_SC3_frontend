@@ -129,6 +129,8 @@ const handleSave = async () => {
     console.log(err);
   } finally {
     isSaving.value = true;
+    localStorage.setItem('brand-updated', Date.now().toString());
+
   }
 };
 

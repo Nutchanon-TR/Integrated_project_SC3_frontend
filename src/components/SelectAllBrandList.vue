@@ -4,7 +4,7 @@ import { unitPrice, nullCatching } from "../libs/utils.js"
 import { useAlertStore } from "../stores/alertStore.js"
 import { useRouter } from "vue-router";
 import BrandCreate from "@/views/BrandCreate.vue";
-import { deleteUserById } from "../libs/api.js";
+import { deleteUserById, getAllData } from "../libs/api.js";
 
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
 const alertStore = useAlertStore();
@@ -48,6 +48,7 @@ const confirmDeleteProduct = async () => {
     }
   } finally {
     showDeleteModal.value = false;
+    localStorage.setItem('brand-updated', Date.now().toString());
   }
 };
 
@@ -83,6 +84,8 @@ onMounted(() => {
     }, 3000);
   }
 });
+
+ localStorage.setItem('brand-updated', Date.now().toString());
 
 </script>
 

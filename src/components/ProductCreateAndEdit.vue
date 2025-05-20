@@ -206,6 +206,7 @@ const saveProduct = async () => {
   } finally {
     isSaving.value = true;
     reloadData.value++;
+    localStorage.setItem('product-updated', Date.now().toString());
   }
 };
 </script>
