@@ -7,6 +7,7 @@ import {
   defineProps,
   onBeforeMount,
   computed,
+  watch,
 } from "vue";
 import { addData, updateData, getDataById, getAllData } from "./../libs/api.js";
 import BlogProductCreateAndEdit from "./../components/BlogProductCreateAndEdit.vue";
@@ -26,6 +27,11 @@ const boxTextTailwindModel = ref(boxTextTailwind);
 const boxTextTailwindPrice = ref(boxTextTailwind);
 const boxTextTailwindQuantity = ref(boxTextTailwind);
 const boxTextTailwindDesc = ref(boxTextTailwind);
+const boxTextTailwindRamGB = ref(boxTextTailwind);
+const boxTextTailwindStorageGB = ref(boxTextTailwind)
+const boxTextTailwindColor = ref(boxTextTailwind)
+const boxTextTailwindScreenSizeInch = ref(boxTextTailwind)
+
 
 const reloadData = ref(0);
 const isSaving = ref(true);
@@ -128,6 +134,136 @@ const isProductChanged = computed(
   () => !compareProduct(product, originalProduct)
 );
 
+const maxLength = {
+  model:60,
+  description:65535,
+  color:60
+}
+watch(product ,()=>{
+  
+  validationProductForm();
+
+},
+{ deep: true }
+)
+
+const validateField = (condition, targetRef) => {
+  if (condition) {
+    targetRef.value = boxTextTailwindError;
+    return false;
+  } else {
+    targetRef.value = boxTextTailwind;
+    return true;
+  }
+};
+
+const checkDecimal = (num) =>{
+  return !(Math.floor(num * 100) === num *100)
+}
+
+const validationProductForm = () => {
+// let isValid = true
+// isValid = validateField(!product.model || (product.model?.length ?? 0) > maxLength.model, boxTextTailwindModel);
+
+// isValid = validateField(!product.price || product.price <= 0, boxTextTailwindPrice);
+
+// isValid = validateField(product.ramGb <= 0, boxTextTailwindRamGB);
+
+// isValid = validateField(product.storageGb <= 0, boxTextTailwindStorageGB);
+
+// isValid = validateField(!product.description || (product.description?.length ?? 0) > maxLength.description, boxTextTailwindDesc);
+
+// isValid = validateField(product.quantity === null || product.quantity < 0, boxTextTailwindQuantity);
+
+// isValid = validateField((product.color?.length ?? 0) > maxLength.color, boxTextTailwindColor);
+
+// isValid = validateField(product.screenSizeInch <= 0 || checkDecimal(product.screenSizeInch), boxTextTailwindScreenSizeInch);
+
+// if (!product.brand.id || !product.brand.name) {
+//     brandError.value = true;
+//     isValid = false;
+//   } else {
+//     brandError.value = false;
+//   }
+
+// isSaving.value = isValid
+
+  let isValid = true;
+
+ 
+  if (!product.model || (product.model?.length ?? 0) > maxLength.model ) {
+    boxTextTailwindModel.value = boxTextTailwindError;
+    isValid = false;
+  } else {
+    boxTextTailwindModel.value = boxTextTailwind;
+  }
+
+  // Price
+  if (!product.price || product.price <= 0) {
+    boxTextTailwindPrice.value = boxTextTailwindError;
+    isValid = false;
+  } else {
+    boxTextTailwindPrice.value = boxTextTailwind;
+  }
+
+  // RAM
+  if (product.ramGb < 0) {
+    boxTextTailwindRamGB.value = boxTextTailwindError;
+    isValid = false;
+  } else {
+    boxTextTailwindRamGB.value = boxTextTailwind;
+  }
+
+  // Storage
+  if (product.storageGb < 0) {
+    boxTextTailwindStorageGB.value = boxTextTailwindError;
+    isValid = false;
+  } else {
+    boxTextTailwindStorageGB.value = boxTextTailwind;
+  }
+
+  // Description
+  if (!product.description || product.description.length > maxLength.description) {
+    boxTextTailwindDesc.value = boxTextTailwindError;
+    isValid = false;
+  } else {
+    boxTextTailwindDesc.value = boxTextTailwind;
+  }
+
+  // Quantity
+  if (product.quantity === null || product.quantity < 0) {
+    boxTextTailwindQuantity.value = boxTextTailwindError;
+    isValid = false;
+  } else {
+    boxTextTailwindQuantity.value = boxTextTailwind;
+  }
+
+  // Color
+  if ((product.color?.length ?? 0) > maxLength.color) {
+    boxTextTailwindColor.value = boxTextTailwindError;
+    isValid = false;
+  } else {
+    boxTextTailwindColor.value = boxTextTailwind;
+  }
+
+  // Screen Size
+  if (product.screenSizeInch < 0 || checkDecimal(product.screenSizeInch)) {
+    boxTextTailwindScreenSizeInch.value = boxTextTailwindError;
+    isValid = false;
+  } else {
+    boxTextTailwindScreenSizeInch.value = boxTextTailwind;
+  }
+
+  // Brand
+  if (!product.brand.id || !product.brand.name) {
+    brandError.value = true;
+    isValid = false;
+  } else {
+    brandError.value = false;
+  }
+
+  isSaving.value = isValid;
+};
 const isFormValid = computed(() => {
   return (
     product.brand.id !== null &&
@@ -267,7 +403,7 @@ const saveProduct = async () => {
                     @sendBrandName="handleBrandName"
                   />
                   <p v-if="brandError" class="mt-1 text-sm text-red-500">
-                    Please select a brand
+                   Bran d must be selected.
                   </p>
                 </div>
               </div>
@@ -295,9 +431,13 @@ const saveProduct = async () => {
                     :class="`itbms-model ${boxTextTailwindModel}`"
                     placeholder="e.g. iPhone 13 Pro"
                   />
-                  <p v-if="boxTextTailwindModel === boxTextTailwindError" class="mt-1 text-sm text-red-500">
+                  <p v-if="product.model.length > maxLength.model" class="mt-1 text-sm text-red-500">
+                    Model must be 1-60 characters long.
+                  </p>
+                  <p v-else-if="boxTextTailwindModel === boxTextTailwindError" class="mt-1 text-sm text-red-500">
                     Model name is required
                   </p>
+
                 </div>
 
                 <!-- Price -->
@@ -321,9 +461,13 @@ const saveProduct = async () => {
                       placeholder="e.g. 29900"
                     />
                   </div>
-                  <p v-if="boxTextTailwindPrice === boxTextTailwindError" class="mt-1 text-sm text-red-500">
-                    Price must be greater than 0
+                    <p v-if="!product.price" class="mt-1 text-sm text-red-500">
+                    Price is Required.
                   </p>
+                  <p v-else-if="product.price <= 0" class="mt-1 text-sm text-red-500">
+                    Price must be non-negative integer.
+                  </p>
+
                 </div>
 
                 <!-- RAM -->
@@ -338,9 +482,12 @@ const saveProduct = async () => {
                   <input
                     type="number"
                     v-model="product.ramGb"
-                    :class="`itbms-ramGb ${boxTextTailwind}`"
+                    :class="`itbms-ramGb ${boxTextTailwindRamGB}`"
                     placeholder="e.g. 8"
                   />
+                   <p v-if="boxTextTailwindRamGB === boxTextTailwindError" class="mt-1 text-sm text-red-500">
+                      RAM size must be positive integer or not specified.
+                  </p>
                 </div>
 
                 <!-- Storage -->
@@ -354,9 +501,12 @@ const saveProduct = async () => {
                   <input
                     type="number"
                     v-model="product.storageGb"
-                    :class="`itbms-storageGb ${boxTextTailwind}`"
+                    :class="`itbms-storageGb ${boxTextTailwindStorageGB}`"
                     placeholder="e.g. 128"
                   />
+                  <p v-if="boxTextTailwindStorageGB === boxTextTailwindError" class="mt-1 text-sm text-red-500">
+                    Storage size must be positive integer or not specified.
+                  </p>
                 </div>
               </div>
 
@@ -376,9 +526,15 @@ const saveProduct = async () => {
                     type="number"
                     v-model="product.screenSizeInch"
                     step="0.1"
-                    :class="`itbms-screenSizeInch ${boxTextTailwind}`"
+                    :class="`itbms-screenSizeInch ${boxTextTailwindScreenSizeInch}`"
                     placeholder="e.g. 6.1"
                   />
+
+                   <p v-if="boxTextTailwindScreenSizeInch === boxTextTailwindError" class="mt-1 text-sm text-red-500">
+                    Screen size must be positive number with at most 2 decimal points or not specified. 
+                  </p>
+                  
+
                 </div>
 
                 <!-- Color -->
@@ -396,9 +552,13 @@ const saveProduct = async () => {
                     type="text"
                     v-model="product.color"
                     @blur="trimField('color')"
-                    :class="`itbms-color ${boxTextTailwind}`"
+                    :class="`itbms-color ${boxTextTailwindColor}`"
                     placeholder="e.g. Midnight Blue"
                   />
+                    <p v-if="(product.color?.length ?? 0) > maxLength.color" class="mt-1 text-sm text-red-500">
+                    You cannot enter more than 60 character
+                  </p>
+                  
                 </div>
 
                 <!-- Quantity -->
@@ -450,6 +610,9 @@ const saveProduct = async () => {
               ></textarea>
               <p v-if="boxTextTailwindDesc === boxTextTailwindError" class="mt-1 text-sm text-red-500">
                 Description is required
+              </p>
+                <p v-if="product.description.length > maxLength.description" class="mt-1 text-sm text-red-500">
+                Description must be 1-65,535 charecters long.
               </p>
             </div>
           </div>
