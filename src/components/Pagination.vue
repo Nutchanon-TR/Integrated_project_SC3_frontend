@@ -1,56 +1,108 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import {
+  ref,
+  onMounted,
+  watchEffect,
+  defineEmits,
+  computed,
+  defineProps,
+  onBeforeMount,
+} from "vue";
 import { getAllData } from "../libs/api.js";
 import { useRoute } from "vue-router";
-const page = ref(0);
+
+const props = defineProps({
+  productTotalPages: Number,
+});
+
+onMounted(() => {
+  console.log("Pagination mounted");
+  console.log(props.productTotalPages);
+});
+
+const totalPage = computed(() => props.productTotalPages);
+const emit = defineEmits(["urlSetting"]);
+const filterBrands = ref([]);
+const page = ref(1);
 const itbmPage = ref(0);
-const size = ref(4);
-const sortField = ref("createdAt");
-const sortDirection = ref("desc");
+const size = ref(10);
+const sortField = ref("");
+const sortDirection = ref("");
+const urlSetting = computed(() => {
+  return `?filterBrands=&page=${itbmPage.value}&size=${size.value}&sortField=${sortField.value}&sortDirection=${sortDirection.value}`;
+// return {
+//         filterBrands: selectedBrands.value,
+//         page: itbmPage.value,
+//         size: size.value,
+//         sortField: sortField.value,
+//         sortDirection: sortDirection.value
+//     }
+});
 
-const totalPage = ref(10);
-
-const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
-const goToPage = (pageNumber) => {
+const goToPage = async (pageNumber) => {
   page.value = pageNumber;
   itbmPage.value = pageNumber - 1;
   console.log("page.value: ", page.value);
+  console.log("urlSetting.value page: ", urlSetting.value);
+  emit("urlSetting", urlSetting.value);
 };
 </script>
 
 <template>
+  <p>{{ urlSetting }}</p>
   <p>page: {{ page }}</p>
   <p>size: {{ size }}</p>
   <p>sortField(SortBy): {{ sortField }}</p>
   <p>sortDirection: {{ sortDirection }}</p>
   <p>itbme-page-: {{ itbmPage }}</p>
   <br />
-  <br />
   <div class="flex space-x-2">
-    <button class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded">
+    <button
+      @click="goToPage(1)"
+      class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded"
+    >
       First
     </button>
-    <button class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded">
+    <button
+      @click="goToPage(Math.max(1, page - 1))"
+      :disabled="page <= 1"
+      class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50"
+    >
       Prev
     </button>
-    <span v-for="page in totalPage">
+
+    <!-- page number buttons -->
+    <span v-for="p in totalPage" :key="p">
       <button
-        @click="goToPage(page)"
-        class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded"
+        @click="goToPage(p)"
+        :class="[
+          'px-3 py-1 rounded',
+          page === p
+            ? 'bg-blue-500 text-white hover:bg-blue-600'
+            : 'bg-gray-200 hover:bg-gray-300',
+        ]"
       >
-        {{ page }}
+        {{ p }}
       </button>
     </span>
-    <!-- <button class="px-3 py-1 bg-blue-500 text-white hover:bg-blue-600 rounded">1</button> -->
-    <button class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded">
+
+    <button
+      @click="goToPage(Math.min(totalPage, page + 1))"
+      :disabled="page >= totalPage"
+      class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50"
+    >
       Next
     </button>
-    <button class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded">
+
+    <button
+      @click="goToPage(totalPage)"
+      class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded"
+    >
       Last
     </button>
   </div>
 
-  ิ<br />
+  <br />
   <div class="space-y-3">
     <span>Size: </span>
     <input
@@ -59,13 +111,5 @@ const goToPage = (pageNumber) => {
       v-model="size"
       class="px-3 py-2 border border-gray-300 rounded w-40 focus:outline-none focus:ring-2 focus:ring-blue-400"
     />
-    <div class="space-x-2">
-      <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">
-        Sort Default
-      </button>
-      <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">
-        Sort BrandName
-      </button>
-    </div>
   </div>
 </template>

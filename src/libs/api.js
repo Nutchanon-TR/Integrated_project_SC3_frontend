@@ -93,6 +93,41 @@ const deleteUserById = async (url, id) => {
   return res.status === 204;
 }
 
+// ดึงข้อมูลแบบมี pagination/filter/sort ผ่าน query
+const getAllDataPage = async (url, 
+  { filterBrands = [], 
+    page = 0, 
+    size = 10, 
+    sortField = null, 
+    sortDirection = "desc" } = {}) => {
+  const params = new URLSearchParams();
+
+  // filterBrands.forEach(brand => params.append("filterBrands", brand));
+    if (filterBrands.length > 0) {
+    filterBrands.forEach((brand) => params.append("filterBrands", brand));
+  }
+  params.append("page", page);
+  params.append("size", size);
+  if (sortField) {
+    params.append("sortField", sortField);
+    params.append("sortDirection", sortDirection);
+  }
+
+  const fullUrl = `${url}?${params.toString()}`;
+console.log(fullUrl);
+
+  try {
+    const res = await fetch(fullUrl);
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    throw new Error(`Fetch failed: ${error.message}`);
+  }
+};
+
 
 export {
     getAllData,
@@ -100,4 +135,5 @@ export {
     addData,
     updateData,
     deleteUserById,
+    getAllDataPage
   };
