@@ -95,10 +95,18 @@ const deleteUserById = async (url, id) => {
 }
 
 // ดึงข้อมูลแบบมี pagination/filter/sort ผ่าน query
-const getAllDataPage = async (url, { filterBrands = [], page = 0, size = 10, sortField = null, sortDirection = "desc" } = {}) => {
+const getAllDataPage = async (url, 
+  { filterBrands = [], 
+    page = 0, 
+    size = 10, 
+    sortField = null, 
+    sortDirection = "desc" } = {}) => {
   const params = new URLSearchParams();
 
-  filterBrands.forEach(brand => params.append("filterBrands", brand));
+  // filterBrands.forEach(brand => params.append("filterBrands", brand));
+    if (filterBrands.length > 0) {
+    filterBrands.forEach((brand) => params.append("filterBrands", brand));
+  }
   params.append("page", page);
   params.append("size", size);
   if (sortField) {
@@ -107,6 +115,7 @@ const getAllDataPage = async (url, { filterBrands = [], page = 0, size = 10, sor
   }
 
   const fullUrl = `${url}?${params.toString()}`;
+console.log(fullUrl);
 
   try {
     const res = await fetch(fullUrl);
