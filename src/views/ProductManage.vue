@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted,onBeforeUnmount } from "vue";
 import { getAllData } from "../libs/api.js";
 import SelectAllSaleItemList from "@/components/SelectAllSaleItemList.vue";
 import SelectAllSaleItemGallery from "@/components/SelectAllSaleItemGallery.vue";
@@ -26,8 +26,23 @@ const fetchselect = async () => {
   }
 }
 
+onBeforeUnmount(() => {
+  window.removeEventListener('storage', onStorageChange);
+});
+
+function onStorageChange(event) {
+  if (event.key === 'product-updated') {
+    console.log('Product data changed in another tab');
+    fetchselect(); // โหลดข้อมูลใหม่
+  }
+}
+
+
 onMounted(async () => {
   await fetchselect();
+  window.addEventListener('storage', onStorageChange);
+
+
 });
 
 </script>

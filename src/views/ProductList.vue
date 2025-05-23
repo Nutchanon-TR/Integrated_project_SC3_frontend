@@ -1,30 +1,56 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted,onBeforeUnmount } from "vue";
 import { getAllData } from "../libs/api.js";
 import SelectAllSaleItemList from "@/components/SelectAllSaleItemList.vue";
 import SelectAllSaleItemGallery from "@/components/SelectAllSaleItemGallery.vue";
+import Pagination from "./../components/Pagination.vue";
+
 
 const product = ref([]);
 const brand = ref([]);
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
 
-onMounted(async () => {
+
+const fetchProduct= async () => {
   try {
     const productData = await getAllData(
-      VITE_ROOT_API_URL + "/itb-mshop/v1/sale-items"
+      `${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`
     );
     product.value = productData;
-
-    const brandDdta = await getAllData(
+     const brandDdta = await getAllData(
       VITE_ROOT_API_URL + "/itb-mshop/v1/brands"
     );
-    brand.value = brandDdta;
+    brand.value = brandDdta
   } catch (error) {
     console.error("Error fetching data:", error);
   }
-}
+};
 
+const tryGetV2 = ref([])
+
+onMounted(async() => {
+  const tryGetV2Data = await getAllData(
+      `${VITE_ROOT_API_URL}/itb-mshop/v2/sale-items?page=0&size=4`
+    );
+    tryGetV2.value = tryGetV2Data;
+    console.log("tryGetV2.value: ",tryGetV2.value);
+});
+
+onMounted(async () => {
+   await fetchProduct();
+  window.addEventListener('storage', onStorageChange);
+}
 );
+onBeforeUnmount(() => {
+  window.removeEventListener('storage', onStorageChange);
+});
+
+function onStorageChange(event) {
+  if (event.key === 'product-updated') {
+    console.log('Product data changed in another tab');
+    fetchProduct(); // โหลดข้อมูลใหม่
+  }
+}
 </script>
 <template>
   <div class="flex items-center justify-between gap-4 mx-[225px] mt-[50px]">
@@ -49,6 +75,7 @@ onMounted(async () => {
     <span class="itbms-manage-brand tracking-wide">Manage Sale Items</span>
   </RouterLink>
 </div>
+<Pagination/>
 
       <SelectAllSaleItemGallery :product="product" />
  
