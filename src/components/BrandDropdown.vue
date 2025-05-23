@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps, watchEffect, onBeforeMount, onMounted,watch } from "vue";
+import { ref, defineProps, watchEffect, onBeforeMount, onMounted,watch,defineExpose  } from "vue";
 import { getAllData } from "@/libs/api";
 import { useRouter } from "vue-router";
 
@@ -78,6 +78,13 @@ function handleChange() {
     emit("update:modelValue", brandObj.name);
   }
 }
+
+function resetSelection() {
+  selectedId.value = '';
+}
+defineExpose({
+  resetSelection
+});
 </script>
 
 

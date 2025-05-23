@@ -10,6 +10,8 @@ import {
 } from "vue";
 import { getAllData } from "../libs/api.js";
 import { useRoute } from "vue-router";
+import BrandDropdown from "./BrandDropdown.vue"
+
 
 const props = defineProps({
   productTotalPages: Number,
@@ -28,18 +30,12 @@ const itbmPage = ref(0);
 const size = ref(10);
 const sortField = ref("");
 const sortDirection = ref("");
+const selectedBrandList = ref([]);
+const brandDropdown = ref(null);
+
 const urlSetting = computed(() => {
-  return `?filterBrands=&page=${itbmPage.value}
-  &size=${size.value}
-  &sortField=${sortField.value}
-  &sortDirection=${sortDirection.value}`;
-// return {
-//         filterBrands: selectedBrands.value,
-//         page: itbmPage.value,
-//         size: size.value,
-//         sortField: sortField.value,
-//         sortDirection: sortDirection.value
-//     }
+  return `?filterBrands=${filterBrands.value}&page=${itbmPage.value}&size=${size.value}&sortField=${sortField.value}&sortDirection=${sortDirection.value}`;
+
 });
 
 const goToPage = async (pageNumber) => {
@@ -49,70 +45,144 @@ const goToPage = async (pageNumber) => {
   console.log("urlSetting.value page: ", urlSetting.value);
   emit("urlSetting", urlSetting.value);
 };
+
+const setSize = (newsize) => {
+  size.value = newsize
+  emit("urlSetting", urlSetting.value);
+}
+
+const sortAsc = () => {
+  sortDirection.value = 'asc'
+  sortField.value = 'brand.name'
+  emit("urlSetting", urlSetting.value);
+}
+
+const sortDesc = () => {
+  sortDirection.value = 'desc'
+  sortField.value = 'brand.name'
+  emit("urlSetting", urlSetting.value);
+}
+
+const resetSort = () => {
+  sortDirection.value = 'desc'
+  sortField.value = ''
+  emit("urlSetting", urlSetting.value);
+}
+
+function onBrandSelected(brandName) {
+  if (brandName && !selectedBrandList.value.includes(brandName)) {
+    selectedBrandList.value.push(brandName);
+  }
+}
+
+function removeBrand(index) {
+  selectedBrandList.value.splice(index, 1);
+  if (brandDropdown.value && brandDropdown.value.resetSelection) {
+    brandDropdown.value.resetSelection();
+  }
+}
+
+function clearBrand() {
+  selectedBrandList.value = []
+  filterBrands.value = ''
+  if (brandDropdown.value && brandDropdown.value.resetSelection) {
+    brandDropdown.value.resetSelection();
+  }
+  emit("urlSetting", urlSetting.value);
+  console.log("urlSetting.value page: ", urlSetting.value);
+}
+
+function confirmFilter() {
+  filterBrands.value = selectedBrandList.value.join(",");
+  emit("urlSetting", urlSetting.value);
+}
+
 </script>
 
 <template>
-  <p>{{ urlSetting }}</p>
-  <p>page: {{ page }}</p>
-  <p>size: {{ size }}</p>
-  <p>sortField(SortBy): {{ sortField }}</p>
-  <p>sortDirection: {{ sortDirection }}</p>
-  <p>itbme-page-: {{ itbmPage }}</p>
-  <br />
-  <div class="flex space-x-2">
-    <button
-      @click="goToPage(1)"
-      class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded"
-    >
-      First
-    </button>
-    <button
-      @click="goToPage(Math.max(1, page - 1))"
-      :disabled="page <= 1"
-      class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50"
-    >
-      Prev
-    </button>
+  <div class="p-4 space-y-6 text-sm text-gray-800 max-w-4xl mx-auto">
 
-    <!-- page number buttons -->
-    <span v-for="p in totalPage" :key="p">
-      <button
-        @click="goToPage(p)"
-        :class="[
-          'px-3 py-1 rounded',
-          page === p
-            ? 'bg-blue-500 text-white hover:bg-blue-600'
-            : 'bg-gray-200 hover:bg-gray-300',
-        ]"
-      >
-        {{ p }}
-      </button>
-    </span>
+    <!-- 🔽 Brand Filter -->
+    <section class="space-y-3">
+      <h2 class="font-semibold text-lg">กรองตามแบรนด์</h2>
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+        <BrandDropdown ref="brandDropdown" @sendBrandName="onBrandSelected" class="flex-1" />
+      </div>
 
-    <button
-      @click="goToPage(Math.min(totalPage, page + 1))"
-      :disabled="page >= totalPage"
-      class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50"
-    >
-      Next
-    </button>
+      <!-- แบรนด์ที่เลือก -->
+      <ul class="flex flex-wrap gap-2">
+        <li v-for="(brand, i) in selectedBrandList" :key="i"
+          class="flex items-center bg-gray-100 border border-gray-300 rounded px-3 py-1">
+          <span>{{ brand }}</span>
+          <button @click="removeBrand(i)" class="ml-2 text-red-500 hover:text-red-700" aria-label="ลบแบรนด์">×</button>
+        </li>
+      </ul>
 
-    <button
-      @click="goToPage(totalPage)"
-      class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded"
-    >
-      Last
-    </button>
-  </div>
+      <!-- ปุ่มยืนยัน/ล้าง -->
+      <div class="flex gap-2">
+        <button @click="confirmFilter"
+          class="flex-1 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+          ✅ ยืนยันกรอง
+        </button>
+        <button @click="clearBrand"
+          class="flex-1 px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 transition">
+          ❌ ล้างแบรนด์
+        </button>
+      </div>
+    </section>
 
-  <br />
-  <div class="space-y-3">
-    <span>Size: </span>
-    <input
-      type="number"
-      placeholder="size"
-      v-model="size"
-      class="px-3 py-2 border border-gray-300 rounded w-40 focus:outline-none focus:ring-2 focus:ring-blue-400"
-    />
+    <!-- 🔁 Sorting -->
+    <section class="space-y-2">
+      <h2 class="font-semibold text-lg">จัดเรียงสินค้า</h2>
+      <div class="flex gap-3 flex-wrap">
+        <button @click="sortAsc"
+          class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded hover:bg-blue-100 transition">
+          ⬆️ น้อย → มาก
+        </button>
+        <button @click="sortDesc"
+          class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded hover:bg-blue-100 transition">
+          ⬇️ มาก → น้อย
+        </button>
+        <button @click="resetSort"
+          class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded hover:bg-red-100 transition">
+          ♻️ ล้างการจัดเรียง
+        </button>
+      </div>
+    </section>
+
+    <!-- 📄 Page Size -->
+    <section>
+      <label for="size" class="font-medium mr-2">จำนวนรายการต่อหน้า:</label>
+      <select id="size" v-model="size" @change="setSize(size)"
+        class="border border-gray-300 rounded px-3 py-1 focus:ring-blue-400 focus:ring-2">
+        <option :value="10">10</option>
+        <option :value="20">20</option>
+        <option :value="50">50</option>
+      </select>
+    </section>
+
+    <!-- ⏩ Pagination -->
+    <section>
+      <div class="flex flex-wrap gap-2 items-center">
+        <button @click="goToPage(1)" :disabled="page === 1"
+          class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50">⏮ First</button>
+        <button @click="goToPage(Math.max(1, page - 1))" :disabled="page === 1"
+          class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50">◀ Prev</button>
+
+        <template v-for="p in totalPage" :key="p">
+          <button @click="goToPage(p)" :class="[
+            'px-3 py-1 rounded transition',
+            page === p ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
+          ]">
+            {{ p }}
+          </button>
+        </template>
+
+        <button @click="goToPage(Math.min(totalPage, page + 1))" :disabled="page === totalPage"
+          class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50">Next ▶</button>
+        <button @click="goToPage(totalPage)" :disabled="page === totalPage"
+          class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50">Last ⏭</button>
+      </div>
+    </section>
   </div>
 </template>

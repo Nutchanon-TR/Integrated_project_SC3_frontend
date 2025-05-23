@@ -9,7 +9,6 @@ import BrandCreate from '@/views/BrandCreate.vue'
 import ProductManage from '@/views/ProductManage.vue'
 import BrandManage from '@/views/BrandManage.vue'
 import BrandEdit from '@/views/BrandEdit.vue'
-import TestPage from '@/views/testPage.vue'
 
 
 
@@ -63,11 +62,6 @@ const router = createRouter({
       path: '/brands/:id/edit',
       name: 'BrandEdit',
       component: BrandEdit
-    },
-    {
-      path: '/sale-items/page',
-      name: 'pagination',
-      component: TestPage
     }
 
   ],

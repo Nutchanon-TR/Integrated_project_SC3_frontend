@@ -26,6 +26,8 @@ onBeforeMount(async () => {
   window.addEventListener("storage", onStorageChange);
 });
 
+
+
 onBeforeUnmount(() => {
   window.removeEventListener("storage", onStorageChange);
 });
@@ -89,5 +91,5 @@ const handleUrlSetting = async (newUrl) => {
     </RouterLink>
   </div>
   <Pagination @urlSetting="handleUrlSetting" :productTotalPages="productTotalPages" />
-  <SelectAllSaleItemGallery :product="product.content" />
+  <SelectAllSaleItemGallery v-if="product?.content" :product="product.content" />
 </template>
