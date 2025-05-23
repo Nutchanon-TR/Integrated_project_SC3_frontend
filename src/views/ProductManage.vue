@@ -54,9 +54,5 @@ onMounted(async () => {
   </RouterLink>
   
   </div>
-        
         <SelectAllSaleItemList :product="product" @selestDeleted="fetchselect"/>
-
-
-
 </template>
