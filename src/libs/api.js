@@ -127,7 +127,7 @@ console.log(fullUrl);
   } catch (error) {
     throw new Error(`Fetch failed: ${error.message}`);
   }
-}; 
+}
 
 
 export {
