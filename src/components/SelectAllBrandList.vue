@@ -158,8 +158,8 @@ onMounted(() => {
         <tbody>
           <tr v-for="(item, index) in props.brand" :key="item.id" :class="index % 2 === 0 ? 'bg-blue-50' : 'bg-white'"
             class="itbms-row border border-gray-200">
-            <td class="itbms-id py-2 px-4 text-center border-r border-gray-200">{{ item.id }}</td>
-            <td class="itbms-name py-2 px-4 text-center border-r border-gray-200">{{ item.name }}</td>
+            <td class="itbms-id text-black py-2 px-4 text-center border-r border-gray-200">{{ item.id }}</td>
+            <td class="itbms-name text-black py-2 px-4 text-center border-r border-gray-200">{{ item.name }}</td>
             <td class="py-2 px-4 text-center">
               <div class="flex justify-center space-x-2">
                 <button @click="goToEdit(item.id)"
