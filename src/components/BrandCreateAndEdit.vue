@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, reactive, onBeforeMount } from "vue";
+import { computed, ref, reactive, onBeforeMount,watch } from "vue";
 import { addData, getDataById, updateData } from "@/libs/api";
 import { useRoute, useRouter } from "vue-router";
 import { useAlertStore } from "../stores/alertStore.js";
@@ -10,6 +10,15 @@ const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
 const router = useRouter();
 const route = useRoute();
 const alertStore = useAlertStore();
+
+const blockTailwind = 'block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500';
+
+const blockTailwindError = 'block w-full pl-10 pr-3 py-2.5 border border-red-400 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-blue-500';
+
+
+const blockTailwindName = ref(blockTailwind)
+const blockTailwindWebsiteURL = ref(blockTailwind)
+const blockTailwindCountryOfOrigin = ref(blockTailwind)
 
 const prop = defineProps({
   mode: {
@@ -94,6 +103,64 @@ const normalizeEmptyStringsToNull = (obj) => {
     }
   }
 };
+
+watch( brand,()=>{
+  validationBrandForm();
+},
+{ deep: true }
+);
+
+const maxLength = {
+  name:30,
+  webSiteUrl:40,
+  countryOfOrigin:80
+}
+
+const isValidUrl = (url) => {
+  if (!url) return true; // not specified = valid
+  try {
+    new URL(url);
+    return true;
+  } catch (_) {
+    return false;
+  }
+};
+
+const isValidUrlForSecure = (url) => {
+  if (!url) return true;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch (_) {
+    return false;
+  }
+};
+
+const validationBrandForm = () =>{
+   let isValid = true
+   if(!brand.name ||brand.name.length > maxLength.name || brand.name === "Ter"){
+      blockTailwindName.value = blockTailwindError
+      isValid = false
+   }else{
+    blockTailwindName.value = blockTailwind
+   }
+
+   if (!isValidUrl(brand.websiteUrl)) {
+   blockTailwindWebsiteURL.value = blockTailwindError;
+    isValid = false;
+  } else {
+    blockTailwindWebsiteURL.value = blockTailwind;
+  }
+
+   if((brand.countryOfOrigin?.length ?? 0) > maxLength.countryOfOrigin || brand.countryOfOrigin === "ter" ){
+      blockTailwindCountryOfOrigin.value = blockTailwindError
+      isValid = false
+   }else{
+    blockTailwindCountryOfOrigin.value = blockTailwind
+   }
+
+   isSaving.value = isValid
+}
 
 const handleSave = async () => {
   const newBrand = {
@@ -214,10 +281,13 @@ const handleSave = async () => {
                   type="text"
                   required
                   @blur="trimField('name')"
-                  class="itbms-name block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  :class="`itbms-name ${blockTailwindName}`"
                   placeholder="Enter brand name"
                 />
               </div>
+                <p v-if="brand.name.length > maxLength.name" class="mt-1 text-sm text-red-500">
+                Brand name must be 1-30 characters long.
+                </p>
             </div>
 
             <!-- Website URL Field -->
@@ -237,10 +307,13 @@ const handleSave = async () => {
                   v-model="brand.websiteUrl"
                   type="text"
                   @blur="trimField('websiteUrl')"
-                  class="itbms-websiteUrl block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  :class="`itbms-websiteUrl ${blockTailwindWebsiteURL}`"
                   placeholder="https://example.com"
                 />
               </div>
+                <p v-if="!isValidUrl(brand.websiteUrl)" class="mt-1 text-sm text-red-500">
+                  Brand URL must be valid or not specified.
+                </p>
             </div>
 
             <!-- Country of Origin Field -->
@@ -257,14 +330,16 @@ const handleSave = async () => {
                   </svg>
                 </div>
                 <input
-                  
                   v-model="brand.countryOfOrigin"
                   type="text"
                   @blur="trimField('countryOfOrigin')"
-                  class="itbms-countryOfOrigin block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  :class="`itbms-countryOfOrigin ${blockTailwindCountryOfOrigin}`"
                   placeholder="Enter country of origin"
                 />
               </div>
+                <p v-if="(brand.countryOfOrigin?.length ?? 0) > maxLength.countryOfOrigin" class="mt-1 text-sm text-red-500">
+                  Brand country of origin must be 1-80 characters long or not specified.
+                </p>
             </div>
 
             <!-- Active Status -->
