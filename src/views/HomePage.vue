@@ -35,6 +35,7 @@ import { RouterLink } from "vue-router";
     </RouterLink>
       </div>
     </section>
+ 
 
     <!-- Recommended Phones -->
     <section class="py-12 px-6 bg-gray-50">

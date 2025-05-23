@@ -3,6 +3,8 @@ import { ref, onMounted,onBeforeUnmount } from "vue";
 import { getAllData } from "../libs/api.js";
 import SelectAllSaleItemList from "@/components/SelectAllSaleItemList.vue";
 import SelectAllSaleItemGallery from "@/components/SelectAllSaleItemGallery.vue";
+import Pagination from "./../components/Pagination.vue";
+
 
 const product = ref([]);
 const brand = ref([]);
@@ -23,6 +25,16 @@ const fetchProduct= async () => {
     console.error("Error fetching data:", error);
   }
 };
+
+const tryGetV2 = ref([])
+
+onMounted(async() => {
+  const tryGetV2Data = await getAllData(
+      `${VITE_ROOT_API_URL}/itb-mshop/v2/sale-items?page=0&size=4`
+    );
+    tryGetV2.value = tryGetV2Data;
+    console.log("tryGetV2.value: ",tryGetV2.value);
+});
 
 onMounted(async () => {
    await fetchProduct();
@@ -63,6 +75,7 @@ function onStorageChange(event) {
     <span class="itbms-manage-brand tracking-wide">Manage Sale Items</span>
   </RouterLink>
 </div>
+<Pagination/>
 
       <SelectAllSaleItemGallery :product="product" />
  
