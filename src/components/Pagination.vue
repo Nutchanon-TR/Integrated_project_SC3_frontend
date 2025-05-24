@@ -131,6 +131,7 @@ const resetSort = () => {
 function onBrandSelected(brandName) {
   if (brandName && !selectedBrandList.value.includes(brandName)) {
     selectedBrandList.value.push(brandName);
+    
   }
 }
 
