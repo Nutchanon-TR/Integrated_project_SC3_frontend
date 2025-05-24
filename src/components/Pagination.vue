@@ -13,106 +13,119 @@ import { getAllData } from "../libs/api.js";
 import { useRoute } from "vue-router";
 import BrandDropdown from "./BrandDropdown.vue"
 
-
 const props = defineProps({
   productTotalPages: Number,
   initialPage: Number,
   initialSize: Number,
+  initialFilterBrands: String,
+  initialSortField: String,
+  initialSortDirection: String,
 });
 
+const emit = defineEmits(["urlSetting"]);
+
+// Initialize reactive variables with props
+const filterBrands = ref(props.initialFilterBrands || "");
+const page = ref(props.initialPage || 1);
+const itbmPage = ref((props.initialPage || 1) - 1);
+const size = ref(props.initialSize || 10);
+const sortField = ref(props.initialSortField || "");
+const sortDirection = ref(props.initialSortDirection || "");
+const selectedBrandList = ref([]);
+const brandDropdown = ref(null);
+
+// Initialize selectedBrandList from filterBrands
 onMounted(() => {
   console.log("Pagination mounted");
-  console.log(props.productTotalPages);
-    const savedSize = localStorage.getItem("pagination-size");
-  if (savedSize) {
+  console.log("Props:", props);
+  
+  // Initialize selectedBrandList from filterBrands
+  if (filterBrands.value) {
+    selectedBrandList.value = filterBrands.value.split(",").filter(brand => brand.trim() !== "");
+  }
+  
+  // Load saved pagination size
+  const savedSize = localStorage.getItem("pagination-size");
+  if (savedSize && !props.initialSize) {
     size.value = parseInt(savedSize, 10);
   }
 });
 
 const totalPage = computed(() => props.productTotalPages);
-const emit = defineEmits(["urlSetting"]);
-const filterBrands = ref([]);
-const page = ref( props.initialPage||1);
-const itbmPage = ref((props.initialPage || 1) - 1);
-const size = ref( props.initialSize|| 10);
-const sortField = ref("");
-const sortDirection = ref("");
-const selectedBrandList = ref([]);
-const brandDropdown = ref(null);
 
-// const urlSetting = computed(() => {
-//   return `?filterBrands=${filterBrands.value}&page=${itbmPage.value}&size=${size.value}&sortField=${sortField.value}&sortDirection=${sortDirection.value}`;
-// });
-const urlSetting = computed(() => {
-  return {
-    filterBrand: filterBrands.value,
-    page: itbmPage.value,
-    size: size.value,
-    sortField: sortField.value,
-    sortDirection: sortDirection.value,
-    
-  };
+// Watch for prop changes
+watch(() => props.initialFilterBrands, (newVal) => {
+  filterBrands.value = newVal || "";
+  if (newVal) {
+    selectedBrandList.value = newVal.split(",").filter(brand => brand.trim() !== "");
+  } else {
+    selectedBrandList.value = [];
+  }
 });
 
+watch(() => props.initialPage, (newVal) => {
+  if (newVal) {
+    page.value = newVal;
+    itbmPage.value = newVal - 1;
+  }
+});
 
+watch(() => props.initialSize, (newVal) => {
+  if (newVal) {
+    size.value = newVal;
+  }
+});
 
-// const urlSetting = computed(() => {
-//   return `?filterBrands=${selectedBrandList.value.join(",")}&page=${itbmPage.value}&size=${size.value}&sortField=${sortField.value}&sortDirection=${sortDirection.value}`;
-// });
 function emitUrlSetting() {
-  emit("urlSetting", {
-    filterBrand: selectedBrandList.value.join(","),
+  const settings = {
+    filterBrands: selectedBrandList.value.join(","),
     page: itbmPage.value,
     size: size.value,
     sortField: sortField.value,
     sortDirection: sortDirection.value,
-    
-  });
+  };
+  
+  console.log("Emitting settings:", settings);
+  emit("urlSetting", settings);
 }
 
 const goToPage = async (pageNumber) => {
   page.value = pageNumber;
   itbmPage.value = pageNumber - 1;
   console.log("page.value: ", page.value);
-  console.log("urlSetting.value page: ", urlSetting.value);
-  // emit("urlSetting", urlSetting.value);
   emitUrlSetting();
 };
 
 const setSize = (newsize) => {
-  size.value = newsize
-  // emit("urlSetting", urlSetting.value);
-   page.value = 1;
+  size.value = newsize;
+  page.value = 1;
   itbmPage.value = 0;
-   localStorage.setItem("pagination-size", newsize);
+  localStorage.setItem("pagination-size", newsize);
   emitUrlSetting();
 }
 
 const sortAsc = () => {
-  sortDirection.value = 'asc'
-  sortField.value = 'brand.name'
-  // emit("urlSetting", urlSetting.value);
-   page.value = 1;
+  sortDirection.value = 'asc';
+  sortField.value = 'brand.name';
+  page.value = 1;
   itbmPage.value = 0;
- emitUrlSetting();
+  emitUrlSetting();
 }
 
 const sortDesc = () => {
-  sortDirection.value = 'desc'
-  sortField.value = 'brand.name'
-  // emit("urlSetting", urlSetting.value);
-   page.value = 1;
+  sortDirection.value = 'desc';
+  sortField.value = 'brand.name';
+  page.value = 1;
   itbmPage.value = 0;
   emitUrlSetting();
 }
 
 const resetSort = () => {
-  sortDirection.value = 'desc'
-  sortField.value = ''
-  // emit("urlSetting", urlSetting.value);
-   page.value = 1;
+  sortDirection.value = '';
+  sortField.value = '';
+  page.value = 1;
   itbmPage.value = 0;
-   emitUrlSetting();
+  emitUrlSetting();
 }
 
 function onBrandSelected(brandName) {
@@ -129,27 +142,22 @@ function removeBrand(index) {
 }
 
 function clearBrand() {
-  selectedBrandList.value = []
-  filterBrands.value = ''
+  selectedBrandList.value = [];
+  filterBrands.value = '';
   if (brandDropdown.value && brandDropdown.value.resetSelection) {
     brandDropdown.value.resetSelection();
   }
-  // emit("urlSetting", urlSetting.value);
-  // console.log("urlSetting.value page: ", urlSetting.value);
-   emitUrlSetting();
-}
-
-function confirmFilter() {
-  filterBrands.value = selectedBrandList.value.join(",");
-  // emit("urlSetting", urlSetting.value);
-   page.value = 1;
+  page.value = 1;
   itbmPage.value = 0;
   emitUrlSetting();
 }
 
-watch(()=>{
-
-})
+function confirmFilter() {
+  filterBrands.value = selectedBrandList.value.join(",");
+  page.value = 1;
+  itbmPage.value = 0;
+  emitUrlSetting();
+}
 </script>
 
 <template>
@@ -208,6 +216,7 @@ watch(()=>{
       <label for="size" class="font-medium mr-2">จำนวนรายการต่อหน้า:</label>
       <select id="size" v-model="size" @change="setSize(size)"
         class="border border-gray-300 rounded px-3 py-1 focus:ring-blue-400 focus:ring-2">
+        <option :value="5">5</option>
         <option :value="10">10</option>
         <option :value="20">20</option>
         <option :value="50">50</option>
