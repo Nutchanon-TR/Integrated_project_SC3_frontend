@@ -285,9 +285,14 @@ const handleSave = async () => {
                   placeholder="Enter brand name"
                 />
               </div>
-                <p v-if="brand.name.length > maxLength.name" class="mt-1 text-sm text-red-500">
-                Brand name must be 1-30 characters long.
+                <p v-if="!brand.name" class="mt-1 text-sm text-red-500">
+                  Brand name is required
                 </p>
+                <p v-else-if="brand.name.length > maxLength.name" class="mt-1 text-sm text-red-500">
+                  Brand name must be 1-30 characters long.
+                </p>
+
+
             </div>
 
             <!-- Website URL Field -->

@@ -7,6 +7,7 @@ import {
   computed,
   defineProps,
   onBeforeMount,
+  watch,
 } from "vue";
 import { getAllData } from "../libs/api.js";
 import { useRoute } from "vue-router";
@@ -15,58 +16,103 @@ import BrandDropdown from "./BrandDropdown.vue"
 
 const props = defineProps({
   productTotalPages: Number,
+  initialPage: Number,
+  initialSize: Number,
 });
 
 onMounted(() => {
   console.log("Pagination mounted");
   console.log(props.productTotalPages);
+    const savedSize = localStorage.getItem("pagination-size");
+  if (savedSize) {
+    size.value = parseInt(savedSize, 10);
+  }
 });
 
 const totalPage = computed(() => props.productTotalPages);
 const emit = defineEmits(["urlSetting"]);
 const filterBrands = ref([]);
-const page = ref(1);
-const itbmPage = ref(0);
-const size = ref(10);
+const page = ref( props.initialPage||1);
+const itbmPage = ref((props.initialPage || 1) - 1);
+const size = ref( props.initialSize|| 10);
 const sortField = ref("");
 const sortDirection = ref("");
 const selectedBrandList = ref([]);
 const brandDropdown = ref(null);
 
+// const urlSetting = computed(() => {
+//   return `?filterBrands=${filterBrands.value}&page=${itbmPage.value}&size=${size.value}&sortField=${sortField.value}&sortDirection=${sortDirection.value}`;
+// });
 const urlSetting = computed(() => {
-  return `?filterBrands=${filterBrands.value}&page=${itbmPage.value}&size=${size.value}&sortField=${sortField.value}&sortDirection=${sortDirection.value}`;
-
+  return {
+    filterBrand: filterBrands.value,
+    page: itbmPage.value,
+    size: size.value,
+    sortField: sortField.value,
+    sortDirection: sortDirection.value,
+    
+  };
 });
+
+
+
+// const urlSetting = computed(() => {
+//   return `?filterBrands=${selectedBrandList.value.join(",")}&page=${itbmPage.value}&size=${size.value}&sortField=${sortField.value}&sortDirection=${sortDirection.value}`;
+// });
+function emitUrlSetting() {
+  emit("urlSetting", {
+    filterBrand: selectedBrandList.value.join(","),
+    page: itbmPage.value,
+    size: size.value,
+    sortField: sortField.value,
+    sortDirection: sortDirection.value,
+    
+  });
+}
 
 const goToPage = async (pageNumber) => {
   page.value = pageNumber;
   itbmPage.value = pageNumber - 1;
   console.log("page.value: ", page.value);
   console.log("urlSetting.value page: ", urlSetting.value);
-  emit("urlSetting", urlSetting.value);
+  // emit("urlSetting", urlSetting.value);
+  emitUrlSetting();
 };
 
 const setSize = (newsize) => {
   size.value = newsize
-  emit("urlSetting", urlSetting.value);
+  // emit("urlSetting", urlSetting.value);
+   page.value = 1;
+  itbmPage.value = 0;
+   localStorage.setItem("pagination-size", newsize);
+  emitUrlSetting();
 }
 
 const sortAsc = () => {
   sortDirection.value = 'asc'
   sortField.value = 'brand.name'
-  emit("urlSetting", urlSetting.value);
+  // emit("urlSetting", urlSetting.value);
+   page.value = 1;
+  itbmPage.value = 0;
+ emitUrlSetting();
 }
 
 const sortDesc = () => {
   sortDirection.value = 'desc'
   sortField.value = 'brand.name'
-  emit("urlSetting", urlSetting.value);
+  // emit("urlSetting", urlSetting.value);
+   page.value = 1;
+  itbmPage.value = 0;
+  emitUrlSetting();
 }
 
 const resetSort = () => {
   sortDirection.value = 'desc'
   sortField.value = ''
-  emit("urlSetting", urlSetting.value);
+  // emit("urlSetting", urlSetting.value);
+   page.value = 1;
+  itbmPage.value = 0;
+   emitUrlSetting();
 }
 
 function onBrandSelected(brandName) {
@@ -88,15 +134,22 @@ function clearBrand() {
   if (brandDropdown.value && brandDropdown.value.resetSelection) {
     brandDropdown.value.resetSelection();
   }
-  emit("urlSetting", urlSetting.value);
-  console.log("urlSetting.value page: ", urlSetting.value);
+  // emit("urlSetting", urlSetting.value);
+  // console.log("urlSetting.value page: ", urlSetting.value);
+   emitUrlSetting();
 }
 
 function confirmFilter() {
   filterBrands.value = selectedBrandList.value.join(",");
-  emit("urlSetting", urlSetting.value);
+  // emit("urlSetting", urlSetting.value);
+   page.value = 1;
+  itbmPage.value = 0;
+  emitUrlSetting();
 }
 
+watch(()=>{
+
+})
 </script>
 
 <template>

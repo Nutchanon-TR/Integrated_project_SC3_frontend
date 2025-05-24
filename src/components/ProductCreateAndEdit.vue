@@ -461,10 +461,10 @@ const saveProduct = async () => {
                       placeholder="e.g. 29900"
                     />
                   </div>
-                    <p v-if="!product.price" class="mt-1 text-sm text-red-500">
+                  <p v-if="!product.price" class="mt-1 text-sm text-red-500">
                     Price is Required.
                   </p>
-                  <p v-else-if="product.price <= 0" class="mt-1 text-sm text-red-500">
+                    <p v-else-if="product.price <= 0" class="mt-1 text-sm text-red-500">
                     Price must be non-negative integer.
                   </p>
 

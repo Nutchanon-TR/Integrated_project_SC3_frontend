@@ -20,9 +20,30 @@ const urlSetting = ref("");
 // const urlSetting = ref({});
 const productTotalPages = ref(0);
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
+// const localStoragrKey = 'product-page-settings';
 
 onBeforeMount(async () => {
-  await fetchProduct();
+   const savedSettings = loadSettingsFromLocal();
+     if (savedSettings) {
+    const url = buildUrlFromSettings(savedSettings);
+    urlSetting.value = url;
+    const productData = await getAllData(`${VITE_ROOT_API_URL}/itb-mshop/v2/sale-items${url}`);
+    product.value = productData;
+    productTotalPages.value = productData.totalPages;
+  // const saveSettings = localStorage.getItem(localStoragrKey) 
+  // if(saveSettings){
+  //   const {url} = JSON.parse(saveSettings)
+  //   urlSetting.value =url
+  // const productData = await getAllData(
+  //     `${VITE_ROOT_API_URL}/itb-mshop/v2/sale-items${url}`
+  //   );
+  //   product.value = productData;
+  //   productTotalPages.value = productData.totalPages;
+  } 
+  else 
+  {
+    await fetchProduct(); // default fetch
+  }
   window.addEventListener("storage", onStorageChange);
 });
 
@@ -38,6 +59,38 @@ function onStorageChange(event) {
     fetchProduct(); // โหลดข้อมูลใหม่
   }
 }
+function buildUrlFromSettings(settings) {
+  const params = new URLSearchParams();
+  if (settings.filterBrand !== undefined) {
+    params.append("filterBrands", settings.filterBrand);
+  }
+  if (settings.page !== undefined) {
+    params.append("page", settings.page);
+  }
+  if (settings.size !== undefined) {
+    params.append("size", settings.size);
+  }
+  if (settings.sortField !== undefined) {
+    params.append("sortField", settings.sortField);
+  }
+  if (settings.sortDirection !== undefined) {
+    params.append("sortDirection", settings.sortDirection);
+  }
+
+  return "?" + params.toString();
+}
+
+const saveSettingsToLocal = (settings) => {
+  localStorage.setItem("product-page-settings", JSON.stringify(settings));
+};
+const loadSettingsFromLocal = () => {
+  const raw = localStorage.getItem("product-page-settings");
+  if (raw) {
+    return JSON.parse(raw);
+  }
+  return null;
+};
+
 
 const fetchProduct = async () => {
   try {
@@ -57,9 +110,21 @@ const fetchProduct = async () => {
     console.error("Error fetching data:", error);
   }
 };
+const handleUserInteraction = async (newSettings) => {
+  console.log("newSettings:", newSettings);
+  saveSettingsToLocal(newSettings);
+
+  const url = buildUrlFromSettings(newSettings);
+  urlSetting.value = url;
+  console.log("🌐 Fetching:", `${VITE_ROOT_API_URL}/itb-mshop/v2/sale-items${url}`);
+  const productData = await getAllData(`${VITE_ROOT_API_URL}/itb-mshop/v2/sale-items${url}`);
+  product.value = productData;
+  productTotalPages.value = productData.totalPages;
+};
 
 const handleUrlSetting = async (newUrl) => {
   urlSetting.value = newUrl;
+  // localStorage.setItem(localStoragrKey,JSON.stringify({url: newUrl}))
   const productData = await getAllData(
     `${VITE_ROOT_API_URL}/itb-mshop/v2/sale-items${urlSetting.value}`
   );
@@ -90,6 +155,12 @@ const handleUrlSetting = async (newUrl) => {
       <span class="itbms-manage-brand tracking-wide">Manage Sale Items</span>
     </RouterLink>
   </div>
-  <Pagination @urlSetting="handleUrlSetting" :productTotalPages="productTotalPages" />
+  <!-- <Pagination @urlSetting="handleUrlSetting" :productTotalPages="productTotalPages" /> -->
+  <Pagination
+   @urlSetting="handleUserInteraction" 
+  :productTotalPages="productTotalPages"
+  :initialPage="savedSettings?.page ? Number(savedSettings.page) + 1 : 1"
+  :initialSize="savedSettings?.size ? Number(savedSettings.size) : 10"
+    />
   <SelectAllSaleItemGallery v-if="product?.content" :product="product.content" />
 </template>
