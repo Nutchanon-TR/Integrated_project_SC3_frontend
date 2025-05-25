@@ -38,15 +38,32 @@ onMounted(() => {
       <SortButton v-model:sort="sortBy" v-model:order="sortOrder" />
     </div> -->
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
       <RouterLink v-for="(item, index) in product" :key="index" :to="`/sale-items/${item.id}`"
-        class="bg-white p-4 rounded shadow hover:shadow-lg transition">
-        <img src="https://app-area.riointernational.com.bd/productImages/1738403480BRk6I.png" alt="product image">
-        <h2 class="text-xl font-bold mt-2">{{ item.brandName }}</h2>
-        <p class="text-gray-600">{{ item.model }}</p>
-        <p class="text-blue-600 font-semibold">{{ item.price }} Baht</p>
+        class="itbms-row bg-white p-4 rounded-2xl shadow-md hover:shadow-lg transition-all hover:scale-[1.02]">
+        <img :src="item.imageUrl || 'https://app-area.riointernational.com.bd/productImages/1738403480BRk6I.png'"
+          alt="product image" class="w-full h-40 object-contain" />
+
+        <div class="mt-3 space-y-1">
+          <h2 class="itbms-brand text-lg font-bold text-gray-800">
+            {{ item.brandName }}
+          </h2>
+          <p class="itbms-model text-sm text-gray-600">
+            {{ item.model }}
+          </p>
+          <p class="itbms-ramGb text-sm text-gray-600">
+            {{ item.ramGb }}
+          </p>
+          <p class="itbms-storageGb text-sm text-gray-600">
+            {{ item.storageGb }} <span class="itbms-storageGb-unit">GB</span>
+          </p>
+          <p class="itbms-price text-blue-600 text-base font-semibold">
+            {{ unitPrice(item.price) }} <span class="itbms-price-unit">Baht</span>
+          </p>
+        </div>
       </RouterLink>
     </div>
+
 
     <!-- <Pagination :current-page="page" :total-pages="totalPages" @change="page = $event" v-if="totalPages > 1" /> -->
   </div>

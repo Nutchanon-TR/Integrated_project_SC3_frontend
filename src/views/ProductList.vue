@@ -13,6 +13,7 @@ import { getAllData, getAllDataPage } from "../libs/api.js";
 import SelectAllSaleItemList from "@/components/SelectAllSaleItemList.vue";
 import SelectAllSaleItemGallery from "@/components/SelectAllSaleItemGallery.vue";
 import Pagination from "./../components/Pagination.vue";
+import { useAlertStore } from "../stores/alertStore.js"
 
 const product = ref([]);
 const brand = ref([]);
@@ -20,11 +21,12 @@ const urlSetting = ref("");
 const productTotalPages = ref(0);
 const savedSettings = ref(null); // เพิ่ม reactive variable
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
+const alertStore = useAlertStore();
 
 onBeforeMount(async () => {
   const loadedSettings = loadSettingsFromLocal();
   savedSettings.value = loadedSettings; // เก็บค่าใน reactive variable
-  
+
   if (loadedSettings) {
     const url = buildUrlFromSettings(loadedSettings);
     urlSetting.value = url;
@@ -96,7 +98,7 @@ const fetchProduct = async () => {
     );
     product.value = productData;
     productTotalPages.value = productData.totalPages;
-    
+
     const brandData = await getAllData(
       VITE_ROOT_API_URL + "/itb-mshop/v1/brands"
     );
@@ -115,7 +117,7 @@ const handleUserInteraction = async (newSettings) => {
   urlSetting.value = url;
   console.log("urlSetting2: ", urlSetting.value);
   console.log("🌐 Fetching:", `${VITE_ROOT_API_URL}/itb-mshop/v2/sale-items${url}`);
-  
+
   try {
     const productData = await getAllData(`${VITE_ROOT_API_URL}/itb-mshop/v2/sale-items${url}`);
     product.value = productData;
@@ -128,6 +130,13 @@ const handleUserInteraction = async (newSettings) => {
 
 <template>
   <div class="flex items-center justify-between gap-4 mx-[225px] mt-[50px]">
+    <!-- Alert Message -->
+    <div v-if="alertStore.message" :class="`itbms-message px-4 py-2 rounded mb-4 ${alertStore.type === 'error'
+      ? 'bg-red-100 text-red-700'
+      : 'bg-green-100 text-green-700'
+      }`">
+      {{ alertStore.message }}
+    </div>
     <RouterLink :to="{ name: 'ProuctCreate' }"
       class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-m font-medium px-5 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -145,15 +154,17 @@ const handleUserInteraction = async (newSettings) => {
     </RouterLink>
   </div>
 
-  <Pagination
-    @urlSetting="handleUserInteraction" 
-    :productTotalPages="productTotalPages"
+  <Pagination @urlSetting="handleUserInteraction" :productTotalPages="productTotalPages"
     :initialPage="savedSettings?.page !== undefined ? Number(savedSettings.page) + 1 : 1"
     :initialSize="savedSettings?.size !== undefined ? Number(savedSettings.size) : 10"
-    :initialFilterBrands="savedSettings?.filterBrands || ''"
-    :initialSortField="savedSettings?.sortField || ''"
-    :initialSortDirection="savedSettings?.sortDirection || ''"
-  />
-  
+    :initialFilterBrands="savedSettings?.filterBrands || ''" :initialSortField="savedSettings?.sortField || ''"
+    :initialSortDirection="savedSettings?.sortDirection || ''" :showFilter="true" :show-pagination="false" />
+
   <SelectAllSaleItemGallery v-if="product?.content" :product="product.content" />
+
+  <Pagination @urlSetting="handleUserInteraction" :productTotalPages="productTotalPages"
+    :initialPage="savedSettings?.page !== undefined ? Number(savedSettings.page) + 1 : 1"
+    :initialSize="savedSettings?.size !== undefined ? Number(savedSettings.size) : 10"
+    :initialFilterBrands="savedSettings?.filterBrands || ''" :initialSortField="savedSettings?.sortField || ''"
+    :initialSortDirection="savedSettings?.sortDirection || ''" :showFilter="false" :show-pagination="true" />
 </template>
