@@ -81,7 +81,7 @@ describe(`TC-FE-PBI11-FILTER-SALE-ITEM-GALLERY-BY-BRAND-1\n
 
         cy.get('.itbms-brand').then(($brands) => {
             const matched = $brands.filter((index, el) =>
-                el.textContent.toLowerCase().includes('samsung')
+                el.textContent.toLowerCase().includes('asus')
             )
             expect(matched).to.have.length(10)
         })
@@ -155,7 +155,7 @@ describe(`TC-FE-PBI11-FILTER-SALE-ITEM-GALLERY-BY-BRAND-1\n
 
         cy.get('.itbms-brand').then(($brands) => {
             const matched = $brands.filter((index, el) =>
-                el.textContent.toLowerCase().includes('asus') // samsung should be shown first
+                el.textContent.toLowerCase().includes('samsung') // samsung should be shown first
             )
             expect(matched).to.have.length(10)
         })

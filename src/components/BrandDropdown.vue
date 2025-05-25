@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps, watchEffect, onBeforeMount, watch, defineExpose, computed } from "vue";
+import { ref, defineProps, watchEffect, onBeforeMount, onMounted, watch, defineExpose } from "vue";
 import { getAllData } from "@/libs/api";
 import { useRouter } from "vue-router";
 
@@ -17,23 +17,15 @@ const prop = defineProps({
 });
 
 // Emits
-const emit = defineEmits(["sendBrandId", "sendBrandName", "update:modelValue"]);
+const emit = defineEmits(["sendBrandId", "sendBrandName"], ["update:modelValue"]);
 
 // States
 const errorColor = ref("border-gray-300");
 const selectedId = ref(prop.modelvalue || '');
 const options = ref([]);
 const brand = ref('');
-const isOpen = ref(false); // สำหรับเปิด/ปิด dropdown
 const URL = import.meta.env.VITE_ROOT_API_URL;
 const router = useRouter();
-
-// Computed
-const selectedBrand = computed(() => {
-  if (!selectedId.value) return 'เลือกแบรนด์';
-  const found = options.value.find(b => b.id === selectedId.value);
-  return found ? found.name : 'เลือกแบรนด์';
-});
 
 // Update border color on brandError
 watchEffect(() => {
@@ -69,39 +61,35 @@ async function fetchBrands() {
 
 onBeforeMount(() => {
   fetchBrands();
+  // console.log(options.value);
+  // console.log(data);
+  
+  
 });
 
 watch(() => prop.reloadData, () => {
   fetchBrands();
 });
 
-// Toggle dropdown
-function toggleDropdown() {
-  isOpen.value = !isOpen.value;
-}
 
-// Close dropdown when clicking outside
-function closeDropdown() {
-  isOpen.value = false;
-}
-
-// Select brand
-function selectBrand(option) {
-  selectedId.value = option.id;
-  emit("sendBrandId", option.id);
-  emit("sendBrandName", option.name);
-  emit("update:modelValue", option.name);
-  isOpen.value = false;
+// เมื่อเลือกแบรนด์จาก select
+function handleChange() {
+  const brandObj = options.value.find(b => b.id === selectedId.value);
+  if (brandObj) {
+    emit("sendBrandId", brandObj.id);
+    emit("sendBrandName", brandObj.name);
+    emit("update:modelValue", brandObj.name);
+  }
 }
 
 function resetSelection() {
   selectedId.value = '';
 }
-
 defineExpose({
   resetSelection
 });
 </script>
+
 
 <template>
   <!-- แจ้งเตือน 404 -->
@@ -114,48 +102,25 @@ defineExpose({
     <span>ไม่พบข้อมูลแบรนด์ที่คุณเลือก</span>
   </div>
 
-  <!-- Custom Dropdown -->
-  <div class="w-48 relative" v-click-outside="closeDropdown">
-    <!-- Dropdown Button -->
-    <div
-      @click="toggleDropdown"
-      :class="`itbms-brand cursor-pointer w-full px-4 py-2 text-sm border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white flex items-center justify-between ${errorColor}`"
-      data-testid="brand-dropdown"
+  <!-- เปลี่ยนเป็น <select> -->
+  <div class="w-48">
+    <select
+      v-model="selectedId"
+      @change="handleChange"
+      :class="`itbms-brand w-full px-4 py-2 text-sm border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${errorColor}`"
     >
-      <span class="text-gray-700">{{ selectedBrand }}</span>
-      <!-- Arrow Icon -->
-      <svg 
-        :class="`w-4 h-4 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`"
-        fill="none" 
-        stroke="currentColor" 
-        viewBox="0 0 24 24"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-      </svg>
-    </div>
-
-    <!-- Dropdown Options -->
-    <div
-      v-show="isOpen"
-      class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto transition-all duration-200"
-      data-testid="brand-options"
-    >
-      <div
+      <option disabled value="">-- เลือกแบรนด์ --</option>
+      <option
         v-for="option in options"
         :key="option.id"
-        @click="selectBrand(option)"
-        :class="`itbms-filter-item cursor-pointer px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 transition-colors ${selectedId === option.id ? 'bg-blue-100 text-blue-700 font-medium' : 'text-gray-700'}`"
-        :data-testid="`brand-option-${option.id}`"
-        :data-value="option.id"
+        :value="option.id"
+        class="itbms-filter-item"
       >
         {{ option.name }}
-      </div>
-    </div>
+      </option>
+    </select>
 
-    <p class="mt-2 text-xs text-gray-500">จำนวน options: {{ options.length }}</p>
+    <p>จำนวน options: {{ options.length }}</p>
+
   </div>
 </template>
-
-<style scoped>
-/* Click outside directive */
-</style>

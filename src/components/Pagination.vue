@@ -8,6 +8,7 @@ import {
   defineProps,
   onBeforeMount,
   watch,
+  onBeforeUnmount,
 } from "vue";
 import { getAllData } from "../libs/api.js";
 import { useRoute } from "vue-router";
@@ -25,6 +26,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["urlSetting"]);
+const URL = import.meta.env.VITE_ROOT_API_URL;
 
 // Initialize reactive variables with props
 const filterBrands = ref(props.initialFilterBrands || "");
@@ -35,6 +37,10 @@ const sortField = ref(props.initialSortField || "");
 const sortDirection = ref(props.initialSortDirection || "");
 const selectedBrandList = ref([]);
 const brandDropdown = ref(null);
+const options = ref([]);
+const selected = ref(null);
+const dropdownOpen = ref(false);
+const dropdownRef = ref(null);
 
 // Initialize selectedBrandList from filterBrands
 onMounted(() => {
@@ -51,7 +57,29 @@ onMounted(() => {
   if (savedSize && !props.initialSize) {
     size.value = parseInt(savedSize, 10);
   }
+
+  // Add click outside listener
+  document.addEventListener('click', handleClickOutside);
 });
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
+
+// Handle click outside to close dropdown
+// const handleClickOutside = (event) => {
+//   if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+//     dropdownOpen.value = false;
+//   }
+// };
+
+const handleClickOutside = (event) => {
+  if (!dropdownRef.value || !(dropdownRef.value instanceof HTMLElement)) return;
+  if (!dropdownRef.value.contains(event.target)) {
+    dropdownOpen.value = false;
+  }
+};
+
 
 const totalPage = computed(() => props.productTotalPages);
 
@@ -131,18 +159,28 @@ const resetSort = () => {
 }
 
 function onBrandSelected(brandName) {
-  if (brandName && !selectedBrandList.value.includes(brandName)) {
-    selectedBrandList.value.push(brandName);
+  const brandObj = options.value.find(b => b.name === brandName);
+  selected.value = brandObj;
+  if (brandObj && !selectedBrandList.value.includes(brandObj.name)) {
+    selectedBrandList.value.push(brandObj.name);
   }
   filterBrands.value = selectedBrandList.value.join(",");
   emitUrlSetting();
+  // dropdownOpen.value = false; // ปิด dropdown หลังเลือก
 }
 
 function removeBrand(index) {
   selectedBrandList.value.splice(index, 1);
+  filterBrands.value = selectedBrandList.value.join(",");
   if (brandDropdown.value && brandDropdown.value.resetSelection) {
     brandDropdown.value.resetSelection();
   }
+  
+  // Reset page when filter changes
+  page.value = 1;
+  itbmPage.value = 0;
+  
+  emitUrlSetting();
 }
 
 function clearBrand() {
@@ -156,51 +194,70 @@ function clearBrand() {
   emitUrlSetting();
 }
 
-// function confirmFilter() {
-//   filterBrands.value = selectedBrandList.value.join(",");
-//   page.value = 1;
-//   itbmPage.value = 0;
-//   emitUrlSetting();
-// }
+// Toggle dropdown function
+const toggleDropdown = (event) => {
+  event.stopPropagation();
+  dropdownOpen.value = !dropdownOpen.value;
+};
+
+onMounted(async () => {
+  try {
+    const data = await getAllData(`${URL}/itb-mshop/v1/brands`);
+    console.log(data);
+    options.value = data.sort((a, b) => a.name.localeCompare(b.name));
+  } catch (error) {
+    console.error("โหลดแบรนด์ล้มเหลว:", error.message);
+  }
+});
+
 </script>
 
 <template>
   <div class="p-4 space-y-6 text-sm text-gray-800 max-w-4xl mx-auto">
 
-    <div v-if="showFilter" class="filter">
-      <!-- <div class="status-for-dev">
-    <p>{{ urlSetting }}</p>
-    <p>page: {{ page }}</p>
-    <p>size: {{ size }}</p>
-    <p>sortField(SortBy): {{ sortField }}</p>
-    <p>sortDirection: {{ sortDirection }}</p>
-    <p>itbme-page-: {{ itbmPage }}</p>
-    <br />
-  </div> -->
+    <div v-if="showFilter" class="filter flex gap-8 flex-wrap">
       <!-- 🔽 Brand Filter -->
-      <section class="space-y-3">
+      <section class="space-y-3 w-80">
         <h2 class="font-semibold text-lg">กรองตามแบรนด์</h2>
-        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-          <BrandDropdown ref="brandDropdown" @sendBrandName="onBrandSelected" class="flex-1" />
+        <div ref="dropdownRef" class="relative w-full">
+          <button class="itbms-brand-filter px-4 py-2 border rounded cursor-pointer bg-white w-full text-left" 
+               @click="toggleDropdown"
+               data-cy="brand-dropdown-toggle">
+            {{ selected?.name || '-- เลือกแบรนด์ --' }}
+          </button>
+
+          <div
+            class="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-60 overflow-y-auto"
+            v-show="dropdownOpen" 
+            data-cy="brand-options"
+            :data-dropdown-open="dropdownOpen">
+            <div v-for="opt in options" :key="opt.id"
+              class="itbms-filter-item px-4 py-2 hover:bg-blue-100 cursor-pointer" 
+              @click="onBrandSelected(opt.name)"
+              @mousedown.prevent
+              data-cy="brand-option"
+              :data-brand-name="opt.name">
+              {{ opt.name }}
+            </div>
+          </div>
         </div>
 
         <!-- แบรนด์ที่เลือก -->
-        <ul class="itbms-brand-filter flex flex-wrap gap-2">
+        <ul class="itbms-selected-brands flex flex-wrap gap-2">
           <li v-if="selectedBrandList.length === 0" class="text-gray-400 italic">
             No brand selected.
           </li>
           <li v-for="(brand, i) in selectedBrandList" :key="i"
             class="flex items-center bg-gray-100 border border-gray-300 rounded px-3 py-1">
-            
+
             <span class="itbms-filter-item">{{ brand }}</span>
             <button @click="removeBrand(i)" class="itbms-filter-item-clear ml-2 text-red-500 hover:text-red-700"
               aria-label="ลบแบรนด์">
               ×
             </button>
-            
+
           </li>
         </ul>
-
 
         <!-- ปุ่มยืนยัน/ล้าง -->
         <div class="flex gap-2">
@@ -212,7 +269,7 @@ function clearBrand() {
       </section>
 
       <!-- 🔁 Sorting -->
-      <section class="space-y-2">
+      <section class="space-y-2 w-64">
         <h2 class="font-semibold text-lg">จัดเรียงสินค้า</h2>
         <div class="flex gap-3 flex-wrap">
           <button @click="sortAsc"
@@ -231,7 +288,7 @@ function clearBrand() {
       </section>
 
       <!-- 📄 Page Size -->
-      <section>
+      <section class="space-y-2 w-48">
         <label for="size" class="font-medium mr-2">จำนวนรายการต่อหน้า:</label>
         <select id="size" v-model="size" @change="setSize(size)"
           class="itbms-page-size border border-gray-300 rounded px-3 py-1 focus:ring-blue-400 focus:ring-2">
