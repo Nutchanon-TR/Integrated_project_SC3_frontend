@@ -1,5 +1,13 @@
 <script setup>
-import { ref, defineProps, watchEffect, onBeforeMount, onMounted,watch,defineExpose  } from "vue";
+import {
+  ref,
+  defineProps,
+  watchEffect,
+  onBeforeMount,
+  onMounted,
+  watch,
+  defineExpose,
+} from "vue";
 import { getAllData } from "@/libs/api";
 import { useRouter } from "vue-router";
 
@@ -8,22 +16,25 @@ const prop = defineProps({
   brandError: Boolean,
   brandName: {
     type: String,
-    default: 'All Brands'
+    default: "All Brands",
   },
-  reloadData:{
-    type:Number
+  reloadData: {
+    type: Number,
   },
-  modelvalue: String
+  modelvalue: String,
 });
 
 // Emits
-const emit = defineEmits(["sendBrandId", "sendBrandName"], ["update:modelValue"]);
+const emit = defineEmits(
+  ["sendBrandId", "sendBrandName"],
+  ["update:modelValue"]
+);
 
 // States
 const errorColor = ref("border-gray-300");
-const selectedId = ref(prop.modelvalue ||'');
+const selectedId = ref(prop.modelvalue || "");
 const options = ref([]);
-const brand = ref('');
+const brand = ref("");
 const URL = import.meta.env.VITE_ROOT_API_URL;
 const router = useRouter();
 
@@ -38,7 +49,7 @@ onBeforeMount(async () => {
     const data = await getAllData(`${URL}/itb-mshop/v1/brands`);
     if (data?.error === "not_found") {
       brand.value = "404_not_found";
-      setTimeout(() => router.push('/sale-items'), 2000);
+      setTimeout(() => router.push("/sale-items"), 2000);
       return;
     }
 
@@ -52,7 +63,6 @@ onBeforeMount(async () => {
       emit("sendBrandId", found.id);
       emit("sendBrandName", found.name);
     }
-
   } catch (error) {
     console.error("โหลดข้อมูลแบรนด์ไม่สำเร็จ:", error.message);
     alert("เกิดข้อผิดพลาดในการโหลดแบรนด์");
@@ -64,14 +74,16 @@ async function fetchBrands() {
 }
 fetchBrands();
 
-watch(() => prop.reloadData, () => {
-  fetchBrands();
-});
-
+watch(
+  () => prop.reloadData,
+  () => {
+    fetchBrands();
+  }
+);
 
 // เมื่อเลือกแบรนด์จาก select
 function handleChange() {
-  const brandObj = options.value.find(b => b.id === selectedId.value);
+  const brandObj = options.value.find((b) => b.id === selectedId.value);
   if (brandObj) {
     emit("sendBrandId", brandObj.id);
     emit("sendBrandName", brandObj.name);
@@ -80,21 +92,31 @@ function handleChange() {
 }
 
 function resetSelection() {
-  selectedId.value = '';
+  selectedId.value = "";
 }
 defineExpose({
-  resetSelection
+  resetSelection,
 });
 </script>
 
-
 <template>
   <!-- แจ้งเตือน 404 -->
-  <div v-if="brand === '404_not_found'"
-    class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-red-50 border border-red-300 text-red-800 text-sm px-6 py-3 rounded-md shadow-lg z-50 flex items-center space-x-2">
-    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M12 9v2m0 4h.01M12 5a7 7 0 11-7 7 7 7 0 017-7z" />
+  <div
+    v-if="brand === '404_not_found'"
+    class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-red-50 border border-red-300 text-red-800 text-sm px-6 py-3 rounded-md shadow-lg z-50 flex items-center space-x-2"
+  >
+    <svg
+      class="w-5 h-5 text-red-600"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M12 9v2m0 4h.01M12 5a7 7 0 11-7 7 7 7 0 017-7z"
+      />
     </svg>
     <span>ไม่พบข้อมูลแบรนด์ที่คุณเลือก</span>
   </div>
@@ -107,14 +129,9 @@ defineExpose({
       :class="`itbms-brand w-full px-4 py-2 text-sm border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${errorColor}`"
     >
       <option disabled value="">-- เลือกแบรนด์ --</option>
-      <option
-        v-for="option in options"
-        :key="option.id"
-        :value="option.id"
-      >
+      <option v-for="option in options" :key="option.id" :value="option.id">
         {{ option.name }}
       </option>
     </select>
   </div>
 </template>
-
