@@ -52,10 +52,10 @@ onMounted(() => {
             {{ item.model }}
           </p>
           <p class="itbms-ramGb text-sm text-gray-600">
-            {{ item.ramGb }}
+            {{ nullCatching(item.ramGb) }}
           </p>
           <p class="itbms-storageGb text-sm text-gray-600">
-            {{ item.storageGb }} <span class="itbms-storageGb-unit">GB</span>
+            {{ nullCatching(item.storageGb) }} <span class="itbms-storageGb-unit">GB</span>
           </p>
           <p class="itbms-price text-blue-600 text-base font-semibold">
             {{ unitPrice(item.price) }} <span class="itbms-price-unit">Baht</span>
