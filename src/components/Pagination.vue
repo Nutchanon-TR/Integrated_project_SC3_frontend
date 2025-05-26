@@ -143,6 +143,7 @@ function removeBrand(index) {
   if (brandDropdown.value && brandDropdown.value.resetSelection) {
     brandDropdown.value.resetSelection();
   }
+  emitUrlSetting();
 }
 
 function clearBrand() {
