@@ -165,6 +165,11 @@ function onBrandSelected(brandName) {
     selectedBrandList.value.push(brandObj.name);
   }
   filterBrands.value = selectedBrandList.value.join(",");
+  
+  // รีเซ็ตหน้าเมื่อเลือก brand ใหม่
+  page.value = 1;
+  itbmPage.value = 0;
+  
   emitUrlSetting();
   // dropdownOpen.value = false; // ปิด dropdown หลังเลือก
 }
@@ -176,7 +181,7 @@ function removeBrand(index) {
     brandDropdown.value.resetSelection();
   }
   
-  // Reset page when filter changes
+  // รีเซ็ตหน้าเมื่อ filter เปลี่ยน
   page.value = 1;
   itbmPage.value = 0;
   
@@ -227,7 +232,7 @@ onMounted(async () => {
           </button>
 
           <div
-            class="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-60 overflow-y-auto"
+            class="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-20 overflow-y-auto"
             v-show="dropdownOpen" 
             data-cy="brand-options"
             :data-dropdown-open="dropdownOpen">
@@ -298,6 +303,9 @@ onMounted(async () => {
           <option :value="50">50</option>
         </select>
       </section>
+    </div>
+    <div>
+      
     </div>
 
     <div v-if="showPagination" class="Pagination">

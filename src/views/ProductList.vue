@@ -23,22 +23,76 @@ const savedSettings = ref(null); // เพิ่ม reactive variable
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
 const alertStore = useAlertStore();
 
+// Add this helper function for consistent brand sorting
+const sortProductsByBrandOrder = (products, brandOrder) => {
+  if (!brandOrder || brandOrder.length === 0) return products;
+  
+  return products.sort((a, b) => {
+    const brandA = a.brandName?.trim() || a.brand?.name?.trim() || "";
+    const brandB = b.brandName?.trim() || b.brand?.name?.trim() || "";
+    
+    const indexA = brandOrder.indexOf(brandA);
+    const indexB = brandOrder.indexOf(brandB);
+    
+    // Both brands are in the selected order
+    if (indexA !== -1 && indexB !== -1) {
+      return indexA - indexB;
+    }
+    // Only brand A is in selected order (comes first)
+    if (indexA !== -1 && indexB === -1) return -1;
+    // Only brand B is in selected order (comes first)
+    if (indexA === -1 && indexB !== -1) return 1;
+    // Neither brand is in selected order (alphabetical)
+    return brandA.localeCompare(brandB);
+  });
+};
+
+
 onBeforeMount(async () => {
   const loadedSettings = loadSettingsFromLocal();
-  savedSettings.value = loadedSettings; // เก็บค่าใน reactive variable
+  savedSettings.value = loadedSettings;
 
   if (loadedSettings) {
     const url = buildUrlFromSettings(loadedSettings);
     urlSetting.value = url;
     console.log("urlSetting: ", urlSetting.value);
     const productData = await getAllData(`${VITE_ROOT_API_URL}/itb-mshop/v2/sale-items${url}`);
+
+    // แก้ไข: เช็คว่าข้อมูลมาแล้วและมี content
+    if (productData && productData.content) {
+      if (loadedSettings.filterBrands && loadedSettings.filterBrands.trim() !== "") {
+        const brandOrder = loadedSettings.filterBrands.split(",").map(brand => brand.trim());
+        console.log("Initial brand order:", brandOrder);
+        
+        productData.content.sort((a, b) => {
+          const brandA = a.brandName?.trim() || a.brand?.name?.trim() || "";
+          const brandB = b.brandName?.trim() || b.brand?.name?.trim() || "";
+          
+          const indexA = brandOrder.indexOf(brandA);
+          const indexB = brandOrder.indexOf(brandB);
+          
+          if (indexA !== -1 && indexB !== -1) {
+            return indexA - indexB;
+          }
+          if (indexA !== -1 && indexB === -1) return -1;
+          if (indexA === -1 && indexB !== -1) return 1;
+          return brandA.localeCompare(brandB);
+        });
+        
+        console.log("Initial sorted products:", productData.content.map(p => p.brandName || p.brand?.name));
+      }
+    }
+
     product.value = productData;
     productTotalPages.value = productData.totalPages;
   } else {
-    await fetchProduct(); // default fetch
+    await fetchProduct();
   }
   window.addEventListener("storage", onStorageChange);
 });
+
+// เพิ่มฟังก์ชันช่วยเหลือสำหรับการเรียงลำดับ
+
 
 onBeforeUnmount(() => {
   window.removeEventListener("storage", onStorageChange);
@@ -109,6 +163,8 @@ const fetchProduct = async () => {
   }
 };
 
+
+
 const handleUserInteraction = async (newSettings) => {
   console.log("newSettings:", newSettings);
   saveSettingsToLocal(newSettings);
@@ -120,6 +176,38 @@ const handleUserInteraction = async (newSettings) => {
 
   try {
     const productData = await getAllData(`${VITE_ROOT_API_URL}/itb-mshop/v2/sale-items${url}`);
+    
+    // แก้ไข: เช็คว่าข้อมูลมาแล้วและมี content
+    if (productData && productData.content) {
+      // *** แก้ไขการเรียงลำดับตาม brand ***
+      if (newSettings.filterBrands && newSettings.filterBrands.trim() !== "") {
+        const brandOrder = newSettings.filterBrands.split(",").map(brand => brand.trim());
+        console.log("Brand order:", brandOrder); // เพิ่ม log เพื่อ debug
+        
+        productData.content.sort((a, b) => {
+          const brandA = a.brandName?.trim() || a.brand?.name?.trim() || "";
+          const brandB = b.brandName?.trim() || b.brand?.name?.trim() || "";
+          
+          console.log("Comparing:", brandA, "vs", brandB); // เพิ่ม log เพื่อ debug
+          
+          const indexA = brandOrder.indexOf(brandA);
+          const indexB = brandOrder.indexOf(brandB);
+          
+          // ถ้าทั้งสองอยู่ใน brand ที่เลือก ให้เรียงตามลำดับที่เลือก
+          if (indexA !== -1 && indexB !== -1) {
+            return indexA - indexB;
+          }
+          // ถ้ามี brand ที่เลือกกับไม่เลือก ให้ brand ที่เลือกมาก่อน
+          if (indexA !== -1 && indexB === -1) return -1;
+          if (indexA === -1 && indexB !== -1) return 1;
+          // ถ้าทั้งสองไม่อยู่ใน brand ที่เลือก ให้เรียงตามชื่อ
+          return brandA.localeCompare(brandB);
+        });
+        
+        console.log("Sorted products:", productData.content.map(p => p.brandName || p.brand?.name));
+      }
+    }
+    
     product.value = productData;
     productTotalPages.value = productData.totalPages;
   } catch (error) {
@@ -167,4 +255,5 @@ const handleUserInteraction = async (newSettings) => {
     :initialSize="savedSettings?.size !== undefined ? Number(savedSettings.size) : 10"
     :initialFilterBrands="savedSettings?.filterBrands || ''" :initialSortField="savedSettings?.sortField || ''"
     :initialSortDirection="savedSettings?.sortDirection || ''" :showFilter="false" :show-pagination="true" /> -->
+
 </template>
