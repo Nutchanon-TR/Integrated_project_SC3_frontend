@@ -55,7 +55,7 @@ onBeforeMount(async () => {
   if (loadedSettings) {
     const url = buildUrlFromSettings(loadedSettings);
     urlSetting.value = url;
-    console.log("urlSetting: ", urlSetting.value);
+    // console.log("urlSetting: ", urlSetting.value);
     const productData = await getAllData(`${VITE_ROOT_API_URL}/itb-mshop/v2/sale-items${url}`);
 
     // แก้ไข: เช็คว่าข้อมูลมาแล้วและมี content
@@ -100,7 +100,7 @@ onBeforeUnmount(() => {
 
 function onStorageChange(event) {
   if (event.key === "product-updated") {
-    console.log("Product data changed in another tab");
+    //console.log("Product data changed in another tab");
     fetchProduct();
   }
 }
@@ -157,7 +157,7 @@ const fetchProduct = async () => {
       VITE_ROOT_API_URL + "/itb-mshop/v1/brands"
     );
     brand.value = brandData;
-    console.log("product.value: ", product.value.content);
+    //console.log("product.value: ", product.value.content);
   } catch (error) {
     console.error("Error fetching data:", error);
   }
@@ -166,13 +166,13 @@ const fetchProduct = async () => {
 
 
 const handleUserInteraction = async (newSettings) => {
-  console.log("newSettings:", newSettings);
+  //console.log("newSettings:", newSettings);
   saveSettingsToLocal(newSettings);
 
   const url = buildUrlFromSettings(newSettings);
   urlSetting.value = url;
-  console.log("urlSetting2: ", urlSetting.value);
-  console.log("🌐 Fetching:", `${VITE_ROOT_API_URL}/itb-mshop/v2/sale-items${url}`);
+  //console.log("urlSetting2: ", urlSetting.value);
+  //console.log("🌐 Fetching:", `${VITE_ROOT_API_URL}/itb-mshop/v2/sale-items${url}`);
 
   try {
     const productData = await getAllData(`${VITE_ROOT_API_URL}/itb-mshop/v2/sale-items${url}`);
@@ -246,14 +246,14 @@ const handleUserInteraction = async (newSettings) => {
     :initialPage="savedSettings?.page !== undefined ? Number(savedSettings.page) + 1 : 1"
     :initialSize="savedSettings?.size !== undefined ? Number(savedSettings.size) : 10"
     :initialFilterBrands="savedSettings?.filterBrands || ''" :initialSortField="savedSettings?.sortField || ''"
-    :initialSortDirection="savedSettings?.sortDirection || ''" :showFilter="true" :show-pagination="true" />
+    :initialSortDirection="savedSettings?.sortDirection || ''" :showFilter="true" :show-pagination="false" />
 
   <SelectAllSaleItemGallery v-if="product?.content" :product="product.content" />
 
-  <!-- <Pagination @urlSetting="handleUserInteraction" :productTotalPages="productTotalPages"
+  <Pagination @urlSetting="handleUserInteraction" :productTotalPages="productTotalPages"
     :initialPage="savedSettings?.page !== undefined ? Number(savedSettings.page) + 1 : 1"
     :initialSize="savedSettings?.size !== undefined ? Number(savedSettings.size) : 10"
     :initialFilterBrands="savedSettings?.filterBrands || ''" :initialSortField="savedSettings?.sortField || ''"
-    :initialSortDirection="savedSettings?.sortDirection || ''" :showFilter="false" :show-pagination="true" /> -->
+    :initialSortDirection="savedSettings?.sortDirection || ''" :showFilter="false" :show-pagination="true" />
 
 </template>
