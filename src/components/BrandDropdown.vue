@@ -16,13 +16,7 @@ const prop = defineProps({
   modelvalue: String,
 });
 
-<<<<<<< HEAD
-
-const emit = defineEmits(["sendBrandId", "sendBrandName", "update:modelValue"]);
-=======
-// Emits
 const emit = defineEmits(["sendBrandId", "sendBrandName"], ["update:modelValue"]);
->>>>>>> 9fd7ae32b86f0fdabe72fe532ae99e5c7218c89c
 
 // States
 const errorColor = ref("border-gray-300");
@@ -40,7 +34,7 @@ watchEffect(() => {
 async function fetchBrands() {
   try {
     const data = await getAllData(`${URL}/itb-mshop/v1/brands`);
-    console.log("response from API", data);
+    //console.log("response from API", data);
     if (data?.error === "not_found") {
       brand.value = "404_not_found";
       setTimeout(() => router.push("/sale-items"), 2000);
@@ -125,31 +119,9 @@ defineExpose({
       @change="handleChange"
       :class="`itbms-brand w-full px-4 py-2 text-sm border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${errorColor}`"
     >
-<<<<<<< HEAD
 
-      <span class="text-gray-700">{{ selectedBrand }}</span>
-      <!-- Arrow Icon -->
-      <svg 
-        :class="`w-4 h-4 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`"
-        fill="none" 
-        stroke="currentColor" 
-        viewBox="0 0 24 24"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-      </svg>
-    </div>
-
-    <!-- Dropdown Options -->
-    <div
-      v-show="isOpen"
-      class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto transition-all duration-200"
-      data-testid="brand-options"
-    >
-      <div
-=======
       <option disabled value="">-- เลือกแบรนด์ --</option>
       <option
->>>>>>> 9fd7ae32b86f0fdabe72fe532ae99e5c7218c89c
         v-for="option in options"
         :key="option.id"
         :value="option.id"

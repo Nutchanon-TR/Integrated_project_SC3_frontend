@@ -30,7 +30,7 @@ onBeforeMount(async () => {
   if (loadedSettings) {
     const url = buildUrlFromSettings(loadedSettings);
     urlSetting.value = url;
-    console.log("urlSetting: ", urlSetting.value);
+    // console.log("urlSetting: ", urlSetting.value);
     const productData = await getAllData(`${VITE_ROOT_API_URL}/itb-mshop/v2/sale-items${url}`);
     product.value = productData;
     productTotalPages.value = productData.totalPages;
@@ -46,7 +46,7 @@ onBeforeUnmount(() => {
 
 function onStorageChange(event) {
   if (event.key === "product-updated") {
-    console.log("Product data changed in another tab");
+    //console.log("Product data changed in another tab");
     fetchProduct();
   }
 }
@@ -103,20 +103,20 @@ const fetchProduct = async () => {
       VITE_ROOT_API_URL + "/itb-mshop/v1/brands"
     );
     brand.value = brandData;
-    console.log("product.value: ", product.value.content);
+    //console.log("product.value: ", product.value.content);
   } catch (error) {
     console.error("Error fetching data:", error);
   }
 };
 
 const handleUserInteraction = async (newSettings) => {
-  console.log("newSettings:", newSettings);
+  //console.log("newSettings:", newSettings);
   saveSettingsToLocal(newSettings);
 
   const url = buildUrlFromSettings(newSettings);
   urlSetting.value = url;
-  console.log("urlSetting2: ", urlSetting.value);
-  console.log("🌐 Fetching:", `${VITE_ROOT_API_URL}/itb-mshop/v2/sale-items${url}`);
+  //console.log("urlSetting2: ", urlSetting.value);
+  //console.log("🌐 Fetching:", `${VITE_ROOT_API_URL}/itb-mshop/v2/sale-items${url}`);
 
   try {
     const productData = await getAllData(`${VITE_ROOT_API_URL}/itb-mshop/v2/sale-items${url}`);
