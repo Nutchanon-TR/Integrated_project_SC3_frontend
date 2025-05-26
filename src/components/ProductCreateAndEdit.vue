@@ -332,7 +332,7 @@ const saveProduct = async () => {
       router.go(-1);
     } else {
       await addData(`${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`, product);
-      setLocalStorage()
+      setSessionStorage();
       alertStore.setMessage("The sale item has been successfully added.");
       router.go(-1);
     }
@@ -343,27 +343,21 @@ const saveProduct = async () => {
   } finally {
     isSaving.value = true;
     reloadData.value++;
-    localStorage.setItem('product-updated', Date.now().toString());
+    sessionStorage.setItem('product-updated', Date.now().toString());
   }
 };
 
-const setLocalStorage = () => {
-  const raw = localStorage.getItem("product-page-settings");
+const setSessionStorage = () => {
+  const raw = sessionStorage.getItem("product-page-settings");
 
-if (raw) {
-  // 2. แปลงเป็น object
-  const settings = JSON.parse(raw);
-
-  // 3. เปลี่ยน page เป็น 0
-  settings.page = 0;
-
-  // 4. บันทึกกลับลง localStorage
-  localStorage.setItem("product-page-settings", JSON.stringify(settings));
-
-  console.log("✔️ page updated to 0 and saved back:", settings);
-} else {
-  console.log("⚠️ No settings found in localStorage.");
-}
+  if (raw) {
+    const settings = JSON.parse(raw);
+    settings.page = 0;
+    sessionStorage.setItem("product-page-settings", JSON.stringify(settings));
+    console.log("✔️ page updated to 0 and saved back:", settings);
+  } else {
+    console.log("⚠️ No settings found in sessionStorage.");
+  }
 };
 </script>
 

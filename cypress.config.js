@@ -9,6 +9,8 @@ export default defineConfig({
     // baseAPI: 'http://intproj24.sit.kmutt.ac.th/sc3/itb-mshop',
     baseUrl: 'http://localhost:5173',
     baseAPI: 'http://localhost:8080/itb-mshop',
+    // baseUrl: 'http://intproj24.sit.kmutt.ac.th/ssi1/',
+    // baseAPI: 'http://intproj24.sit.kmutt.ac.th/ssi1/itb-mshop',
 
     experimentalRunAllSpecs: true,
     setupNodeEvents(on, config) {

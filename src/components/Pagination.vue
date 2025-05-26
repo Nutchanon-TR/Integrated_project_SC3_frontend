@@ -44,23 +44,18 @@ const dropdownRef = ref(null);
 
 // Initialize selectedBrandList from filterBrands
 onMounted(() => {
-  //console.log("Pagination mounted");
-  //console.log("Props:", props);
-
-  // Initialize selectedBrandList from filterBrands
   if (filterBrands.value) {
     selectedBrandList.value = filterBrands.value
       .split(",")
       .filter((brand) => brand.trim() !== "");
   }
 
-  // Load saved pagination size
-  const savedSize = localStorage.getItem("pagination-size");
+  // Load saved pagination size from sessionStorage
+  const savedSize = sessionStorage.getItem("pagination-size");
   if (savedSize && !props.initialSize) {
     size.value = parseInt(savedSize, 10);
   }
 
-  // Add click outside listener
   document.addEventListener("click", handleClickOutside);
 });
 
@@ -138,19 +133,18 @@ const goToPage = async (pageNumber) => {
   page.value = pageNumber;
   itbmPage.value = pageNumber - 1;
 
-  const localStorageRaw = localStorage.getItem("product-page-settings");
-  let localStorageValue = {};
+  const sessionStorageRaw = sessionStorage.getItem("product-page-settings");
+  let sessionStorageValue = {};
   try {
-    if (localStorageRaw) {
-      localStorageValue = JSON.parse(localStorageRaw);
+    if (sessionStorageRaw) {
+      sessionStorageValue = JSON.parse(sessionStorageRaw);
     }
   } catch (error) {
-    console.error("Error parsing localStorage:", error);
+    console.error("Error parsing sessionStorage:", error);
   }
 
-  sortDirection.value = localStorageValue.sortDirection || "desc";
-  sortField.value = localStorageValue.sortField || "createdOn";
-
+  sortDirection.value = sessionStorageValue.sortDirection || "desc";
+  sortField.value = sessionStorageValue.sortField || "createdOn";
 
   emitUrlSetting();
 };
@@ -160,6 +154,8 @@ const setSize = (newsize) => {
   size.value = newsize;
   page.value = 1;
   itbmPage.value = 0;
+  // Save pagination size to sessionStorage
+  sessionStorage.setItem("pagination-size", newsize.toString());
   emitUrlSetting();
 };
 
@@ -232,15 +228,17 @@ const toggleDropdown = (event) => {
   dropdownOpen.value = !dropdownOpen.value;
 };
 
-onMounted(async () => {
+onBeforeMount(async () => {
   try {
     const data = await getAllData(`${URL}/itb-mshop/v1/brands`);
-    //console.log(data);
     options.value = data.sort((a, b) => a.name.localeCompare(b.name));
   } catch (error) {
     console.error("โหลดแบรนด์ล้มเหลว:", error.message);
+  } finally {
+    // isLoadingBrands.value = false;
   }
 });
+
 </script>
 
 <template>
@@ -279,7 +277,7 @@ onMounted(async () => {
         </div>
 
         <!-- แบรนด์ที่เลือก -->
-        <ul class="itbms-selected-brands flex flex-wrap gap-2">
+        <ul class="flex flex-wrap gap-2">
           <li
             v-if="selectedBrandList.length === 0"
             class="text-gray-400 italic"
@@ -291,7 +289,8 @@ onMounted(async () => {
             :key="i"
             class="flex items-center bg-gray-100 border border-gray-300 rounded px-3 py-1"
           >
-            <span class="itbms-filter-item">{{ brand }}</span>
+            <span class="">{{ brand }}</span>
+
             <button
               @click="removeBrand(i)"
               class="itbms-filter-item-clear ml-2 text-red-500 hover:text-red-700"
@@ -358,7 +357,7 @@ onMounted(async () => {
       
     </div>
 
-    <div v-if="showPagination" class="Pagination">
+    <div v-show="showPagination && totalPage > 1" class="Pagination">
       <!-- ⏩ Pagination -->
       <section>
         <div class="flex flex-wrap gap-2 items-center">
