@@ -158,13 +158,13 @@ const handleUserInteraction = async (newSettings) => {
     :initialPage="savedSettings?.page !== undefined ? Number(savedSettings.page) + 1 : 1"
     :initialSize="savedSettings?.size !== undefined ? Number(savedSettings.size) : 10"
     :initialFilterBrands="savedSettings?.filterBrands || ''" :initialSortField="savedSettings?.sortField || ''"
-    :initialSortDirection="savedSettings?.sortDirection || ''" :showFilter="true" :show-pagination="false" />
+    :initialSortDirection="savedSettings?.sortDirection || ''" :showFilter="true" :show-pagination="true" />
 
   <SelectAllSaleItemGallery v-if="product?.content" :product="product.content" />
 
-  <Pagination @urlSetting="handleUserInteraction" :productTotalPages="productTotalPages"
+  <!-- <Pagination @urlSetting="handleUserInteraction" :productTotalPages="productTotalPages"
     :initialPage="savedSettings?.page !== undefined ? Number(savedSettings.page) + 1 : 1"
     :initialSize="savedSettings?.size !== undefined ? Number(savedSettings.size) : 10"
     :initialFilterBrands="savedSettings?.filterBrands || ''" :initialSortField="savedSettings?.sortField || ''"
-    :initialSortDirection="savedSettings?.sortDirection || ''" :showFilter="false" :show-pagination="true" />
+    :initialSortDirection="savedSettings?.sortDirection || ''" :showFilter="false" :show-pagination="true" /> -->
 </template>
