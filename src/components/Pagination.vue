@@ -44,8 +44,7 @@ const dropdownRef = ref(null);
 
 // Initialize selectedBrandList from filterBrands
 onMounted(() => {
-  //console.log("Pagination mounted");
-  //console.log("Props:", props);
+  console.log("Pagination mounted");
 
   // Initialize selectedBrandList from filterBrands
   if (filterBrands.value) {
@@ -358,7 +357,7 @@ onMounted(async () => {
       
     </div>
 
-    <div v-if="showPagination" class="Pagination">
+    <div v-show="showPagination && totalPage > 1" class="Pagination">
       <!-- ⏩ Pagination -->
       <section>
         <div class="flex flex-wrap gap-2 items-center">
