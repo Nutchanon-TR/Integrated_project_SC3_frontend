@@ -191,7 +191,7 @@ const validationProductForm = () => {
   let isValid = true;
 
  
-  if (!product.model || (product.model?.length ?? 0) > maxLength.model ) {
+  if ((product.model?.length ?? 0) > maxLength.model ) {
     boxTextTailwindModel.value = boxTextTailwindError;
     isValid = false;
   } else {
@@ -199,7 +199,7 @@ const validationProductForm = () => {
   }
 
   // Price
-  if (!product.price || product.price <= 0) {
+  if (product.price < 0) {
     boxTextTailwindPrice.value = boxTextTailwindError;
     isValid = false;
   } else {
@@ -223,7 +223,7 @@ const validationProductForm = () => {
   }
 
   // Description
-  if (!product.description || product.description.length > maxLength.description) {
+  if ( product.description.length > maxLength.description) {
     boxTextTailwindDesc.value = boxTextTailwindError;
     isValid = false;
   } else {
@@ -270,9 +270,9 @@ const isFormValid = computed(() => {
     product.brand.name.trim() !== "" &&
     product.model.trim() !== "" &&
     product.price !== null &&
-    product.price > 0 &&
+    product.price >= 0 &&
     product.quantity !== null &&
-    product.quantity > 0 &&
+    product.quantity >= 0 &&
     product.description.trim() !== ""
   );
 });
@@ -300,9 +300,9 @@ const saveProduct = async () => {
   // Validate fields
   if (!product.brand.id || !product.brand.name) brandError.value = true;
   if (!product.model) boxTextTailwindModel.value = boxTextTailwindError;
-  if (!product.price || product.price <= 0)
+  if (!product.price || product.price < 0)
     boxTextTailwindPrice.value = boxTextTailwindError;
-  if (!product.quantity || product.quantity <= 0)
+  if (!product.quantity || product.quantity < 0)
     boxTextTailwindQuantity.value = boxTextTailwindError;
   if (!product.description) boxTextTailwindDesc.value = boxTextTailwindError;
 
@@ -475,10 +475,7 @@ const setSessionStorage = () => {
                       placeholder="e.g. 29900"
                     />
                   </div>
-                  <p v-if="!product.price" class="mt-1 text-sm text-red-500">
-                    Price is Required.
-                  </p>
-                    <p v-else-if="product.price <= 0" class="mt-1 text-sm text-red-500">
+                    <p v-if="product.price < 0" class="mt-1 text-sm text-red-500">
                     Price must be non-negative integer.
                   </p>
 
@@ -590,7 +587,6 @@ const setSessionStorage = () => {
                     type="number"
                     v-model="product.quantity"
                     @focus="product.quantity = null"
-                    @blur="defaultQuantity()"
                     :class="`itbms-quantity ${boxTextTailwindQuantity}`"
                     placeholder="e.g. 10"
                   />
@@ -622,9 +618,6 @@ const setSessionStorage = () => {
                 :class="`itbms-description ${boxTextTailwindDesc}`"
                 placeholder="Enter product description..."
               ></textarea>
-              <p v-if="boxTextTailwindDesc === boxTextTailwindError" class="mt-1 text-sm text-red-500">
-                Description is required
-              </p>
                 <p v-if="product.description.length > maxLength.description" class="mt-1 text-sm text-red-500">
                 Description must be 1-65,535 charecters long.
               </p>
