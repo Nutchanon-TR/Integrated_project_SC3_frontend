@@ -127,7 +127,7 @@ const emitUrlSetting = () => {
   console.log("sortField.value: ", sortField.value);
   console.log("sortDirection.value: ", sortDirection.value);
   emit("urlSetting", settings.value);
-}
+};
 
 const goToPage = async (pageNumber) => {
   page.value = pageNumber;
@@ -148,7 +148,6 @@ const goToPage = async (pageNumber) => {
 
   emitUrlSetting();
 };
-
 
 const setSize = (newsize) => {
   size.value = newsize;
@@ -238,7 +237,6 @@ onMounted(async () => {
     // isLoadingBrands.value = false;
   }
 });
-
 </script>
 
 <template>
@@ -248,42 +246,67 @@ onMounted(async () => {
       <section class="space-y-3 w-80">
         <h2 class="font-semibold text-lg">กรองตามแบรนด์</h2>
         <div ref="dropdownRef" class="relative w-full">
-          <div class="itbms-brand-filter px-4 py-2 border rounded cursor-pointer bg-white w-full text-left"
-            @click="toggleDropdown" data-cy="brand-dropdown-toggle" role="button" tabindex="0">
+          <div
+            class="itbms-brand-filter itbms-brand-filter-button px-4 py-2 border rounded cursor-pointer bg-white w-full text-left"
+            @click="toggleDropdown"
+            data-cy="brand-dropdown-toggle"
+            role="button"
+            tabindex="0"
+          >
             {{ selected?.name || "-- เลือกแบรนด์ --" }}
             <ul class="flex flex-wrap gap-2 mb-2">
-              <li v-if="selectedBrandList.length === 0" class="text-gray-400 italic">
+              <li
+                v-if="selectedBrandList.length === 0"
+                class="text-gray-400 italic"
+              >
                 No brand selected.
               </li>
-              <li v-for="(brand, i) in selectedBrandList" :key="i"
-                class="flex items-center bg-red-100 border border-gray-300 rounded px-3 py-1">
+              <li
+                v-for="(brand, i) in selectedBrandList"
+                :key="i"
+                class="flex items-center bg-red-100 border border-gray-300 rounded px-3 py-1"
+              >
                 <span class="">{{ brand }}</span>
-                <button @click="removeBrand(i)" class="itbms-filter-item-clear ml-2 text-red-500 hover:text-red-700"
-                  aria-label="ลบแบรนด์">
+                <button
+                  @click="removeBrand(i)"
+                  class="itbms-filter-item-clear ml-2 text-red-500 hover:text-red-700"
+                  aria-label="ลบแบรนด์"
+                >
                   ×
                 </button>
               </li>
             </ul>
           </div>
 
-
           <!-- รายการ dropdown -->
-          <div class="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-20 overflow-y-auto"
-            v-if="dropdownOpen" data-cy="brand-options" :data-dropdown-open="dropdownOpen">
-            <div v-for="opt in options" :key="opt.id"
-              class="itbms-filter-item  px-4 py-2 hover:bg-red-100 cursor-pointer" @click="onBrandSelected(opt.name)"
-              @mousedown.prevent data-cy="brand-option" :data-brand-name="opt.name">
+          <div
+            class="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-20 overflow-y-auto"
+            v-if="dropdownOpen"
+            data-cy="brand-options"
+            :data-dropdown-open="dropdownOpen"
+          >
+            <div
+              v-for="opt in options"
+              :key="opt.id"
+              class="itbms-filter-item px-4 py-2 hover:bg-red-100 cursor-pointer"
+              @click="onBrandSelected(opt.name)"
+              @mousedown.prevent
+              data-cy="brand-option"
+              :data-brand-name="opt.name"
+            >
               {{ opt.name }}
             </div>
           </div>
         </div>
 
-        <br><br><br><br><br>
+        <br /><br /><br /><br /><br />
 
         <!-- ปุ่มยืนยัน/ล้าง -->
         <div class="flex gap-2">
-          <button @click="clearBrand"
-            class="itbms-brand-filter-clear flex-1 px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 transition">
+          <button
+            @click="clearBrand"
+            class="itbms-brand-filter-clear flex-1 px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 transition"
+          >
             ❌ ล้างแบรนด์
           </button>
         </div>
@@ -293,16 +316,22 @@ onMounted(async () => {
       <section class="space-y-2 w-64">
         <h2 class="font-semibold text-lg">จัดเรียงสินค้า</h2>
         <div class="flex gap-3 flex-wrap">
-          <button @click="sortAsc"
-            class="itbms-brand-asc flex items-center gap-2 px-4 py-2 border border-gray-300 rounded hover:bg-blue-100 transition">
+          <button
+            @click="sortAsc"
+            class="itbms-brand-asc flex items-center gap-2 px-4 py-2 border border-gray-300 rounded hover:bg-blue-100 transition"
+          >
             ⬆️ น้อย → มาก
           </button>
-          <button @click="sortDesc"
-            class="itbms-brand-desc flex items-center gap-2 px-4 py-2 border border-gray-300 rounded hover:bg-blue-100 transition">
+          <button
+            @click="sortDesc"
+            class="itbms-brand-desc flex items-center gap-2 px-4 py-2 border border-gray-300 rounded hover:bg-blue-100 transition"
+          >
             ⬇️ มาก → น้อย
           </button>
-          <button @click="resetSort"
-            class="itbms-brand-none flex items-center gap-2 px-4 py-2 border border-gray-300 rounded hover:bg-red-100 transition">
+          <button
+            @click="resetSort"
+            class="itbms-brand-none flex items-center gap-2 px-4 py-2 border border-gray-300 rounded hover:bg-red-100 transition"
+          >
             ♻️ ล้างการจัดเรียง
           </button>
         </div>
@@ -311,8 +340,12 @@ onMounted(async () => {
       <!-- 📄 Page Size -->
       <section class="space-y-2 w-48">
         <label for="size" class="font-medium mr-2">จำนวนรายการต่อหน้า:</label>
-        <select id="size" v-model="size" @change="setSize(size)"
-          class="itbms-page-size border border-gray-300 rounded px-3 py-1 focus:ring-blue-400 focus:ring-2">
+        <select
+          id="size"
+          v-model="size"
+          @change="setSize(size)"
+          class="itbms-page-size border border-gray-300 rounded px-3 py-1 focus:ring-blue-400 focus:ring-2"
+        >
           <option :value="5">5</option>
           <option :value="10">10</option>
           <option :value="20">20</option>
@@ -320,41 +353,54 @@ onMounted(async () => {
         </select>
       </section>
     </div>
-    <div>
-
-    </div>
+    <div></div>
 
     <div v-show="showPagination && totalPage > 1" class="Pagination">
       <!-- ⏩ Pagination -->
       <section>
         <div class="flex flex-wrap gap-2 items-center">
-          <button @click="goToPage(1)" :disabled="page === 1"
-            class="itbms-page-first px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50">
+          <button
+            @click="goToPage(1)"
+            :disabled="page === 1"
+            class="itbms-page-first px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+          >
             ⏮ First
           </button>
-          <button @click="goToPage(Math.max(1, page - 1))" :disabled="page === 1"
-            class="itbms-page-prev px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50">
+          <button
+            @click="goToPage(Math.max(1, page - 1))"
+            :disabled="page === 1"
+            class="itbms-page-prev px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+          >
             ◀ Prev
           </button>
 
           <template v-for="(p, index) in totalPage" :key="p">
-            <button @click="goToPage(p)" :class="[
-              `itbms-page-${index}`,
-              'px-3 py-1 rounded transition',
-              page === p
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 hover:bg-gray-200',
-            ]">
+            <button
+              @click="goToPage(p)"
+              :class="[
+                `itbms-page-${index}`,
+                'px-3 py-1 rounded transition',
+                page === p
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 hover:bg-gray-200',
+              ]"
+            >
               {{ p }}
             </button>
           </template>
 
-          <button @click="goToPage(Math.min(totalPage, page + 1))" :disabled="page === totalPage"
-            class="itbms-page-next px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50">
+          <button
+            @click="goToPage(Math.min(totalPage, page + 1))"
+            :disabled="page === totalPage"
+            class="itbms-page-next px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+          >
             Next ▶
           </button>
-          <button @click="goToPage(totalPage)" :disabled="page === totalPage"
-            class="itbms-page-last px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50">
+          <button
+            @click="goToPage(totalPage)"
+            :disabled="page === totalPage"
+            class="itbms-page-last px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+          >
             Last ⏭
           </button>
         </div>
