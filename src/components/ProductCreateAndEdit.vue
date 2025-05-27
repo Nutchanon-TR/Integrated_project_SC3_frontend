@@ -111,12 +111,7 @@ const trimField = (field) => {
 const defaultQuantity = () => {
   if (!Number(product.quantity) || product.quantity <= 0) product.quantity = 1;
 };
- 
-// const checkNull = (input) =>{
-//     if(){
- 
-//     }
-// }
+
 // ตรวจสอบว่า product ถูกเปลี่ยนแปลงหรือไม่ (ใช้สำหรับ Edit mode)
 const compareProduct = (a, b) => {
   if (a === b) return true;
@@ -142,7 +137,7 @@ const isProductChanged = computed(
 const maxLength = {
   model:60,
   description:65535,
-  color:60
+  color:40
 }
 watch(product ,()=>{
  
@@ -152,11 +147,9 @@ watch(product ,()=>{
 { deep: true }
 )
  
- 
 const checkDecimal = (num) =>{
   return !(Math.floor(num * 100) === num *100)
 }
- 
  
 // const checkRam = computed(() =>{
 //   const RAM = product.ramGb
@@ -167,7 +160,6 @@ const checkDecimal = (num) =>{
 // })
  
 const validationProductForm = () => {
- 
  
   let isValid = true;
  
@@ -194,10 +186,10 @@ const validationProductForm = () => {
     }else {
     boxTextTailwindRamGB.value = boxTextTailwind;
     }
- 
+
+
   // Storage
-  if
-  (typeof product.storageGb === 'number' && product.storageGb <= 0) {
+  if (typeof product.storageGb === 'number' && product.storageGb <= 0) {
     boxTextTailwindStorageGB.value = boxTextTailwindError;
     console.log(typeof product.storageGb)
     isValid = false;
@@ -290,8 +282,6 @@ const saveProduct = async () => {
   if (!product.quantity || product.quantity < 0)
     boxTextTailwindQuantity.value = boxTextTailwindError;
   if (!product.description) boxTextTailwindDesc.value = boxTextTailwindError;
- 
- 
   if (!isFormValid.value) {
     isSaving.value = true;
     return;
@@ -461,7 +451,11 @@ const setSessionStorage = () => {
                       placeholder="e.g. 29900"
                     />
                   </div>
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> 2dabdae8394dc01ebd2d1b5d5a05051249b178b5
                     <p v-show="product.price < 0" class="itbms-message mt-1 text-sm text-red-500">
                     Price must be non-negative integer.
                   </p>
@@ -656,5 +650,9 @@ const setSessionStorage = () => {
 </template>
  
 <style scoped>
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> 2dabdae8394dc01ebd2d1b5d5a05051249b178b5
 </style>
