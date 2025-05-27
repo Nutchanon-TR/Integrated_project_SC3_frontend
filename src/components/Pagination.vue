@@ -269,7 +269,7 @@ onMounted(async () => {
 
           <!-- รายการ dropdown -->
           <div class="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-20 overflow-y-auto"
-            v-show="dropdownOpen" data-cy="brand-options" :data-dropdown-open="dropdownOpen">
+            v-if="dropdownOpen" data-cy="brand-options" :data-dropdown-open="dropdownOpen">
             <div v-for="opt in options" :key="opt.id"
               class="itbms-filter-item  px-4 py-2 hover:bg-red-100 cursor-pointer" @click="onBrandSelected(opt.name)"
               @mousedown.prevent data-cy="brand-option" :data-brand-name="opt.name">
@@ -278,6 +278,7 @@ onMounted(async () => {
           </div>
         </div>
 
+        <br><br><br><br><br>
 
         <!-- ปุ่มยืนยัน/ล้าง -->
         <div class="flex gap-2">
