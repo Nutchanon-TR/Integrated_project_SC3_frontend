@@ -248,7 +248,8 @@ onMounted(async () => {
       <section class="space-y-3 w-80">
         <h2 class="font-semibold text-lg">กรองตามแบรนด์</h2>
         <div ref="dropdownRef" class="relative w-full">
-          <div class="itbms-brand-filter px-4 py-2 border rounded cursor-pointer bg-white w-full text-left"
+          
+          <div class="itbms-brand-filter itbms-brand-filter-button px-4 py-2 border rounded cursor-pointer bg-white w-full text-left"
             @click="toggleDropdown" data-cy="brand-dropdown-toggle" role="button" tabindex="0">
             {{ selected?.name || "-- เลือกแบรนด์ --" }}
             <ul class="flex flex-wrap gap-2 mb-2">
