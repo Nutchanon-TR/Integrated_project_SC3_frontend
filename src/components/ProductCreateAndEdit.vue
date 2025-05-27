@@ -650,9 +650,4 @@ const setSessionStorage = () => {
 </template>
  
 <style scoped>
-<<<<<<< HEAD
- 
-=======
-
->>>>>>> 2dabdae8394dc01ebd2d1b5d5a05051249b178b5
 </style>
