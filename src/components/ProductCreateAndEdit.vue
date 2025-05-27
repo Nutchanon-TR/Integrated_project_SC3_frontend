@@ -191,7 +191,7 @@ const validationProductForm = () => {
   let isValid = true;
 
  
-  if ((product.model?.length ?? 0) > maxLength.model ) {
+  if (!product.model || (product.model?.length ?? 0) > maxLength.model ) {
     boxTextTailwindModel.value = boxTextTailwindError;
     isValid = false;
   } else {
@@ -218,12 +218,16 @@ const validationProductForm = () => {
   if (product.storageGb < 0) {
     boxTextTailwindStorageGB.value = boxTextTailwindError;
     isValid = false;
+  } else if(product.storageGb === null){
+    boxTextTailwindRamGB.value = boxTextTailwind;
+    product.storageGb = 0
+    isValid = true
   } else {
     boxTextTailwindStorageGB.value = boxTextTailwind;
   }
 
   // Description
-  if ( product.description.length > maxLength.description) {
+  if (!product.description || product.description.length > maxLength.description) {
     boxTextTailwindDesc.value = boxTextTailwindError;
     isValid = false;
   } else {
@@ -247,10 +251,13 @@ const validationProductForm = () => {
   }
 
   // Screen Size
-  if (product.screenSizeInch < 0 || checkDecimal(product.screenSizeInch)) {
+  if (product.screenSizeInch <= 0 || checkDecimal(product.screenSizeInch)) {
     boxTextTailwindScreenSizeInch.value = boxTextTailwindError;
     isValid = false;
-  } else {
+  } else if(product.screenSizeInch === null){
+        boxTextTailwindRamGB.value = boxTextTailwind;
+    isValid = true
+  }else{
     boxTextTailwindScreenSizeInch.value = boxTextTailwind;
   }
 
@@ -300,9 +307,9 @@ const saveProduct = async () => {
   // Validate fields
   if (!product.brand.id || !product.brand.name) brandError.value = true;
   if (!product.model) boxTextTailwindModel.value = boxTextTailwindError;
-  if (!product.price || product.price <= 0)
+  if (!product.price || product.price < 0)
     boxTextTailwindPrice.value = boxTextTailwindError;
-  if (!product.quantity || product.quantity <= 0)
+  if (!product.quantity || product.quantity < 0)
     boxTextTailwindQuantity.value = boxTextTailwindError;
   if (!product.description) boxTextTailwindDesc.value = boxTextTailwindError;
 
@@ -416,8 +423,8 @@ const setSessionStorage = () => {
                     @sendBrandId="handleBrandId"
                     @sendBrandName="handleBrandName"
                   />
-                  <p v-if="brandError" class="mt-1 text-sm text-red-500">
-                   Bran d must be selected.
+                  <p v-show="brandError" class="itbms-message mt-1 text-sm text-red-500">
+                   Brand must be selected.
                   </p>
                 </div>
               </div>
@@ -445,12 +452,12 @@ const setSessionStorage = () => {
                     :class="`itbms-model ${boxTextTailwindModel}`"
                     placeholder="e.g. iPhone 13 Pro"
                   />
-                  <p v-if="product.model.length > maxLength.model" class="mt-1 text-sm text-red-500">
+                  <p v-show="product.model.length > maxLength.model" class="itbms-message mt-1 text-sm text-red-500">
                     Model must be 1-60 characters long.
                   </p>
-                  <p v-else-if="boxTextTailwindModel === boxTextTailwindError" class="mt-1 text-sm text-red-500">
+                  <!-- <p v-else-if="boxTextTailwindModel === boxTextTailwindError" class="itbms-message mt-1 text-sm text-red-500">
                     Model name is required
-                  </p>
+                  </p> -->
 
                 </div>
 
@@ -475,7 +482,7 @@ const setSessionStorage = () => {
                       placeholder="e.g. 29900"
                     />
                   </div>
-                    <p v-if="product.price < 0" class="mt-1 text-sm text-red-500">
+                    <p v-show="product.price < 0" class="itbms-message mt-1 text-sm text-red-500">
                     Price must be non-negative integer.
                   </p>
 
@@ -496,7 +503,7 @@ const setSessionStorage = () => {
                     :class="`itbms-ramGb ${boxTextTailwindRamGB}`"
                     placeholder="e.g. 8"
                   />
-                   <p v-if="boxTextTailwindRamGB === boxTextTailwindError" class="mt-1 text-sm text-red-500">
+                   <p v-show="boxTextTailwindRamGB === boxTextTailwindError" class="itbms-message mt-1 text-sm text-red-500">
                       RAM size must be positive integer or not specified.
                   </p>
                 </div>
@@ -515,7 +522,7 @@ const setSessionStorage = () => {
                     :class="`itbms-storageGb ${boxTextTailwindStorageGB}`"
                     placeholder="e.g. 128"
                   />
-                  <p v-if="boxTextTailwindStorageGB === boxTextTailwindError" class="mt-1 text-sm text-red-500">
+                  <p v-show="boxTextTailwindStorageGB === boxTextTailwindError" class="itbms-message mt-1 text-sm text-red-500">
                     Storage size must be positive integer or not specified.
                   </p>
                 </div>
@@ -541,7 +548,7 @@ const setSessionStorage = () => {
                     placeholder="e.g. 6.1"
                   />
 
-                   <p v-if="boxTextTailwindScreenSizeInch === boxTextTailwindError" class="mt-1 text-sm text-red-500">
+                   <p v-show="boxTextTailwindScreenSizeInch === boxTextTailwindError" class="itbms-message mt-1 text-sm text-red-500">
                     Screen size must be positive number with at most 2 decimal points or not specified. 
                   </p>
                   
@@ -566,8 +573,8 @@ const setSessionStorage = () => {
                     :class="`itbms-color ${boxTextTailwindColor}`"
                     placeholder="e.g. Midnight Blue"
                   />
-                    <p v-if="(product.color?.length ?? 0) > maxLength.color" class="mt-1 text-sm text-red-500">
-                    You cannot enter more than 60 character
+                    <p v-show="(product.color?.length ?? 0) > maxLength.color" class="itbms-message mt-1 text-sm text-red-500">
+                    Color must be 1-40 characters long or not specified.
                   </p>
                   
                 </div>
@@ -591,8 +598,8 @@ const setSessionStorage = () => {
                     :class="`itbms-quantity ${boxTextTailwindQuantity}`"
                     placeholder="e.g. 10"
                   />
-                  <p v-if="boxTextTailwindQuantity === boxTextTailwindError" class="mt-1 text-sm text-red-500">
-                    Quantity must be greater than 0
+                  <p v-show="boxTextTailwindQuantity === boxTextTailwindError" class="itbms-message mt-1 text-sm text-red-500">
+                    Quantity must be non-negative integer.
                   </p>
                 </div>
               </div>
@@ -619,8 +626,8 @@ const setSessionStorage = () => {
                 :class="`itbms-description ${boxTextTailwindDesc}`"
                 placeholder="Enter product description..."
               ></textarea>
-                <p v-if="product.description.length > maxLength.description" class="mt-1 text-sm text-red-500">
-                Description must be 1-65,535 charecters long.
+                <p v-show="product.description.length > maxLength.description" class="itbms-message mt-1 text-sm text-red-500">
+                Description must be 1-65,535 characters long.
               </p>
             </div>
           </div>
