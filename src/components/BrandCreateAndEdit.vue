@@ -141,8 +141,7 @@ const validationBrandForm = () => {
   let isValid = true;
   if (
     !brand.name ||
-    brand.name.length > maxLength.name ||
-    brand.name === "Ter"
+    brand.name.length > maxLength.name 
   ) {
     blockTailwindName.value = blockTailwindError;
     isValid = false;
@@ -158,8 +157,7 @@ const validationBrandForm = () => {
   }
 
   if (
-    (brand.countryOfOrigin?.length ?? 0) > maxLength.countryOfOrigin ||
-    brand.countryOfOrigin === "ter"
+    (brand.countryOfOrigin?.length ?? 0) > maxLength.countryOfOrigin 
   ) {
     blockTailwindCountryOfOrigin.value = blockTailwindError;
     isValid = false;
@@ -359,12 +357,12 @@ const handleSave = async () => {
                   placeholder="Enter brand name"
                 />
               </div>
-              <p v-if="!brand.name" class="mt-1 text-sm text-red-500">
+              <!-- <p v-if="!brand.name" class="mt-1 text-sm text-red-500">
                 Brand name is required
-              </p>
+              </p> -->
               <p
-                v-else-if="brand.name.length > maxLength.name"
-                class="mt-1 text-sm text-red-500"
+                v-if="!brand.name||brand.name.length > maxLength.name"
+                class="itbms-message mt-1 text-sm text-red-500"
               >
                 Brand name must be 1-30 characters long.
               </p>
@@ -409,9 +407,9 @@ const handleSave = async () => {
               </div>
               <p
                 v-if="!isValidUrl(brand.websiteUrl)"
-                class="mt-1 text-sm text-red-500"
+                class="itbms-message mt-1 text-sm text-red-500"
               >
-                Brand URL must be valid or not specified.
+                Brand URL must be a valid URL or not specified.
               </p>
             </div>
 
@@ -457,7 +455,7 @@ const handleSave = async () => {
                   (brand.countryOfOrigin?.length ?? 0) >
                   maxLength.countryOfOrigin
                 "
-                class="mt-1 text-sm text-red-500"
+                class="itbms-message mt-1 text-sm text-red-500"
               >
                 Brand country of origin must be 1-80 characters long or not
                 specified.

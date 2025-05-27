@@ -112,6 +112,11 @@ const defaultQuantity = () => {
   if (!Number(product.quantity) || product.quantity <= 0) product.quantity = 1;
 };
 
+// const checkNull = (input) =>{
+//     if(){
+
+//     }
+// }
 // ตรวจสอบว่า product ถูกเปลี่ยนแปลงหรือไม่ (ใช้สำหรับ Edit mode)
 const compareProduct = (a, b) => {
   if (a === b) return true;
@@ -137,7 +142,7 @@ const isProductChanged = computed(
 const maxLength = {
   model:60,
   description:65535,
-  color:60
+  color:40
 }
 watch(product ,()=>{
   
@@ -147,46 +152,22 @@ watch(product ,()=>{
 { deep: true }
 )
 
-const validateField = (condition, targetRef) => {
-  if (condition) {
-    targetRef.value = boxTextTailwindError;
-    return false;
-  } else {
-    targetRef.value = boxTextTailwind;
-    return true;
-  }
-};
 
 const checkDecimal = (num) =>{
   return !(Math.floor(num * 100) === num *100)
 }
 
-const validationProductForm = () => {
-// let isValid = true
-// isValid = validateField(!product.model || (product.model?.length ?? 0) > maxLength.model, boxTextTailwindModel);
 
-// isValid = validateField(!product.price || product.price <= 0, boxTextTailwindPrice);
-
-// isValid = validateField(product.ramGb <= 0, boxTextTailwindRamGB);
-
-// isValid = validateField(product.storageGb <= 0, boxTextTailwindStorageGB);
-
-// isValid = validateField(!product.description || (product.description?.length ?? 0) > maxLength.description, boxTextTailwindDesc);
-
-// isValid = validateField(product.quantity === null || product.quantity < 0, boxTextTailwindQuantity);
-
-// isValid = validateField((product.color?.length ?? 0) > maxLength.color, boxTextTailwindColor);
-
-// isValid = validateField(product.screenSizeInch <= 0 || checkDecimal(product.screenSizeInch), boxTextTailwindScreenSizeInch);
-
-// if (!product.brand.id || !product.brand.name) {
-//     brandError.value = true;
-//     isValid = false;
-//   } else {
-//     brandError.value = false;
+// const checkRam = computed(() =>{
+//   const RAM = product.ramGb
+//   if(RAM === null || RAM === undefined|| String(RAM).trim() === ""){
+//     return true
 //   }
+//   return typeof RAM === 'number' && RAM > 0 && Number.isInteger(RAM)
+// })
 
-// isSaving.value = isValid
+const validationProductForm = () => {
+
 
   let isValid = true;
 
@@ -207,21 +188,19 @@ const validationProductForm = () => {
   }
 
   // RAM
-  if (product.ramGb < 0) {
+  if (typeof product.ramGb === 'number' && product.ramGb <= 0) {
     boxTextTailwindRamGB.value = boxTextTailwindError;
     isValid = false;
-  } else {
+    }else {
     boxTextTailwindRamGB.value = boxTextTailwind;
-  }
+    }
 
   // Storage
-  if (product.storageGb < 0) {
+  if 
+  (typeof product.storageGb === 'number' && product.storageGb <= 0) {
     boxTextTailwindStorageGB.value = boxTextTailwindError;
+    console.log(typeof product.storageGb)
     isValid = false;
-  } else if(product.storageGb === null){
-    boxTextTailwindRamGB.value = boxTextTailwind;
-    product.storageGb = 0
-    isValid = true
   } else {
     boxTextTailwindStorageGB.value = boxTextTailwind;
   }
@@ -251,13 +230,10 @@ const validationProductForm = () => {
   }
 
   // Screen Size
-  if (product.screenSizeInch <= 0 || checkDecimal(product.screenSizeInch)) {
+  if ((typeof product.screenSizeInch === 'number' && product.screenSizeInch <= 0 )|| checkDecimal(product.screenSizeInch)) {
     boxTextTailwindScreenSizeInch.value = boxTextTailwindError;
     isValid = false;
-  } else if(product.screenSizeInch === null){
-        boxTextTailwindRamGB.value = boxTextTailwind;
-    isValid = true
-  }else{
+  } else{
     boxTextTailwindScreenSizeInch.value = boxTextTailwind;
   }
 
@@ -276,11 +252,13 @@ const isFormValid = computed(() => {
     product.brand.id !== null &&
     product.brand.name.trim() !== "" &&
     product.model.trim() !== "" &&
-    product.price !== null &&
     product.price >= 0 &&
-    product.quantity !== null &&
     product.quantity >= 0 &&
+    // product.ramGb > 0 &&
+    // product.storageGb > 0 &&
     product.description.trim() !== ""
+    // product.ramGb === null &&
+    // product.storageGb === null
   );
 });
 
@@ -312,6 +290,7 @@ const saveProduct = async () => {
   if (!product.quantity || product.quantity < 0)
     boxTextTailwindQuantity.value = boxTextTailwindError;
   if (!product.description) boxTextTailwindDesc.value = boxTextTailwindError;
+
 
   if (!isFormValid.value) {
     isSaving.value = true;
@@ -477,11 +456,12 @@ const setSessionStorage = () => {
                     </div>
                     <input
                       type="number"
-                      v-model="product.price"
+                      v-model.number="product.price"
                       :class="`itbms-price pl-8 ${boxTextTailwindPrice}`"
                       placeholder="e.g. 29900"
                     />
                   </div>
+
                     <p v-show="product.price < 0" class="itbms-message mt-1 text-sm text-red-500">
                     Price must be non-negative integer.
                   </p>
@@ -499,7 +479,7 @@ const setSessionStorage = () => {
                   </label>
                   <input
                     type="number"
-                    v-model="product.ramGb"
+                    v-model.number="product.ramGb"
                     :class="`itbms-ramGb ${boxTextTailwindRamGB}`"
                     placeholder="e.g. 8"
                   />
@@ -518,7 +498,7 @@ const setSessionStorage = () => {
                   </label>
                   <input
                     type="number"
-                    v-model="product.storageGb"
+                    v-model.number="product.storageGb"
                     :class="`itbms-storageGb ${boxTextTailwindStorageGB}`"
                     placeholder="e.g. 128"
                   />
@@ -542,7 +522,7 @@ const setSessionStorage = () => {
                   </label>
                   <input
                     type="number"
-                    v-model="product.screenSizeInch"
+                    v-model.number="product.screenSizeInch"
                     step="0.1"
                     :class="`itbms-screenSizeInch ${boxTextTailwindScreenSizeInch}`"
                     placeholder="e.g. 6.1"
@@ -573,7 +553,7 @@ const setSessionStorage = () => {
                     :class="`itbms-color ${boxTextTailwindColor}`"
                     placeholder="e.g. Midnight Blue"
                   />
-                    <p v-show="(product.color?.length ?? 0) > maxLength.color" class="itbms-message mt-1 text-sm text-red-500">
+                  <p v-show="(product.color?.length ?? 0) > maxLength.color" class="itbms-message mt-1 text-sm text-red-500">
                     Color must be 1-40 characters long or not specified.
                   </p>
                   
@@ -592,7 +572,8 @@ const setSessionStorage = () => {
                   </label>
                   <input
                     type="number"
-                    v-model="product.quantity"
+                    v-model.number="product.quantity"
+                    @blur=""
                     @focus="product.quantity = null"
 
                     :class="`itbms-quantity ${boxTextTailwindQuantity}`"
@@ -649,10 +630,10 @@ const setSessionStorage = () => {
             <button
               type="submit"
               class="itbms-save-button order-1 sm:order-2 flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-medium rounded-lg shadow-sm hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              :disabled="
-                !isSaving ||
-                !isFormValid ||
-                (prop.mode === 'Edit' && !isProductChanged)
+                :disabled="
+                  !isSaving ||
+                  !isFormValid ||
+                  (prop.mode === 'Edit' && !isProductChanged)
               "
               @click="saveProduct"
             >
@@ -675,34 +656,5 @@ const setSessionStorage = () => {
 </template>
 
 <style scoped>
-/* Custom focus styles */
-input:focus, textarea:focus {
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-}
 
-/* Custom scrollbar for textarea */
-textarea::-webkit-scrollbar {
-  width: 8px;
-}
-
-textarea::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 4px;
-}
-
-textarea::-webkit-scrollbar-thumb {
-  background: #93c5fd;
-  border-radius: 4px;
-}
-
-textarea::-webkit-scrollbar-thumb:hover {
-  background: #60a5fa;
-}
-
-/* Number input arrows styling */
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
-  opacity: 1;
-  height: 24px;
-}
 </style>
