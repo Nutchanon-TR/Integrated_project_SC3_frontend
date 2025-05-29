@@ -42,23 +42,6 @@ const selected = ref(null);
 const dropdownOpen = ref(false);
 const dropdownRef = ref(null);
 
-// Initialize selectedBrandList from filterBrands
-onMounted(() => {
-  if (filterBrands.value) {
-    selectedBrandList.value = filterBrands.value
-      .split(",")
-      .filter((brand) => brand.trim() !== "");
-  }
-
-  // Load saved pagination size from sessionStorage
-  const savedSize = sessionStorage.getItem("pagination-size");
-  if (savedSize && !props.initialSize) {
-    size.value = parseInt(savedSize, 10);
-  }
-
-  document.addEventListener("click", handleClickOutside);
-});
-
 onBeforeUnmount(() => {
   document.removeEventListener("click", handleClickOutside);
 });
@@ -127,7 +110,7 @@ const emitUrlSetting = () => {
   console.log("sortField.value: ", sortField.value);
   console.log("sortDirection.value: ", sortDirection.value);
   emit("urlSetting", settings.value);
-};
+}
 
 const goToPage = async (pageNumber) => {
   page.value = pageNumber;
@@ -148,6 +131,7 @@ const goToPage = async (pageNumber) => {
 
   emitUrlSetting();
 };
+
 
 const setSize = (newsize) => {
   size.value = newsize;
@@ -227,179 +211,195 @@ const toggleDropdown = (event) => {
   dropdownOpen.value = !dropdownOpen.value;
 };
 
+const handlePostDelete = () => {
+  const wasDeleted = sessionStorage.getItem('item-just-deleted');
+  if (wasDeleted === 'true') {
+    // เคลียร์ flag
+    sessionStorage.removeItem('item-just-deleted');
+    // ใช้ setTimeout เพื่อรอให้ข้อมูลโหลดเสร็จก่อน
+    setTimeout(() => {
+      if (page.value > 1 && page.value > totalPage.value) {
+        console.log('Current page is empty after delete, going to previous page');
+        page.value = totalPage.value || 1;
+        itbmPage.value = (totalPage.value || 1) - 1;
+        emitUrlSetting();
+      } else {
+        console.log('Current page still has data, staying here');
+        emitUrlSetting();
+      }
+    }, 200);
+  }
+};
+
 onMounted(async () => {
+  // เช็คการลบหลังจากโหลดข้อมูลเสร็จ
+  handlePostDelete();
+
+  // โค้ดเดิม...
+  if (filterBrands.value) {
+    selectedBrandList.value = filterBrands.value
+      .split(",")
+      .filter((brand) => brand.trim() !== "");
+  }
+
+  const savedSize = sessionStorage.getItem("pagination-size");
+  if (savedSize && !props.initialSize) {
+    size.value = parseInt(savedSize, 10);
+  }
+
+  document.addEventListener("click", handleClickOutside);
+
   try {
     const data = await getAllData(`${URL}/itb-mshop/v1/brands`);
     options.value = data.sort((a, b) => a.name.localeCompare(b.name));
   } catch (error) {
     console.error("โหลดแบรนด์ล้มเหลว:", error.message);
-  } finally {
-    // isLoadingBrands.value = false;
   }
 });
+
+
+
 </script>
 
 <template>
-  <div class="p-4 space-y-6 text-sm text-gray-800 max-w-4xl mx-auto">
-    <div v-if="showFilter" class="filter flex gap-8 flex-wrap">
-      <!-- 🔽 Brand Filter -->
-      <section class="space-y-3 w-80">
-        <h2 class="font-semibold text-lg">กรองตามแบรนด์</h2>
-        <div ref="dropdownRef" class="relative w-full">
-          <div class="itbms-brand-filter itbms-brand-filter-button px-4 py-2 border rounded cursor-pointer bg-white w-full text-left"
-            @click="toggleDropdown" data-cy="brand-dropdown-toggle" role="button" tabindex="0">
-            {{ selected?.name || "-- เลือกแบรนด์ --" }}
-            <ul class="flex flex-wrap gap-2 mb-2">
-              <li
-                v-if="selectedBrandList.length === 0"
-                class="text-gray-400 italic"
-              >
-                No brand selected.
-              </li>
-              <li
-                v-for="(brand, i) in selectedBrandList"
-                :key="i"
-                class="flex items-center bg-red-100 border border-gray-300 rounded px-3 py-1"
-              >
-                <span class="">{{ brand }}</span>
-                <button
-                  @click="removeBrand(i)"
-                  class="itbms-filter-item-clear ml-2 text-red-500 hover:text-red-700"
-                  aria-label="ลบแบรนด์"
-                >
+  <div class="p-4 space-y-6 text-sm text-gray-800 max-w-6xl mx-auto">
+    <div v-if="showFilter" class="filter">
+      <!-- Filter Section - Horizontal Layout -->
+      <div class="flex items-center justify-between bg-white p-4 rounded-lg shadow-sm border">
+        <!-- Left Side - Brand Filter -->
+        <div class="flex items-center gap-4">
+          <span class="text-gray-700 font-medium">Filter by brand(s)</span>
+
+          <!-- Filter Icon Button -->
+          <button class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded hover:bg-gray-50 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
+              </path>
+            </svg>
+          </button>
+
+          <!-- Brand Dropdown and Selected Brands Inline -->
+          <div ref="dropdownRef" class="itbms-brand-filter relative flex items-center gap-4">
+            <!-- Dropdown Toggle Button -->
+            <div
+              class="itbms-brand-filter itbms-brand-filter-button px-3 py-2 border border-gray-300 rounded cursor-pointer bg-white min-w-32 text-left hover:bg-gray-50 transition"
+              @click="toggleDropdown" data-cy="brand-dropdown-toggle" role="button" tabindex="0">
+              {{ selected?.name || "-- เลือกแบรนด์ --" }}
+              <span class="float-right">▼</span>
+            </div>
+
+            <!-- Selected Brands Display - now on the right of the dropdown -->
+            <div v-if="selectedBrandList.length > 0" class="flex flex-wrap gap-2">
+              <span v-for="(brand, i) in selectedBrandList" :key="i"
+                class="flex items-center bg-blue-50 border border-blue-300 rounded-full px-3 py-1 text-sm text-blue-800 shadow-sm">
+                {{ brand }}
+                <button @click="removeBrand(i)"
+                  class="itbms-filter-item-clear ml-2 text-blue-600 hover:text-blue-800 focus:outline-none font-bold" aria-label="ลบแบรนด์">
                   ×
                 </button>
-              </li>
-            </ul>
-          </div>
-
-          <!-- รายการ dropdown -->
-          <div
-            class="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-20 overflow-y-auto"
-            v-if="dropdownOpen"
-            data-cy="brand-options"
-            :data-dropdown-open="dropdownOpen"
-          >
-            <div
-              v-for="opt in options"
-              :key="opt.id"
-              class="itbms-filter-item px-4 py-2 hover:bg-red-100 cursor-pointer"
-              @click="onBrandSelected(opt.name)"
-              @mousedown.prevent
-              data-cy="brand-option"
-              :data-brand-name="opt.name"
-            >
-              {{ opt.name }}
+              </span>
             </div>
+
+            <!-- Dropdown Options -->
+            <div class="absolute z-10 mt-1 w-full bg-white border rounded shadow-lg max-h-60 overflow-y-auto"
+              v-if="dropdownOpen" data-cy="brand-options" :data-dropdown-open="dropdownOpen">
+              <div v-for="opt in options" :key="opt.id"
+                class="itbms-filter-item px-3 py-2 hover:bg-gray-100 cursor-pointer" @click="onBrandSelected(opt.name)"
+                @mousedown.prevent data-cy="brand-option" :data-brand-name="opt.name">
+                {{ opt.name }}
+              </div>
+            </div>
+
+          </div>
+
+
+
+          <!-- Clear Button -->
+          <button @click="clearBrand"
+            class="itbms-brand-filter-clear px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition">
+            Clear
+          </button>
+        </div>
+
+        <!-- Right Side - Shows and Controls -->
+        <div class="flex items-center gap-4">
+          <span class="text-gray-700">Shows:</span>
+
+          <!-- Page Size Dropdown -->
+          <select id="size" v-model="size" @change="setSize(size)"
+            class="itbms-page-size border border-gray-300 rounded px-3 py-2 bg-purple-100 text-purple-800 focus:ring-purple-400 focus:ring-2 min-w-16">
+            <option :value="5">5</option>
+            <option :value="10">10</option>
+            <option :value="20">20</option>
+            <option :value="50">50</option>
+          </select>
+
+          <!-- Sort Controls -->
+          <div class="flex gap-1">
+            <button @click="sortAsc"
+              class="itbms-brand-asc p-2 border border-gray-300 rounded hover:bg-purple-100 transition bg-purple-500 text-white"
+              title="Sort Ascending">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h4"></path>
+              </svg>
+            </button>
+            <button @click="sortDesc"
+              class="itbms-brand-desc p-2 border border-gray-300 rounded hover:bg-gray-100 transition"
+              title="Sort Descending">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 18h16M4 12h8m-8 6h4"></path>
+              </svg>
+            </button>
+            <button @click="resetSort"
+              class="itbms-brand-none p-2 border border-gray-300 rounded hover:bg-gray-100 transition"
+              title="Reset Sort">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M10 12H4m0 6h16"></path>
+              </svg>
+            </button>
           </div>
         </div>
+      </div>
 
-        <br /><br /><br /><br /><br />
 
-        <!-- ปุ่มยืนยัน/ล้าง -->
-        <div class="flex gap-2">
-          <button
-            @click="clearBrand"
-            class="itbms-brand-filter-clear flex-1 px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 transition"
-          >
-            ❌ ล้างแบรนด์
-          </button>
-        </div>
-      </section>
-
-      <!-- 🔁 Sorting -->
-      <section class="space-y-2 w-64">
-        <h2 class="font-semibold text-lg">จัดเรียงสินค้า</h2>
-        <div class="flex gap-3 flex-wrap">
-          <button
-            @click="sortAsc"
-            class="itbms-brand-asc flex items-center gap-2 px-4 py-2 border border-gray-300 rounded hover:bg-blue-100 transition"
-          >
-            ⬆️ น้อย → มาก
-          </button>
-          <button
-            @click="sortDesc"
-            class="itbms-brand-desc flex items-center gap-2 px-4 py-2 border border-gray-300 rounded hover:bg-blue-100 transition"
-          >
-            ⬇️ มาก → น้อย
-          </button>
-          <button
-            @click="resetSort"
-            class="itbms-brand-none flex items-center gap-2 px-4 py-2 border border-gray-300 rounded hover:bg-red-100 transition"
-          >
-            ♻️ ล้างการจัดเรียง
-          </button>
-        </div>
-      </section>
-
-      <!-- 📄 Page Size -->
-      <section class="space-y-2 w-48">
-        <label for="size" class="font-medium mr-2">จำนวนรายการต่อหน้า:</label>
-        <select
-          id="size"
-          v-model="size"
-          @change="setSize(size)"
-          class="itbms-page-size border border-gray-300 rounded px-3 py-1 focus:ring-blue-400 focus:ring-2"
-        >
-          <option :value="5">5</option>
-          <option :value="10">10</option>
-          <option :value="20">20</option>
-          <option :value="50">50</option>
-        </select>
-      </section>
     </div>
-    <div></div>
-
+    <br><br><br><br>
+    <!-- Pagination Section -->
     <div v-show="showPagination && totalPage > 1" class="Pagination">
-      <!-- ⏩ Pagination -->
-      <section>
-        <div class="flex flex-wrap gap-2 items-center">
-          <button
-            @click="goToPage(1)"
-            :disabled="page === 1"
-            class="itbms-page-first px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
-          >
-            ⏮ First
+      <div class="flex justify-center">
+        <div class="flex gap-1 items-center bg-white rounded-lg shadow-sm border p-2">
+          <button @click="goToPage(1)" :disabled="page === 1"
+            class="itbms-page-first px-3 py-2 rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition">
+            First
           </button>
-          <button
-            @click="goToPage(Math.max(1, page - 1))"
-            :disabled="page === 1"
-            class="itbms-page-prev px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
-          >
-            ◀ Prev
+          <button @click="goToPage(Math.max(1, page - 1))" :disabled="page === 1"
+            class="itbms-page-prev px-3 py-2 rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition">
+            Prev
           </button>
 
           <template v-for="(p, index) in totalPage" :key="p">
-            <button
-              @click="goToPage(p)"
-              :class="[
-                `itbms-page-${index}`,
-                'px-3 py-1 rounded transition',
-                page === p
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 hover:bg-gray-200',
-              ]"
-            >
+            <button @click="goToPage(p)" :class="[
+              `itbms-page-${index}`,
+              'px-3 py-2 rounded transition min-w-10',
+              page === p
+                ? 'bg-gray-800 text-white'
+                : 'text-gray-600 hover:bg-gray-100',
+            ]">
               {{ p }}
             </button>
           </template>
 
-          <button
-            @click="goToPage(Math.min(totalPage, page + 1))"
-            :disabled="page === totalPage"
-            class="itbms-page-next px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
-          >
-            Next ▶
+          <button @click="goToPage(Math.min(totalPage, page + 1))" :disabled="page === totalPage"
+            class="itbms-page-next px-3 py-2 rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition">
+            Next
           </button>
-          <button
-            @click="goToPage(totalPage)"
-            :disabled="page === totalPage"
-            class="itbms-page-last px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
-          >
-            Last ⏭
+          <button @click="goToPage(totalPage)" :disabled="page === totalPage"
+            class="itbms-page-last px-3 py-2 rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition">
+            Last
           </button>
         </div>
-      </section>
+      </div>
     </div>
   </div>
 </template>

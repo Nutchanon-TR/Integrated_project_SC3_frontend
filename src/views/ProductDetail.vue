@@ -19,14 +19,17 @@ const confirmDeleteProduct = async () => {
   try {
     await deleteUserById(`${VITE_ROOT_API_URL}/itb-mshop/v1/sale-items`, pendingDeleteId.value);
     alertStore.setMessage('The sale item has been deleted.');
+    sessionStorage.setItem('item-just-deleted', 'true');
     router.push('/sale-items');
   } catch (error) {
     if (error.status === 404) {
       alertStore.setMessage('The requested sale item does not exist.', 'error')
+      sessionStorage.setItem('item-just-deleted', 'true');
       router.push('/sale-items');
     } else {
       alertStore.setMessage('The requested sale item does not exist.', 'error')
-      router.push('/sale-items');
+    sessionStorage.setItem('item-just-deleted', 'true');
+    router.push('/sale-items');
     }
   } finally {
     showDeleteModal.value = false;
@@ -94,9 +97,9 @@ const incrementQuantity = () => {
 
 <template>
   <!-- Loading Spinner -->
-    <div v-if="loading" class="flex items-center justify-center min-h-[60vh]">
-      <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
-    </div>
+  <div v-if="loading" class="flex items-center justify-center min-h-[60vh]">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
+  </div>
 
 
   <!-- 404 Error Page -->
@@ -309,7 +312,7 @@ const incrementQuantity = () => {
     </div>
   </div>
 
-    <!-- Delete Confirmation Modal -->
+  <!-- Delete Confirmation Modal -->
   <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
     <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
       <h2 class="text-lg font-semibold text-gray-800 mb-4">ยืนยันการลบ</h2>
@@ -323,10 +326,10 @@ const incrementQuantity = () => {
     </div>
   </div>
 
-    <!-- Alert Message -->
+  <!-- Alert Message -->
   <div v-if="alertStore.message" :class="`itbms-message px-4 py-2 rounded mb-4 ${alertStore.type === 'error'
-      ? 'bg-red-100 text-red-700'
-      : 'bg-green-100 text-green-700'
+    ? 'bg-red-100 text-red-700'
+    : 'bg-green-100 text-green-700'
     }`">
     {{ alertStore.message }}
   </div>

@@ -239,6 +239,19 @@ const validationProductForm = () => {
  
   isSaving.value = isValid;
 };
+// const isFormValid = computed(() => {
+//   return (
+//     product.brand.id !== null &&
+//     product.brand.name.trim() !== "" &&
+//     product.model.trim() !== "" &&
+//     product.price !== null &&
+//     product.price >= 0 &&
+//     product.quantity !== null &&
+//     product.quantity >= 0 &&
+//     product.description.trim() !== ""
+//   );
+// });
+
 const isFormValid = computed(() => {
   return (
     product.brand.id !== null &&
@@ -246,6 +259,7 @@ const isFormValid = computed(() => {
     product.model.trim() !== "" &&
     product.price >= 0 &&
     product.quantity >= 0 &&
+
     // product.ramGb > 0 &&
     // product.storageGb > 0 &&
     product.description.trim() !== ""
