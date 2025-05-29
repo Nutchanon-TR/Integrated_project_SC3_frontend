@@ -14,14 +14,14 @@ import BlogProductCreateAndEdit from "./../components/BlogProductCreateAndEdit.v
 import BrandDropdown from "./BrandDropdown.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAlertStore } from "../stores/alertStore.js";
-
+ 
 const VITE_ROOT_API_URL = import.meta.env.VITE_ROOT_API_URL;
-
+ 
 const boxTextTailwind =
   "w-full p-3 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white shadow-sm transition-all duration-200";
 const boxTextTailwindError =
   "w-full p-3 border-2 border-red-400 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none bg-white shadow-sm transition-all duration-200";
-
+ 
 const brandError = ref(false);
 const boxTextTailwindModel = ref(boxTextTailwind);
 const boxTextTailwindPrice = ref(boxTextTailwind);
@@ -31,19 +31,19 @@ const boxTextTailwindRamGB = ref(boxTextTailwind);
 const boxTextTailwindStorageGB = ref(boxTextTailwind)
 const boxTextTailwindColor = ref(boxTextTailwind)
 const boxTextTailwindScreenSizeInch = ref(boxTextTailwind)
-
-
+ 
+ 
 const reloadData = ref(0);
 const isSaving = ref(true);
 const route = useRoute();
 const router = useRouter();
 const alertStore = useAlertStore();
-
+ 
 const prop = defineProps({
   mode: String,
   productId: [String, Number],
 });
-
+ 
 const product = reactive({
   id: null,
   model: "",
@@ -56,9 +56,9 @@ const product = reactive({
   storageGb: null,
   color: "",
 });
-
+ 
 const originalProduct = reactive({});
-
+ 
 onBeforeMount(async () => {
   if (prop.mode === "Edit") {
     try {
@@ -81,7 +81,7 @@ onBeforeMount(async () => {
       product.quantity = data.quantity;
       product.storageGb = data.storageGb;
       product.color = data.color;
-
+ 
       await getBrandIdByName(data.brandName);
       Object.assign(originalProduct, JSON.parse(JSON.stringify(product)));
     } catch (error) {
@@ -89,7 +89,7 @@ onBeforeMount(async () => {
     }
   }
 });
-
+ 
 const getBrandIdByName = async (brandName) => {
   const data = await getAllData(`${VITE_ROOT_API_URL}/itb-mshop/v1/brands`);
   const brand = data.find((b) => b.name === brandName);
@@ -99,24 +99,19 @@ const getBrandIdByName = async (brandName) => {
     console.error("Brand not found");
   }
 };
-
+ 
 const handleBrandId = (id) => (product.brand.id = id);
 const handleBrandName = (name) => (product.brand.name = name);
-
+ 
 const trimField = (field) => {
   if (typeof product[field] === "string")
     product[field] = product[field].trim();
 };
-
+ 
 const defaultQuantity = () => {
   if (!Number(product.quantity) || product.quantity <= 0) product.quantity = 1;
 };
 
-// const checkNull = (input) =>{
-//     if(){
-
-//     }
-// }
 // ตรวจสอบว่า product ถูกเปลี่ยนแปลงหรือไม่ (ใช้สำหรับ Edit mode)
 const compareProduct = (a, b) => {
   if (a === b) return true;
@@ -127,37 +122,35 @@ const compareProduct = (a, b) => {
     b === null
   )
     return false;
-
+ 
   const keysA = Object.keys(a);
   const keysB = Object.keys(b);
   if (keysA.length !== keysB.length) return false;
-
+ 
   return keysA.every((key) => compareProduct(a[key], b[key]));
 };
-
+ 
 const isProductChanged = computed(
   () => !compareProduct(product, originalProduct)
 );
-
+ 
 const maxLength = {
   model:60,
   description:65535,
   color:40
 }
 watch(product ,()=>{
-  
+ 
   validationProductForm();
-
+ 
 },
 { deep: true }
 )
-
-
+ 
 const checkDecimal = (num) =>{
   return !(Math.floor(num * 100) === num *100)
 }
-
-
+ 
 // const checkRam = computed(() =>{
 //   const RAM = product.ramGb
 //   if(RAM === null || RAM === undefined|| String(RAM).trim() === ""){
@@ -165,12 +158,11 @@ const checkDecimal = (num) =>{
 //   }
 //   return typeof RAM === 'number' && RAM > 0 && Number.isInteger(RAM)
 // })
-
+ 
 const validationProductForm = () => {
-
-
+ 
   let isValid = true;
-
+ 
  
   if (!product.model || (product.model?.length ?? 0) > maxLength.model ) {
     boxTextTailwindModel.value = boxTextTailwindError;
@@ -178,7 +170,7 @@ const validationProductForm = () => {
   } else {
     boxTextTailwindModel.value = boxTextTailwind;
   }
-
+ 
   // Price
   if (product.price < 0) {
     boxTextTailwindPrice.value = boxTextTailwindError;
@@ -186,7 +178,7 @@ const validationProductForm = () => {
   } else {
     boxTextTailwindPrice.value = boxTextTailwind;
   }
-
+ 
   // RAM
   if (typeof product.ramGb === 'number' && product.ramGb <= 0) {
     boxTextTailwindRamGB.value = boxTextTailwindError;
@@ -195,16 +187,16 @@ const validationProductForm = () => {
     boxTextTailwindRamGB.value = boxTextTailwind;
     }
 
+
   // Storage
-  if 
-  (typeof product.storageGb === 'number' && product.storageGb <= 0) {
+  if (typeof product.storageGb === 'number' && product.storageGb <= 0) {
     boxTextTailwindStorageGB.value = boxTextTailwindError;
     console.log(typeof product.storageGb)
     isValid = false;
   } else {
     boxTextTailwindStorageGB.value = boxTextTailwind;
   }
-
+ 
   // Description
   if (!product.description || product.description.length > maxLength.description) {
     boxTextTailwindDesc.value = boxTextTailwindError;
@@ -212,7 +204,7 @@ const validationProductForm = () => {
   } else {
     boxTextTailwindDesc.value = boxTextTailwind;
   }
-
+ 
   // Quantity
   if (product.quantity === null || product.quantity < 0) {
     boxTextTailwindQuantity.value = boxTextTailwindError;
@@ -220,7 +212,7 @@ const validationProductForm = () => {
   } else {
     boxTextTailwindQuantity.value = boxTextTailwind;
   }
-
+ 
   // Color
   if ((product.color?.length ?? 0) > maxLength.color) {
     boxTextTailwindColor.value = boxTextTailwindError;
@@ -228,7 +220,7 @@ const validationProductForm = () => {
   } else {
     boxTextTailwindColor.value = boxTextTailwind;
   }
-
+ 
   // Screen Size
   if ((typeof product.screenSizeInch === 'number' && product.screenSizeInch <= 0 )|| checkDecimal(product.screenSizeInch)) {
     boxTextTailwindScreenSizeInch.value = boxTextTailwindError;
@@ -236,7 +228,7 @@ const validationProductForm = () => {
   } else{
     boxTextTailwindScreenSizeInch.value = boxTextTailwind;
   }
-
+ 
   // Brand
   if (!product.brand.id || !product.brand.name) {
     brandError.value = true;
@@ -244,7 +236,7 @@ const validationProductForm = () => {
   } else {
     brandError.value = false;
   }
-
+ 
   isSaving.value = isValid;
 };
 // const isFormValid = computed(() => {
@@ -275,7 +267,7 @@ const isFormValid = computed(() => {
     // product.storageGb === null
   );
 });
-
+ 
 const normalizeEmptyStringsToNull = (obj) => {
   for (const key in obj) {
     if (typeof obj[key] === "string" && obj[key].trim() === "") {
@@ -285,17 +277,17 @@ const normalizeEmptyStringsToNull = (obj) => {
     }
   }
 };
-
+ 
 const saveProduct = async () => {
   isSaving.value = false;
-
+ 
   // reset styles
   boxTextTailwindModel.value = boxTextTailwind;
   boxTextTailwindPrice.value = boxTextTailwind;
   boxTextTailwindQuantity.value = boxTextTailwind;
   boxTextTailwindDesc.value = boxTextTailwind;
   brandError.value = false;
-
+ 
   // Validate fields
   if (!product.brand.id || !product.brand.name) brandError.value = true;
   if (!product.model) boxTextTailwindModel.value = boxTextTailwindError;
@@ -304,15 +296,13 @@ const saveProduct = async () => {
   if (!product.quantity || product.quantity < 0)
     boxTextTailwindQuantity.value = boxTextTailwindError;
   if (!product.description) boxTextTailwindDesc.value = boxTextTailwindError;
-
-
   if (!isFormValid.value) {
     isSaving.value = true;
     return;
   }
-
+ 
   normalizeEmptyStringsToNull(product);
-
+ 
   try {
     if (product.id) {
       await updateData(
@@ -346,10 +336,10 @@ const saveProduct = async () => {
     sessionStorage.setItem('product-updated', Date.now().toString());
   }
 };
-
+ 
 const setSessionStorage = () => {
   const raw = sessionStorage.getItem("product-page-settings");
-
+ 
   if (raw) {
     const settings = JSON.parse(raw);
     settings.page = 0;
@@ -360,7 +350,7 @@ const setSessionStorage = () => {
   }
 };
 </script>
-
+ 
 <template>
   <div class="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4 sm:px-6">
     <div class="max-w-3xl mx-auto">
@@ -381,7 +371,7 @@ const setSessionStorage = () => {
           </span>
         </div>
       </div>
-
+ 
       <!-- Main Form Card -->
       <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-blue-200">
         <!-- Card Header -->
@@ -393,7 +383,7 @@ const setSessionStorage = () => {
             Phone Specifications
           </h2>
         </div>
-
+ 
         <!-- Form Content -->
         <div class="p-6">
           <div class="space-y-6">
@@ -422,7 +412,7 @@ const setSessionStorage = () => {
                 </div>
               </div>
             </div>
-
+ 
             <!-- Main Form Fields -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Left Column -->
@@ -451,9 +441,9 @@ const setSessionStorage = () => {
                   <!-- <p v-else-if="boxTextTailwindModel === boxTextTailwindError" class="itbms-message mt-1 text-sm text-red-500">
                     Model name is required
                   </p> -->
-
+ 
                 </div>
-
+ 
                 <!-- Price -->
                 <div>
                   <label class="block font-medium text-gray-700 mb-1 flex items-center">
@@ -475,13 +465,12 @@ const setSessionStorage = () => {
                       placeholder="e.g. 29900"
                     />
                   </div>
-
                     <p v-show="product.price < 0" class="itbms-message mt-1 text-sm text-red-500">
                     Price must be non-negative integer.
                   </p>
-
+ 
                 </div>
-
+ 
                 <!-- RAM -->
                 <div>
                   <label class="block font-medium text-gray-700 mb-1 flex items-center">
@@ -501,7 +490,7 @@ const setSessionStorage = () => {
                       RAM size must be positive integer or not specified.
                   </p>
                 </div>
-
+ 
                 <!-- Storage -->
                 <div>
                   <label class="block font-medium text-gray-700 mb-1 flex items-center">
@@ -521,7 +510,7 @@ const setSessionStorage = () => {
                   </p>
                 </div>
               </div>
-
+ 
               <!-- Right Column -->
               <div class="space-y-6">
                 <!-- Screen Size -->
@@ -541,14 +530,14 @@ const setSessionStorage = () => {
                     :class="`itbms-screenSizeInch ${boxTextTailwindScreenSizeInch}`"
                     placeholder="e.g. 6.1"
                   />
-
+ 
                    <p v-show="boxTextTailwindScreenSizeInch === boxTextTailwindError" class="itbms-message mt-1 text-sm text-red-500">
-                    Screen size must be positive number with at most 2 decimal points or not specified. 
+                    Screen size must be positive number with at most 2 decimal points or not specified.
                   </p>
-                  
-
+                 
+ 
                 </div>
-
+ 
                 <!-- Color -->
                 <div>
                   <label class="block font-medium text-gray-700 mb-1 flex items-center">
@@ -570,9 +559,9 @@ const setSessionStorage = () => {
                   <p v-show="(product.color?.length ?? 0) > maxLength.color" class="itbms-message mt-1 text-sm text-red-500">
                     Color must be 1-40 characters long or not specified.
                   </p>
-                  
+                 
                 </div>
-
+ 
                 <!-- Quantity -->
                 <div>
                   <label class="block font-medium text-gray-700 mb-1 flex items-center">
@@ -589,7 +578,7 @@ const setSessionStorage = () => {
                     v-model.number="product.quantity"
                     @blur=""
                     @focus="product.quantity = null"
-
+ 
                     :class="`itbms-quantity ${boxTextTailwindQuantity}`"
                     placeholder="e.g. 10"
                   />
@@ -599,7 +588,7 @@ const setSessionStorage = () => {
                 </div>
               </div>
             </div>
-
+ 
             <!-- Description (Full Width) -->
             <div>
               <label class="block font-medium text-gray-700 mb-1 flex items-center">
@@ -626,7 +615,7 @@ const setSessionStorage = () => {
               </p>
             </div>
           </div>
-
+ 
           <!-- Action Buttons -->
           <div class="mt-8 flex flex-col sm:flex-row sm:justify-end gap-4">
             <button
@@ -640,7 +629,7 @@ const setSessionStorage = () => {
               </svg>
               Cancel
             </button>
-            
+           
             <button
               type="submit"
               class="itbms-save-button order-1 sm:order-2 flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-medium rounded-lg shadow-sm hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -651,16 +640,7 @@ const setSessionStorage = () => {
               "
               @click="saveProduct"
             >
-              <svg v-if="!isSaving" class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                <polyline points="7 3 7 8 15 8"></polyline>
-              </svg>
-              {{ isSaving ? "Save" : "Saving..." }}
+              Save
             </button>
           </div>
         </div>
@@ -668,7 +648,6 @@ const setSessionStorage = () => {
     </div>
   </div>
 </template>
-
+ 
 <style scoped>
-
 </style>
