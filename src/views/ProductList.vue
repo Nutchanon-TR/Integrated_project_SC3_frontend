@@ -200,57 +200,50 @@ const handleUserInteraction = async (newSettings) => {
 </script>
 
 <template>
-  <div class="flex items-center justify-between gap-4 mx-[225px] mt-[50px]">
+  <div class="flex flex-col gap-4 mx-[225px] mt-[50px]">
     <!-- Alert Message -->
-    <div v-if="alertStore.message" :class="`itbms-message px-4 py-2 rounded mb-4 ${alertStore.type === 'error'
-      ? 'bg-red-100 text-red-700'
-      : 'bg-green-100 text-green-700'
+    <div v-if="alertStore.message">
+      <div :class="`itbms-message px-4 py-2 rounded ${alertStore.type === 'error'
+        ? 'bg-red-100 text-red-700'
+        : 'bg-green-100 text-green-700'
       }`">
-      {{ alertStore.message }}
+        {{ alertStore.message }}
+      </div>
     </div>
-    <RouterLink :to="{ name: 'ProuctCreate' }"
-      class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-m font-medium px-5 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-      </svg>
-      <span class="itbms-sale-item-add tracking-wide">New Product</span>
-    </RouterLink>
 
-    <RouterLink :to="{ name: 'ProductManage' }"
-      class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-m font-medium px-5 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-      </svg>
-      <span class="itbms-manage-brand tracking-wide">Manage Sale Items</span>
-    </RouterLink>
+    <!-- Action Buttons -->
+    <div class="flex items-center justify-between gap-4">
+      <RouterLink :to="{ name: 'ProuctCreate' }"
+        class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-m font-medium px-5 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        <span class="itbms-sale-item-add tracking-wide">New Product</span>
+      </RouterLink>
+
+      <RouterLink :to="{ name: 'ProductManage' }"
+        class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-m font-medium px-5 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        <span class="itbms-manage-brand tracking-wide">Manage Sale Items</span>
+      </RouterLink>
+    </div>
+
+    <!-- Pagination & Filter -->
+    <Pagination
+      @urlSetting="handleUserInteraction"
+      :productTotalPages="productTotalPages"
+      :initialPage="savedSettings?.page !== undefined ? Number(savedSettings.page) + 1 : 1"
+      :initialSize="savedSettings?.size !== undefined ? Number(savedSettings.size) : 10"
+      :initialFilterBrands="savedSettings?.filterBrands || ''"
+      :initialSortField="savedSettings?.sortField || ''"
+      :initialSortDirection="savedSettings?.sortDirection || ''"
+      :showFilter="true"
+      :show-pagination="true"
+    />
+
+    <!-- Gallery -->
+    <SelectAllSaleItemGallery v-if="product?.content" :product="product.content" />
   </div>
-<!-- 
-  <Pagination @urlSetting="handleUserInteraction" :productTotalPages="productTotalPages"
-    :initialPage="savedSettings?.page !== undefined ? Number(savedSettings.page) + 1 : 1"
-    :initialSize="savedSettings?.size !== undefined ? Number(savedSettings.size) : 10"
-    :initialFilterBrands="savedSettings?.filterBrands || ''" :initialSortField="savedSettings?.sortField || ''"
-    :initialSortDirection="savedSettings?.sortDirection || ''" :showFilter="true" :show-pagination="false" /> -->
-
-        <Pagination
-  @urlSetting="handleUserInteraction"
-  :productTotalPages="productTotalPages"
-  :initialPage="savedSettings?.page !== undefined ? Number(savedSettings.page) + 1 : 1"
-  :initialSize="savedSettings?.size !== undefined ? Number(savedSettings.size) : 10"
-  :initialFilterBrands="savedSettings?.filterBrands || ''"
-  :initialSortField="savedSettings?.sortField || ''"
-  :initialSortDirection="savedSettings?.sortDirection || ''"
-  :showFilter="true"
-  :show-pagination="true" />
-
-  <SelectAllSaleItemGallery v-if="product?.content" :product="product.content" />
-
-  <!-- <Pagination @urlSetting="handleUserInteraction" 
-  :productTotalPages="productTotalPages"
-    :initialPage="savedSettings?.page !== undefined ? Number(savedSettings.page) + 1 : 1"
-    :initialSize="savedSettings?.size !== undefined ? Number(savedSettings.size) : 10"
-    :initialFilterBrands="savedSettings?.filterBrands || ''" :initialSortField="savedSettings?.sortField || ''"
-    :initialSortDirection="savedSettings?.sortDirection || ''" :showFilter="false" :show-pagination="true" /> -->
-
-
-
 </template>
