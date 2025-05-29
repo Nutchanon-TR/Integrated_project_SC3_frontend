@@ -497,7 +497,7 @@ const handleSave = async () => {
               @click="handleSave"
               :disabled="
                 !isSaving ||
-                !isFormValid ||
+                !isFormValid || 
                 (prop.mode === 'edit' && !isBrandChanged)
               "
               type="submit"
