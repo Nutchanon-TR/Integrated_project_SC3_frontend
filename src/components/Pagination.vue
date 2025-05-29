@@ -42,23 +42,6 @@ const selected = ref(null);
 const dropdownOpen = ref(false);
 const dropdownRef = ref(null);
 
-// Initialize selectedBrandList from filterBrands
-onMounted(() => {
-  if (filterBrands.value) {
-    selectedBrandList.value = filterBrands.value
-      .split(",")
-      .filter((brand) => brand.trim() !== "");
-  }
-
-  // Load saved pagination size from sessionStorage
-  const savedSize = sessionStorage.getItem("pagination-size");
-  if (savedSize && !props.initialSize) {
-    size.value = parseInt(savedSize, 10);
-  }
-
-  document.addEventListener("click", handleClickOutside);
-});
-
 onBeforeUnmount(() => {
   document.removeEventListener("click", handleClickOutside);
 });
@@ -228,16 +211,53 @@ const toggleDropdown = (event) => {
   dropdownOpen.value = !dropdownOpen.value;
 };
 
+const handlePostDelete = () => {
+  const wasDeleted = sessionStorage.getItem('item-just-deleted');
+  if (wasDeleted === 'true') {
+    // เคลียร์ flag
+    sessionStorage.removeItem('item-just-deleted');
+    // ใช้ setTimeout เพื่อรอให้ข้อมูลโหลดเสร็จก่อน
+    setTimeout(() => {
+      if (page.value > 1 && page.value > totalPage.value) {
+        console.log('Current page is empty after delete, going to previous page');
+        page.value = totalPage.value || 1;
+        itbmPage.value = (totalPage.value || 1) - 1;
+        emitUrlSetting();
+      } else {
+        console.log('Current page still has data, staying here');
+        emitUrlSetting();
+      }
+    }, 200);
+  }
+};
+
 onMounted(async () => {
+  // เช็คการลบหลังจากโหลดข้อมูลเสร็จ
+  handlePostDelete();
+
+  // โค้ดเดิม...
+  if (filterBrands.value) {
+    selectedBrandList.value = filterBrands.value
+      .split(",")
+      .filter((brand) => brand.trim() !== "");
+  }
+
+  const savedSize = sessionStorage.getItem("pagination-size");
+  if (savedSize && !props.initialSize) {
+    size.value = parseInt(savedSize, 10);
+  }
+
+  document.addEventListener("click", handleClickOutside);
+
   try {
     const data = await getAllData(`${URL}/itb-mshop/v1/brands`);
     options.value = data.sort((a, b) => a.name.localeCompare(b.name));
   } catch (error) {
     console.error("โหลดแบรนด์ล้มเหลว:", error.message);
-  } finally {
-    // isLoadingBrands.value = false;
   }
 });
+
+
 
 </script>
 
@@ -275,7 +295,7 @@ onMounted(async () => {
                 class="flex items-center bg-blue-50 border border-blue-300 rounded-full px-3 py-1 text-sm text-blue-800 shadow-sm">
                 {{ brand }}
                 <button @click="removeBrand(i)"
-                  class="ml-2 text-blue-600 hover:text-blue-800 focus:outline-none font-bold" aria-label="ลบแบรนด์">
+                  class="itbms-filter-item-clear ml-2 text-blue-600 hover:text-blue-800 focus:outline-none font-bold" aria-label="ลบแบรนด์">
                   ×
                 </button>
               </span>
